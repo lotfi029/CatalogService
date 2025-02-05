@@ -1,9 +1,15 @@
-﻿using Infrastructure.Identity;
+﻿using Application.Features.Auth;
+using Courses.Business.Authentication;
+using Infrastructure.Identity;
+using Infrastructure.Identity.Authentication;
 using Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Infrastructure;
 public static class DependencyInjection
@@ -12,7 +18,9 @@ public static class DependencyInjection
     {
         builder.Services.AddDbConfiguration(builder.Configuration);
 
-        builder.Services.AddIdentityConfiguration();
+        builder.Services.AddIdentityConfiguration(builder.Configuration);
+
+        builder.Services.RegisterServicesToDI();
     }
     public static IServiceCollection AddDbConfiguration(this IServiceCollection services, IConfigurationManager configuration)
     {
@@ -25,18 +33,11 @@ public static class DependencyInjection
 
         return services;
     }
-    private static IServiceCollection AddIdentityConfiguration(this IServiceCollection services) 
+    private static IServiceCollection AddIdentityConfiguration(this IServiceCollection services, IConfigurationManager configuration) 
     {
         services.AddIdentity<ApplicationUser, ApplicationRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
-        
-        //services.AddIdentityCore<ApplicationUser>()
-        //    .AddRoles<ApplicationRole>() 
-        //    .AddEntityFrameworkStores<ApplicationDbContext>() 
-        //    .AddRoleManager<RoleManager<ApplicationRole>>() 
-        //    .AddUserManager<UserManager<ApplicationUser>>() 
-        //    .AddSignInManager<SignInManager<ApplicationUser>>()
-        //    .AddDefaultTokenProviders();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
         services.Configure<IdentityOptions>(options =>
         {
@@ -47,15 +48,34 @@ public static class DependencyInjection
             options.User.RequireUniqueEmail = true;
         });
 
+        var jwtSettings = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 
-        //services.AddAuthentication(options =>
-        //{
-        //    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-        //    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-        //    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-        //});
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+                ValidIssuer = jwtSettings!.Issuer,
+                ValidAudience = jwtSettings.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings!.Key))
+            };
+        });
+        services.AddAuthorization();
+        services.AddSingleton<IJwtProvider, JwtProvider>();
 
         return services;
     }
-    
+    private static IServiceCollection RegisterServicesToDI(this IServiceCollection services)
+    {
+        services.AddScoped<IAuthService, AuthService>();
+        return services;
+    }
 }

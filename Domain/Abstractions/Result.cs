@@ -1,4 +1,6 @@
-﻿namespace Domain.Abstractions;
+﻿using System.ComponentModel;
+
+namespace Domain.Abstractions;
 public class Result
 {
     public Result(bool isSuccess, Error error)
@@ -19,16 +21,16 @@ public class Result
         new(true, Error.None);
     public static Result Failure(Error error)
         => new(false, error);
+    public static Result<TValue> Success<TValue>(TValue value) =>
+    new(value, true, Error.None);
+
+    public static Result<TValue> Failure<TValue>(Error error)
+        => new(default, false, error);
 }
 public class Result<TValue>(TValue? value, bool isSuccess, Error error) : Result(isSuccess, error)
 {
     private readonly TValue? _value = value;
 
-    public static Result<TValue> Success(TValue value) => 
-        new(value, true, Error.None);
-
-    public new static Result<TValue> Failure(Error error)
-        => new(default, false, error);
     public TValue? Value => IsSuccess
         ? _value
         : throw new InvalidOperationException("Cannot access value in a failure state");
