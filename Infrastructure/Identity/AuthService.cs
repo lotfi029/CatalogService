@@ -1,16 +1,9 @@
-﻿using Application.Errors;
-using Application.Features.Auth;
+﻿using Application.Features.Auth;
 using Application.Features.Auth.Contracts;
-using Domain.Abstractions;
-using Infrastructure.Abstractions.Constants;
 using Infrastructure.Identity.Authentication;
-using Infrastructure.Persistence;
-using Mapster;
-
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
@@ -20,12 +13,14 @@ public class AuthService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     ApplicationDbContext context,
-    IJwtProvider jwtProvider) : IAuthService
+    IJwtProvider jwtProvider,
+    ILogger<AuthService> logger) : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
     private readonly ApplicationDbContext _context = context;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
+    private readonly ILogger<AuthService> _logger = logger;
     private readonly int _refreshTokenExpiryDays = 14;
     public Task<Result> ExpireTokenAsync()
     {
@@ -43,58 +38,13 @@ public class AuthService(
         if (!result.Succeeded)
         {
             var error = result.Errors.First();
-            return new Error(error.Code, error.Description, StatusCodes.Status409Conflict);
+            return Error.BadRequest(error.Code, error.Description);
         }
 
         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
         //Log.Information(code);
-
-        return Result.Success();
-    }
-    public async Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request)
-    {
-        if (await _userManager.FindByIdAsync(request.UserId) is not { } user)
-            return AuthenticationErrors.InvalidCode;
-
-        var code = request.Code;
-        IdentityResult result;
-        try
-        {
-            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            result = await _userManager.ConfirmEmailAsync(user, code);
-        }
-        catch (FormatException)
-        {
-            result = IdentityResult.Failed(_userManager.ErrorDescriber.InvalidToken());
-        }
-
-
-        if (!result.Succeeded)
-        {
-            var error = result.Errors.First();
-            return new Error(error.Code, error.Description, StatusCodes.Status400BadRequest);
-        }
-
-        await _userManager.AddToRoleAsync(user, DefaultRoles.NormalUser.Name);
-
-        return Result.Success();
-    }
-    public async Task<Result> ReConfirmEmailAsync(ResendConfirmEmailRequest request)
-    {
-
-        if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
-            return Result.Success();
-
-        if (user.EmailConfirmed)
-            return AuthenticationErrors.EmailConfirmed;
-
-        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-        //Log.Information(code);
-
+        _logger.LogInformation(code);
 
         return Result.Success();
     }
@@ -103,7 +53,7 @@ public class AuthService(
         var user = new EmailAddressAttribute().IsValid(request.Email)
             ? await _userManager.FindByEmailAsync(request.Email)
             : await _userManager.FindByNameAsync(request.Email);
-        
+
         if (user is null)
             return Result.Failure<AuthenticationResponse>(AuthenticationErrors.InvalidCredinitails);
 
@@ -126,23 +76,20 @@ public class AuthService(
 
         var accessToken = await GetTokenAsync(user);
         var refreshToken = GenerateRefreshToken();
-        var refreshTokenExpiresOn = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
         user.RefreshTokens.Add(new RefreshToken
         {
-            ExpiresOn = refreshTokenExpiresOn,
-            Token = refreshToken,
+            ExpiresOn = refreshToken.Expiration,
+            Token = refreshToken.Token,
             CreateOn = DateTime.UtcNow
         });
 
         await _userManager.UpdateAsync(user);
 
-        var respone = new AuthenticationResponse(accessToken.AccessToken, accessToken.ExpiresIn, accessToken.TokenType);
+        var response = MapToAuthResponse(accessToken, refreshToken, user);
 
-        return Result.Success(respone);
+        return Result.Success(response);
     }
-
-    
     public async Task<Result<AuthenticationResponse>> GetRefreshTokenAsync(
         RefreshTokenRequest request,
         CancellationToken cancellationToken
@@ -173,25 +120,70 @@ public class AuthService(
         var accessToken = await GetTokenAsync(user);
         var newRefreshToken = GenerateRefreshToken();
 
-        var refreshTokenExpiresOn = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
         user.RefreshTokens.Add(new RefreshToken
         {
-            ExpiresOn = refreshTokenExpiresOn,
-            Token = newRefreshToken,
+            ExpiresOn = newRefreshToken.Expiration,
+            Token = newRefreshToken.Token,
             CreateOn = DateTime.UtcNow
         });
 
         await _userManager.UpdateAsync(user);
 
-        var respone = new AuthenticationResponse(
-            accessToken.AccessToken,
-            accessToken.ExpiresIn,
-            ""
-            );
+        var response = MapToAuthResponse(accessToken, newRefreshToken, user);
 
-        return Result.Success(respone);
+        return Result.Success(response);
     }
+
+    
+
+    public async Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request)
+    {
+        if (await _userManager.FindByIdAsync(request.UserId) is not { } user)
+            return AuthenticationErrors.InvalidCode;
+
+        var code = request.Code;
+        IdentityResult result;
+        try
+        {
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            result = await _userManager.ConfirmEmailAsync(user, code);
+        }
+        catch (FormatException)
+        {
+            result = IdentityResult.Failed(_userManager.ErrorDescriber.InvalidToken());
+        }
+
+        if (!result.Succeeded)
+        {
+            var error = result.Errors.First();
+            return Error.BadRequest(error.Code, error.Description);
+        }
+
+        await _userManager.AddToRoleAsync(user, DefaultRoles.NormalUser.Name);
+
+        return Result.Success();
+    }
+    public async Task<Result> ReConfirmEmailAsync(ResendConfirmEmailRequest request)
+    {
+
+        if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
+            return Result.Success();
+
+        if (user.EmailConfirmed)
+            return AuthenticationErrors.DuplicatedEmailConfirmed;
+
+        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+        //Log.Information(code);
+
+        _logger.LogInformation("userId: {userid}, code: {code}", user.Id, code);
+
+        return Result.Success();
+    }
+    
     public async Task<Result> RevokeAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
         var userId = _jwtProvider.ValidateToken(request.Token);
@@ -214,9 +206,9 @@ public class AuthService(
 
         return Result.Success();
     }
-    public async Task<Result> SendResetPasswordTokenAsync(string email)
+    public async Task<Result> SendResetPasswordTokenAsync(ForgetPasswordRequest request)
     {
-        if (await _userManager.FindByEmailAsync(email) is not { } user)
+        if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
             return Result.Success();
 
         if (!user.EmailConfirmed)
@@ -227,6 +219,7 @@ public class AuthService(
         token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
         //Log.Information(token);
+        _logger.LogInformation(token);
 
         return Result.Success();
     }
@@ -237,6 +230,9 @@ public class AuthService(
 
         if (!user.EmailConfirmed)
             return Result.Success();
+
+        if (await _userManager.CheckPasswordAsync(user, request.NewPassword))
+            return AuthenticationErrors.InvalidNewPassword;
 
         IdentityResult result;
         try
@@ -254,7 +250,7 @@ public class AuthService(
         {
             var error = result.Errors.First();
 
-            return new Error(error.Code, error.Description, StatusCodes.Status400BadRequest);
+            return Error.BadRequest(error.Code, error.Description);
         }
 
         return Result.Success();
@@ -278,8 +274,13 @@ public class AuthService(
 
         return accessToken;
     }
-    private static string GenerateRefreshToken()
+    private RefreshTokenResponse GenerateRefreshToken()
     {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var expiresOn = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
+
+        return new(token, expiresOn);
     }
+    private static AuthenticationResponse MapToAuthResponse(BearerTokenResponse bearer, RefreshTokenResponse refreshToken, ApplicationUser user)
+        => new(user.Id, user.FirstName, user.LastName, user.Email!, bearer.AccessToken, bearer.ExpiresIn, bearer.TokenType, refreshToken.Token, refreshToken.Expiration);
 }

@@ -15,7 +15,7 @@ public sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvide
         {
             Title = "PPRS API",
             Version = "v1",
-            Description = "API for Personlization Products from cart."
+            Description = "API for Personlization Products Recommendation System."
         };
 
         if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer"))

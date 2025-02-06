@@ -1,7 +1,7 @@
 ﻿using API.OpenApi;
 using Application;
+using Carter;
 using Infrastructure;
-using Microsoft.AspNetCore.OpenApi;
 
 namespace API;
 public static class DependencyInjection
@@ -11,11 +11,12 @@ public static class DependencyInjection
         builder.AddApplicationServices();
         builder.AddInfrastructureServices();
 
+
         builder.Services.AddOpenApi(options =>
         {
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
         });
 
-        
+        builder.Services.AddCarter();
     }
 }

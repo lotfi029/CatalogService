@@ -3,11 +3,11 @@ using Application.Features.Auth.Commands;
 
 namespace Application.Features.Auth.Handlers;
 
-public class RegisterCommandHandler(IAuthService authService) : IRequestHandler<RegisterCommandRequest, Result>
+public class RegisterCommandHandler(IAuthService authService) : IRequestHandler<RegisterCommand, Result>
 {
     private readonly IAuthService _authService = authService;
 
-    public async Task<Result> Handle(RegisterCommandRequest request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         var user = request.Request;
 

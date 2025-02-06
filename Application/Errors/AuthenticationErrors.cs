@@ -1,29 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Application.Errors;
+﻿namespace Application.Errors;
 public class AuthenticationErrors
 {
     public static readonly Error InvalidCredinitails
-        = new(nameof(InvalidCredinitails), "Invalid email or password", StatusCodes.Status401Unauthorized);
+        = Error.UnAutherization(nameof(InvalidCredinitails), "Invalid email or password");
 
     public static readonly Error DuplicatedEmail
-        = new(nameof(DuplicatedEmail), "this email already exists", StatusCodes.Status400BadRequest);
+        = Error.Conflict(nameof(DuplicatedEmail), "this email already exists");
 
     public static readonly Error IsDisableUser
-        = new(nameof(IsDisableUser), "contact your adminstrator", StatusCodes.Status401Unauthorized);
+        = Error.UnAutherization(nameof(IsDisableUser), "contact your adminstrator");
 
     public static readonly Error EmailNotConfirmed
-        = new(nameof(EmailNotConfirmed), "your email is not confirmed", StatusCodes.Status400BadRequest);
+        = Error.Conflict(nameof(EmailNotConfirmed), "your email is not confirmed");
     
-    public static readonly Error EmailConfirmed
-        = new(nameof(EmailConfirmed), "your email is confirmed", StatusCodes.Status400BadRequest);
+    public static readonly Error DuplicatedEmailConfirmed
+        = Error.BadRequest(nameof(DuplicatedEmailConfirmed), "your email is confirmed");
 
     public static readonly Error LockedUser
-        = new(nameof(LockedUser), "you have intered password many times", StatusCodes.Status400BadRequest);
+        = Error.UnAutherization(nameof(LockedUser), "you have intered password many times");
 
     public static readonly Error InvalidCode
-        = new(nameof(InvalidCode), "Invalid code, trye agin", StatusCodes.Status400BadRequest);
+        = Error.Conflict(nameof(InvalidCode), "Invalid code, trye agin");
 
     public static readonly Error InvalidToken
-        = new(nameof(InvalidToken), "invalid token", StatusCodes.Status400BadRequest);
+        = Error.Conflict(nameof(InvalidToken), "invalid token");
+
+    public static readonly Error InvalidNewPassword
+        = Error.Conflict(nameof(InvalidNewPassword), "this password same old password");
 }

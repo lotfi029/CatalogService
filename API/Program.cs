@@ -1,6 +1,8 @@
 using API;
 using Scalar.AspNetCore;
-using API.Endpoints;
+using Carter;
+using System.Dynamic;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,16 +14,18 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    //app.MapOpenApi();
+    app.MapOpenApi();
     app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
+
+//app.UseSerilogRequestLogging();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapAuthenticationEndpoint();
-
+app.MapCarter();
 
 app.Run();

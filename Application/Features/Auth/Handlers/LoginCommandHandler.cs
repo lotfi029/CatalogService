@@ -1,13 +1,12 @@
-﻿using Application.Features.Auth;
-using Application.Features.Auth.Commands;
+﻿using Application.Features.Auth.Commands;
 
 namespace Application.Features.Auth.Handlers;
 
-public sealed class LoginCommandHandler(IAuthService authService) : IRequestHandler<LoginCommandRequest, Result<AuthenticationResponse>>
+public sealed class LoginCommandHandler(IAuthService authService) : IRequestHandler<LoginCommand, Result<AuthenticationResponse>>
 {
     private readonly IAuthService _authService = authService;
 
-    public async Task<Result<AuthenticationResponse>> Handle(LoginCommandRequest command, CancellationToken cancellationToken)
+    public async Task<Result<AuthenticationResponse>> Handle(LoginCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
 
