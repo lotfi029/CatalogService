@@ -1,5 +1,5 @@
-﻿using Infrastructure.Abstractions.Constants;
-using Infrastructure.Identity;
+﻿using Domain.Entities;
+using Infrastructure.Abstractions.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

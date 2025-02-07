@@ -1,7 +1,8 @@
-﻿namespace Infrastructure.Identity;
+﻿namespace Domain.Entities;
 public class RefreshToken
 {
     public string Token { get; set; } = string.Empty;
+
     public DateTime ExpiresOn { get; set; }
     public DateTime CreateOn { get; set; }
     public DateTime? RevokeOn { get; set; }

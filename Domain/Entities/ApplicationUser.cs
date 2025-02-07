@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Infrastructure.Identity;
+namespace Domain.Entities;
 public class ApplicationUser : IdentityUser
 {
     public string FirstName { get; set; } = string.Empty;
@@ -11,4 +11,7 @@ public class ApplicationUser : IdentityUser
     public string? Region { get; set; }
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+    public ICollection<Favourite> Favourites { get; set; } = [];
+    public ICollection<BuyingHistory> BuyingHistories { get; set; } = [];
+    public ICollection<WishList> WishLists { get; set; } = [];
 }

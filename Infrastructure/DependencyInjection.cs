@@ -1,5 +1,6 @@
 ﻿using Application.Features.Auth;
 using Courses.Business.Authentication;
+using Domain.Entities;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Authentication;
 using Infrastructure.Persistence;
