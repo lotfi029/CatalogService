@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Infrastructure.Identity;
+namespace Infrastructure.Identity.Services;
 public class AuthService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
@@ -135,7 +135,7 @@ public class AuthService(
         return Result.Success(response);
     }
 
-    
+
 
     public async Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request)
     {
@@ -183,7 +183,7 @@ public class AuthService(
 
         return Result.Success();
     }
-    
+
     public async Task<Result> RevokeAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
         var userId = _jwtProvider.ValidateToken(request.Token);

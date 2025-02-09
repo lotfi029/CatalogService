@@ -6,7 +6,5 @@ public class WishList
     public string UserId { get; set; } = string.Empty;
     public Guid ProductId { get; set; }
     public Product Product { get; set; } = default!;
-    public ApplicationUser User { get; set; } = default!;
-
 }
 

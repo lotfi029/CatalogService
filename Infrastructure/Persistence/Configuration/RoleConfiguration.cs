@@ -1,6 +1,4 @@
-﻿using Domain.Entities;
-using Infrastructure.Abstractions.Constants;
-using Microsoft.EntityFrameworkCore;
+﻿using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configuration;

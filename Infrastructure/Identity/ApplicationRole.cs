@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
 
-namespace Domain.Entities;
-
+namespace Infrastructure.Identity;
 public class ApplicationRole : IdentityRole
 {
     public bool IsDisabled { get; set; }

@@ -2,7 +2,7 @@
 
 namespace Domain.Entities;
 
-public class Product : AuditEntity
+public class Product : AuditableEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -12,4 +12,5 @@ public class Product : AuditEntity
     public Category Category { get; set; } = default!;
     public ICollection<WishList> WishLists { get; set; } = [];
     public ICollection<Favourite> Favourites { get; set; } = [];
+    public ICollection<BuyingHistory> BuyingHistories { get; set;} = [];
 }
