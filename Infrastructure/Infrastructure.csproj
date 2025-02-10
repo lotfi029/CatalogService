@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Identity\Authentication\Filters\**" />
-    <EmbeddedResource Remove="Identity\Authentication\Filters\**" />
-    <None Remove="Identity\Authentication\Filters\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="Abstractions\BearerSecuritySchemeTransformer.cs" />
   </ItemGroup>
 
