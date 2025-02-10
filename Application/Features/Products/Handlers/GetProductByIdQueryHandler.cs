@@ -8,7 +8,7 @@ public class GetProductByIdQueryHandler (
 
     public async Task<Result<ProductResponse>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
     {
-        var product = await _repository.GetProductByIdAsync(request.Id, cancellationToken);
+        var product = await _repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (product.IsFailure)
             return Result.Failure<ProductResponse>(product.Error);

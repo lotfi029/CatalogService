@@ -12,7 +12,7 @@ public class DeleteProductCommandHandler(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     public async Task<Result> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
     {
-        var productResult = await _repository.GetProductByIdAsync(command.Id, cancellationToken);
+        var productResult = await _repository.GetByIdAsync(command.Id, cancellationToken);
 
         if (productResult.IsFailure)
             return Result.Failure(productResult.Error);
@@ -21,7 +21,7 @@ public class DeleteProductCommandHandler(
 
         product.IsDeleted = true;
 
-        var updateResult = await _repository.UpdateProductAsync(product, cancellationToken);
+        var updateResult = await _repository.UpdateAsync(product, cancellationToken);
 
         if (updateResult.IsFailure)
             return updateResult;

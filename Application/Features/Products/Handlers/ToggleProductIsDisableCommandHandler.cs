@@ -10,7 +10,7 @@ public class ToggleProductIsDisableCommandHandler(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     public async Task<Result> Handle(ToggleProductIsDisableCommand command, CancellationToken cancellationToken)
     {
-        var productResult = await _repository.GetProductByIdAsync(command.Id, cancellationToken);
+        var productResult = await _repository.GetByIdAsync(command.Id, cancellationToken);
 
         if (productResult.IsFailure)
             return Result.Failure(productResult.Error);
@@ -19,7 +19,7 @@ public class ToggleProductIsDisableCommandHandler(
 
         product.IsDisabled = !product.IsDisabled;
 
-        var updateResult = await _repository.UpdateProductAsync(product, cancellationToken);
+        var updateResult = await _repository.UpdateAsync(product, cancellationToken);
 
         if (updateResult.IsFailure)
             return updateResult;

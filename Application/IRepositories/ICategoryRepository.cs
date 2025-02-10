@@ -1,5 +1,5 @@
 ﻿namespace Application.IRepositories;
-public interface ICategoryResponse
+public interface ICategoryRepository
 {
     Task<Result<Guid>> AddAsync(Category category, CancellationToken cancellationToken = default);
     Task<Result> UpdateAsync(Category category, CancellationToken cancellationToken = default);

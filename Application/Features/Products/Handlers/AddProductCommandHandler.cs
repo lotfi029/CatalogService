@@ -19,7 +19,7 @@ public class AddProductCommandHandler(
             CategoryId = command.Request.CategoryId,
         };
 
-        var result = await _repository.AddProductAsync(product, cancellationToken);
+        var result = await _repository.AddAsync(product, cancellationToken);
 
         if (result.IsFailure)
             return result;

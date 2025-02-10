@@ -9,7 +9,7 @@ public class GetAllProductsQueryHandler(
 
     public async Task<IEnumerable<ProductResponse>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
     {
-        var product = await _repository.GetAllProductAsync(cancellationToken:  cancellationToken);
+        var product = await _repository.GetAllAsync(cancellationToken:  cancellationToken);
 
         var response = product.Adapt<IEnumerable<ProductResponse>>();
 

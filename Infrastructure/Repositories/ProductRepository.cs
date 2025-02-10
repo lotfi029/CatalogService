@@ -3,7 +3,7 @@ public class ProductRepository(ApplicationDbContext context) : IProductRepositor
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task<Result<Guid>> AddProductAsync(Product request, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> AddAsync(Product request, CancellationToken cancellationToken = default)
     {
         if (request is null)
             return Result.Failure<Guid>(ProductErrors.InvalidOperation);
@@ -12,7 +12,7 @@ public class ProductRepository(ApplicationDbContext context) : IProductRepositor
 
         return Result.Success(request.Id);
     }
-    public async Task<Result> UpdateProductAsync(Product request, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateAsync(Product request, CancellationToken cancellationToken = default)
     {
         if (request is null)
             return ProductErrors.NullException;
@@ -24,7 +24,7 @@ public class ProductRepository(ApplicationDbContext context) : IProductRepositor
         
         return Result.Success();
     }
-    public async Task<Result<Product>> GetProductByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result<Product>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         if (await _context.Products.FindAsync([id], cancellationToken) is not { } product)
             return Result.Failure<Product>(ProductErrors.NotFound);
@@ -32,7 +32,7 @@ public class ProductRepository(ApplicationDbContext context) : IProductRepositor
         return Result.Success(product);
     }
 
-    public async Task<IEnumerable<Product>> GetAllProductAsync(bool? includeDisabled = null, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Product>> GetAllAsync(bool? includeDisabled = null, CancellationToken cancellationToken = default)
     {
         var products = await _context.Products
             .Where(e => includeDisabled == null || includeDisabled == e.IsDisabled)
@@ -40,6 +40,4 @@ public class ProductRepository(ApplicationDbContext context) : IProductRepositor
 
         return products;
     }
-
-
 }

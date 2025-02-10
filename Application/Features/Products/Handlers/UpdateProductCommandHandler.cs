@@ -11,7 +11,7 @@ public class UpdateProductCommandHandler(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     public async Task<Result> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
-        var updateProduct = await _repository.GetProductByIdAsync(command.Id, cancellationToken);
+        var updateProduct = await _repository.GetByIdAsync(command.Id, cancellationToken);
 
         if (updateProduct.IsFailure)
             return Result.Failure(updateProduct.Error);
@@ -20,7 +20,7 @@ public class UpdateProductCommandHandler(
 
         product = command.Request.Adapt(product);
 
-        var result = await _repository.UpdateProductAsync(product!, cancellationToken);
+        var result = await _repository.UpdateAsync(product!, cancellationToken);
 
         if (result.IsFailure) return result;
 

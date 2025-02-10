@@ -9,7 +9,7 @@ public class GetProductInCategoryQueryHandler(
 
     public async Task<IEnumerable<ProductResponse>> Handle(GetProductInCategoryQuery request, CancellationToken cancellationToken)
     {
-        var product = await _repository.GetAllProductAsync(cancellationToken: cancellationToken);
+        var product = await _repository.GetAllAsync(cancellationToken: cancellationToken);
 
         var categoryProducts = product.Where(e => e.CategoryId == request.CategoryId);
 
