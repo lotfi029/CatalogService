@@ -1,5 +1,4 @@
-﻿using Infrastructure.Abstractions.Constants;
-using Infrastructure.Identity;
+﻿using Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configuration;
@@ -20,18 +19,18 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
 
         builder.HasData(new ApplicationUser
         {
-            Id = DefaultUsers.Id,
-            FirstName = DefaultUsers.FirstName,
-            LastName = DefaultUsers.LastName,
-            UserName = DefaultUsers.UserName,
-            NormalizedUserName = DefaultUsers.UserName.ToUpper(),
-            Email = DefaultUsers.Email,
-            NormalizedEmail = DefaultUsers.Email.ToUpper(),
+            Id = DefaultUsers.Admin.Id,
+            FirstName = DefaultUsers.Admin.FirstName,
+            LastName = DefaultUsers.Admin.LastName,
+            UserName = DefaultUsers.Admin.UserName,
+            NormalizedUserName = DefaultUsers.Admin.UserName.ToUpper(),
+            Email = DefaultUsers.Admin.Email,
+            NormalizedEmail = DefaultUsers.Admin.Email.ToUpper(),
             EmailConfirmed = true,
-            Region = DefaultUsers.Region,
-            VisitorType = DefaultUsers.VisitorType,
-            ConcurrencyStamp = DefaultUsers.ConcurrencyStamp,
-            SecurityStamp = DefaultUsers.SecurityStamp,
+            Region = DefaultUsers.Admin.Region,
+            VisitorType = DefaultUsers.Admin.VisitorType,
+            ConcurrencyStamp = DefaultUsers.Admin.ConcurrencyStamp,
+            SecurityStamp = DefaultUsers.Admin.SecurityStamp,
             DateOfBirth = DateOnly.FromDateTime(new DateTime(2025, 1, 5)),
             PasswordHash = "AQAAAAIAAYagAAAAECl9JOvxdQxpuavAKUNQ3NekBoKCjmJP/JgztKEreCfMtOTrv/ZnKq5gFycMbZIbzA=="
         });

@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250209234056_SeedingProductTables")]
+    partial class SeedingProductTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,7 +59,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ActionType", (string)null);
+                    b.ToTable("ActionType");
 
                     b.HasData(
                         new
@@ -132,7 +135,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BuyingHistories", (string)null);
+                    b.ToTable("BuyingHistories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
@@ -167,7 +170,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Favourite", b =>
@@ -195,7 +198,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Favourites", (string)null);
+                    b.ToTable("Favourites");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -241,7 +244,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehavior", b =>
@@ -294,7 +297,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("UserBehaviors", (string)null);
+                    b.ToTable("UserBehaviors");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehaviorAction", b =>
@@ -321,7 +324,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserBehaviorId");
 
-                    b.ToTable("UserBehaviorAction", (string)null);
+                    b.ToTable("UserBehaviorAction");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehaviorDeviceInfo", b =>
@@ -345,7 +348,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserBehaviorId");
 
-                    b.ToTable("UserBehaviorDeviceInfo", (string)null);
+                    b.ToTable("UserBehaviorDeviceInfo");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehaviorMetrics", b =>
@@ -373,7 +376,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserBehaviorId");
 
-                    b.ToTable("UserBehaviorMetrics", (string)null);
+                    b.ToTable("UserBehaviorMetrics");
                 });
 
             modelBuilder.Entity("Domain.Entities.WishList", b =>
@@ -398,7 +401,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("WishList", (string)null);
+                    b.ToTable("WishList");
                 });
 
             modelBuilder.Entity("Infrastructure.Identity.ApplicationRole", b =>

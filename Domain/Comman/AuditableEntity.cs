@@ -1,7 +1,5 @@
-﻿using Domain.Entities;
-
-namespace Domain.Comman;
-public class AuditableEntity 
+﻿namespace Domain.Comman;
+public abstract class AuditableEntity 
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public bool IsDisabled { get; set; } = false;

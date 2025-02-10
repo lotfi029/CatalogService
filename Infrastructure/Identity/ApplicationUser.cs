@@ -12,4 +12,5 @@ public class ApplicationUser : IdentityUser
     public ICollection<Favourite> Favourites { get; set; } = [];
     public ICollection<BuyingHistory> BuyingHistories { get; set; } = [];
     public ICollection<WishList> WishLists { get; set; } = [];
+    public ICollection<UserBehavior> UserBehaviors { get; set; } = [];
 }
