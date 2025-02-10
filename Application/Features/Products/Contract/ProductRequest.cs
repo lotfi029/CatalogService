@@ -1,6 +1,5 @@
-﻿namespace Application.Features.Product.Contract;
-public record ProductResponse(
-    Guid Id,
+﻿namespace Application.Features.Products.Contract;
+public record ProductRequest(
     string Name,
     string Description,
     int Quentity,

@@ -1,5 +1,3 @@
-
-
 namespace Domain.Entities;
 
 public class Product : AuditableEntity
@@ -7,9 +5,9 @@ public class Product : AuditableEntity
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public float Price { get; set; }
-    public int Quentity { get; set; }
+    public int Quantity { get; set; }
     public bool IsDeleted { get; set; } = false;
-    public bool IsDisable { get; set; } = false;
+    public bool IsDisabled { get; set; } = false;
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = default!;
     public ICollection<WishList> WishLists { get; set; } = [];

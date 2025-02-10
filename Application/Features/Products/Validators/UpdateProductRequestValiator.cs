@@ -1,9 +1,8 @@
-﻿global using Application.Features.Product.Contract;
+﻿namespace Application.Features.Products.Validators;
 
-namespace Application.Features.Product.Validators;
-public class ProductRequestValiator : AbstractValidator<ProductRequest>
+public class UpdateProductRequestValiator : AbstractValidator<UpdateProductRequest>
 {
-    public ProductRequestValiator()
+    public UpdateProductRequestValiator()
     {
         RuleFor(e => e.Name)
             .NotEmpty().WithMessage("Product {PropertyName} is required.")
@@ -20,8 +19,5 @@ public class ProductRequestValiator : AbstractValidator<ProductRequest>
         RuleFor(e => e.Price)
             .NotEmpty().WithMessage("{PropertyName} is required.")
             .GreaterThan(0).WithMessage("{PropertyName} must be greater than 0.");
-
-        RuleFor(e => e.CategoryId)
-            .NotEmpty().WithMessage("{PropertyName} is required.");
     }
 }
