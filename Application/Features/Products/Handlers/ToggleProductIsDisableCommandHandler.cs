@@ -1,6 +1,4 @@
 ﻿using Application.Features.Products.Command;
-using Mapster;
-
 
 namespace Application.Features.Products.Handlers;
 
@@ -15,9 +13,9 @@ public class ToggleProductIsDisableCommandHandler(
         var productResult = await _repository.GetProductByIdAsync(command.Id, cancellationToken);
 
         if (productResult.IsFailure)
-            return Result.Success(productResult.Error);
+            return Result.Failure(productResult.Error);
 
-        var product = productResult.Value.Adapt<Product>();
+        var product = productResult.Value!;
 
         product.IsDisabled = !product.IsDisabled;
 

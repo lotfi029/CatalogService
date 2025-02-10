@@ -2,7 +2,6 @@
 using Application.Features.Auth.Validators;
 using Application.Mapping;
 using FluentValidation.AspNetCore;
-using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

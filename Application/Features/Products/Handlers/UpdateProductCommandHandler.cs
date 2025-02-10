@@ -1,5 +1,4 @@
 ﻿using Application.Features.Products.Command;
-using Mapster;
 
 
 namespace Application.Features.Products.Handlers;
@@ -17,11 +16,11 @@ public class UpdateProductCommandHandler(
         if (updateProduct.IsFailure)
             return Result.Failure(updateProduct.Error);
 
-        var product = updateProduct.Value.Adapt<Product>();
+        var product = updateProduct.Value!;
 
         product = command.Request.Adapt(product);
 
-        var result = await _repository.UpdateProductAsync(product, cancellationToken);
+        var result = await _repository.UpdateProductAsync(product!, cancellationToken);
 
         if (result.IsFailure) return result;
 

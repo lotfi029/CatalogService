@@ -1,12 +1,10 @@
 ﻿using Application.Features.Auth;
 using Courses.Business.Authentication;
-using Domain.Entities;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Authentication;
 using Infrastructure.Identity.Services;
-using Infrastructure.Persistence;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -84,6 +82,10 @@ public static class DependencyInjection
     private static IServiceCollection RegisterServicesToDI(this IServiceCollection services)
     {
         services.AddScoped<IAuthService, AuthService>();
+
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         return services;
     }
 }

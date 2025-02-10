@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250209234056_SeedingProductTables")]
-    partial class SeedingProductTables
+    [Migration("20250210141152_SeedingSystemTables")]
+    partial class SeedingSystemTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -221,6 +221,9 @@ namespace Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDisabled")
                         .HasColumnType("bit");
 
@@ -231,7 +234,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("Quentity")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -648,6 +651,13 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "019409bf-3ae7-7cdf-995b-db4620f2ff5f",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>

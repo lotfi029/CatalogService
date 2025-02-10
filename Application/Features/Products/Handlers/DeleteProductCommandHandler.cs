@@ -15,9 +15,9 @@ public class DeleteProductCommandHandler(
         var productResult = await _repository.GetProductByIdAsync(command.Id, cancellationToken);
 
         if (productResult.IsFailure)
-            return Result.Success(productResult.Error);
+            return Result.Failure(productResult.Error);
 
-        var product = productResult.Value.Adapt<Product>();
+        var product = productResult.Value!;
 
         product.IsDeleted = true;
 

@@ -1,8 +1,4 @@
-﻿using Application.Features.Products.Contract;
-using Application.IRepositories;
-using Microsoft.AspNetCore.Mvc;
-
-namespace Infrastructure.Repositories;
+﻿namespace Infrastructure.Repositories;
 public class ProductRepository(ApplicationDbContext context) : IProductRepository
 {
     private readonly ApplicationDbContext _context = context;

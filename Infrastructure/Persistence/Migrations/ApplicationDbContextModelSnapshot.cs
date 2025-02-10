@@ -56,7 +56,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ActionType", (string)null);
+                    b.ToTable("ActionType");
 
                     b.HasData(
                         new
@@ -132,7 +132,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BuyingHistories", (string)null);
+                    b.ToTable("BuyingHistories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
@@ -167,7 +167,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Favourite", b =>
@@ -195,7 +195,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Favourites", (string)null);
+                    b.ToTable("Favourites");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -218,6 +218,9 @@ namespace Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDisabled")
                         .HasColumnType("bit");
 
@@ -228,7 +231,7 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("Quentity")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -241,7 +244,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehavior", b =>
@@ -294,7 +297,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("UserBehaviors", (string)null);
+                    b.ToTable("UserBehaviors");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehaviorAction", b =>
@@ -321,7 +324,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserBehaviorId");
 
-                    b.ToTable("UserBehaviorAction", (string)null);
+                    b.ToTable("UserBehaviorAction");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehaviorDeviceInfo", b =>
@@ -345,7 +348,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserBehaviorId");
 
-                    b.ToTable("UserBehaviorDeviceInfo", (string)null);
+                    b.ToTable("UserBehaviorDeviceInfo");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserBehaviorMetrics", b =>
@@ -373,7 +376,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserBehaviorId");
 
-                    b.ToTable("UserBehaviorMetrics", (string)null);
+                    b.ToTable("UserBehaviorMetrics");
                 });
 
             modelBuilder.Entity("Domain.Entities.WishList", b =>
@@ -398,7 +401,7 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("WishList", (string)null);
+                    b.ToTable("WishList");
                 });
 
             modelBuilder.Entity("Infrastructure.Identity.ApplicationRole", b =>
@@ -645,6 +648,13 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "019409bf-3ae7-7cdf-995b-db4620f2ff5f",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>

@@ -1,12 +1,10 @@
 ﻿using Application.Features.Auth.Commands;
 using Application.Features.Auth.Contracts;
-using System.ComponentModel.DataAnnotations;
 
 namespace API.Endpoints;
 
 public class AuthenticationEndpoint : ICarterModule
 {
-    
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/auth")
@@ -23,12 +21,12 @@ public class AuthenticationEndpoint : ICarterModule
     }
     private static async Task<IResult> Register(
         [FromBody] RegisterRequest request,
-        IValidator<RegisterRequest> validator,
+        IValidator<RegisterRequest> _validator,
         [FromServices] ISender sender,                    
         CancellationToken cancellationToken)
     {
 
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
@@ -51,12 +49,12 @@ public class AuthenticationEndpoint : ICarterModule
     }
     private static async Task<IResult> Login(
         [FromBody] LoginRequest request,
-        IValidator<LoginRequest> validator,
+        IValidator<LoginRequest> _validator,
         [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
 
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {

@@ -15,7 +15,7 @@ public class AddProductCommandHandler(
             Name = command.Request.Name,
             Description = command.Request.Description,
             Price = command.Request.Price,
-            Quantity = command.Request.Quentity,
+            Quentity = command.Request.Quentity,
             CategoryId = command.Request.CategoryId,
         };
 

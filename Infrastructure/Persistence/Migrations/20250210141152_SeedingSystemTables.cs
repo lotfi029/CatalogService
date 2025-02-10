@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedingProductTables : Migration
+    public partial class SeedingSystemTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,7 +57,8 @@ namespace Infrastructure.Persistence.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<float>(type: "real", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Quentity = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsDisabled = table.Column<bool>(type: "bit", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -269,6 +270,11 @@ namespace Infrastructure.Persistence.Migrations
                     { new Guid("0194ecf7-ee70-7744-a9ee-2f4b50a0cdc9"), new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), "019409bf-3ae7-7cdf-995b-db4620f2ff5f", "The action affect when user add view a product", false, "View", null, "" }
                 });
 
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "019409cc-7157-71a4-99d5-e295c82679db", "019409bf-3ae7-7cdf-995b-db4620f2ff5f" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_BuyingHistories_ApplicationUserId",
                 table: "BuyingHistories",
@@ -367,6 +373,11 @@ namespace Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetUserRoles",
+                keyColumns: new[] { "RoleId", "UserId" },
+                keyValues: new object[] { "019409cc-7157-71a4-99d5-e295c82679db", "019409bf-3ae7-7cdf-995b-db4620f2ff5f" });
         }
     }
 }
