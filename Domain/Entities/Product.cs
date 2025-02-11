@@ -6,6 +6,7 @@ public class Product : AuditableEntity
     public string Description { get; set; } = string.Empty;
     public float Price { get; set; }
     public int Quentity { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
     public bool IsDeleted { get; set; } = false;
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = default!;

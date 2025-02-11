@@ -1,6 +1,6 @@
-﻿using API.OpenApi;
+﻿using API.Infrastructure;
+using API.OpenApi;
 using Application;
-using Carter;
 using Infrastructure;
 
 namespace API;
@@ -11,6 +11,7 @@ public static class DependencyInjection
         builder.AddApplicationServices();
         builder.AddInfrastructureServices();
 
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
         builder.Services.AddOpenApi(options =>
         {

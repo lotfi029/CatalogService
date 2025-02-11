@@ -1,8 +1,6 @@
 ﻿using Application.Features.Products.Command;
 using Application.Features.Products.Contract;
 using Application.Features.Products.Queries;
-using Infrastructure.Abstractions.Constants;
-using Infrastructure.Identity.Authentication.Filters;
 
 namespace API.Endpoints;
 
@@ -12,7 +10,8 @@ public class ProductEndpoint : ICarterModule
     {
         var group = app.MapGroup("api/product")
             .WithTags("Products")
-            .RequireAuthorization();
+            .DisableAntiforgery();
+            //.RequireAuthorization();
 
         group.MapPost("", Add);
 
@@ -31,9 +30,9 @@ public class ProductEndpoint : ICarterModule
             
             
     }
-    [HasPermission(Permissions.ProductAdd)]
+    //[HasPermission(Permissions.ProductAdd)]
     private static async Task<IResult> Add(
-        [FromBody] ProductRequest request,
+        [FromForm] ProductRequest request,
         IValidator<ProductRequest> _validator,
         [FromServices] ISender _sender,
         CancellationToken cancellationToken

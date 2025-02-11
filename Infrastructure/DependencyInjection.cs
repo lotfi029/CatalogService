@@ -1,9 +1,10 @@
 ﻿using Application.Features.Auth;
-using Courses.Business.Authentication;
+using Application.Services;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Authentication;
 using Infrastructure.Identity.Services;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,6 +87,7 @@ public static class DependencyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IFileService, FileSerivce>();
 
         return services;
     }

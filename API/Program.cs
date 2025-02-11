@@ -10,10 +10,11 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
 );
 
-
 builder.AddAPIServices();
 
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -25,10 +26,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseSerilogRequestLogging();
+app.UseExceptionHandler("/error");
 
 app.UseRouting();
+
+app.UseCors(options => { options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin(); });
+
+app.UseRouting();
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapCarter();

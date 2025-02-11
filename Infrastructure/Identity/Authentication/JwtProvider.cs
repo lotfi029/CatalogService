@@ -5,11 +5,10 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using System.Text.Json;
-using Infrastructure.Identity.Authentication;
 using Infrastructure.Identity;
 using Application.Features.Auth.Contracts;
 
-namespace Courses.Business.Authentication;
+namespace Infrastructure.Identity.Authentication;
 public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
 {
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
@@ -32,14 +31,14 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
             _jwtOptions.Issuer,
             _jwtOptions.Audience,
             claims,
-            null, 
+            null,
             DateTime.UtcNow.AddMinutes(_jwtOptions.ExpiresInMinutes)
         );
         var jwtHeaders = new JwtHeader(signingCredentials);
 
         var jwtSecurityToken = new JwtSecurityToken(jwtHeaders, jwtPayload);
 
-        var token  = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
 
         var accessTokenResponse = new BearerTokenResponse
@@ -47,7 +46,7 @@ public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
             token,
             _jwtOptions.ExpiresInMinutes * 60
         );
-        
+
         return accessTokenResponse;
     }
     public string? ValidateToken(string token)
