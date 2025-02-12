@@ -1,6 +1,11 @@
 ﻿using Application.Features.Products.Command;
 using Application.Features.Products.Contract;
 using Application.Features.Products.Queries;
+using Application.Services;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static System.Net.Mime.MediaTypeNames;
+using System.IO;
+using System.Security.Claims;
 
 namespace API.Endpoints;
 
@@ -27,8 +32,10 @@ public class ProductEndpoint : ICarterModule
         group.MapGet("", GetAll);
 
         group.MapGet("category/{categoryId:guid}", ProductInCategory);
-            
-            
+
+        group.MapGet("image/{imageName}", StreamImage).WithName("stream-image");
+
+
     }
     //[HasPermission(Permissions.ProductAdd)]
     private static async Task<IResult> Add(
@@ -137,12 +144,18 @@ public class ProductEndpoint : ICarterModule
     }
     private static async Task<IResult> GetAll(
         [FromServices] ISender _sender,
+        LinkGenerator _linkGenerator,
+        HttpContext _httpContext,
         CancellationToken cancellationToken
         )
     {
         var command = new GetAllProductsQuery();
-
+        
         var result = await _sender.Send(command, cancellationToken);
+
+        var userID = _httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var contect = _httpContext;
 
         return TypedResults.Ok(result);
     }
@@ -158,6 +171,17 @@ public class ProductEndpoint : ICarterModule
 
         return TypedResults.Ok(result);
     }
+    private static async Task<IResult> StreamImage(
+        string imageName,
+        [FromServices] IFileService _fileService
+        )
+    {
+        var (stream, contentType) = await _fileService.GetImageStreamAsync(imageName);
+        
+        if (stream is null)
+            return TypedResults.NotFound();
 
+        return TypedResults.Stream(stream, contentType);
+    }
 
 }

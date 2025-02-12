@@ -6,9 +6,9 @@ namespace Infrastructure.Services;
 
 public class FileSerivce(
     IWebHostEnvironment webHostEnvironment,
-    ApplicationDbContext _context) : IFileService
+    IHttpContextAccessor _httpContextAccessor) : IFileService
 {
-    private readonly string _videoPath = @$"{webHostEnvironment.WebRootPath}\files\lessons\videos";
+    
     private readonly string _imagePath = @$"{webHostEnvironment.WebRootPath}\images";
 
     //public async Task<Guid> UploadAsync(IFormFile file, CancellationToken cancellationToken = default)
@@ -30,7 +30,32 @@ public class FileSerivce(
 
         await image.CopyToAsync(stream, token);
 
-        return path;
+        return image.FileName;
+    }
+    public async Task<(Stream?, string?)> GetImageStreamAsync(string imageName)
+    {
+        var imagePath = Path.Combine(_imagePath, imageName);
+
+        if (!File.Exists(imagePath))
+            return (null, null);
+
+        var stream = new FileStream(imagePath, FileMode.Open, FileAccess.Read);
+        var contentType = GetContentType(imagePath);
+
+        return (stream, contentType);
+    }
+
+    private static string GetContentType(string path)
+    {
+        var extension = Path.GetExtension(path).ToLower();
+        return extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream",
+        };
     }
     //public async Task<IEnumerable<Guid>> UploadManyAsync(IFormFileCollection files, CancellationToken cancellationToken = default)
     //{
@@ -63,19 +88,6 @@ public class FileSerivce(
 
     //    return (memoryStream.ToArray(), file.ContentType, file.FileName);
 
-    //}
-    //public async Task<(FileStream? stream, string contentType, string fileName)> StreamAsync(Guid id, CancellationToken cancellationToken = default)
-    //{
-    //    var file = await _context.UploadedFiles.FindAsync([id], cancellationToken);
-
-    //    if (file is null)
-    //        return (null,  string.Empty, string.Empty);
-
-    //    var path = Path.Combine(_videoPath, file.StoredFileName);
-
-    //    var fileStream = File.OpenRead(path);
-
-    //    return (fileStream, file.ContentType, file.FileName);
     //}
     //private async Task<UploadedFile> SaveFileToServer(IFormFile file, CancellationToken cancellationToken = default)
     //{

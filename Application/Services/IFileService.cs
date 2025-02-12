@@ -4,5 +4,6 @@ namespace Application.Services;
 public interface IFileService
 {
     Task<string> UploadImageAsync(IFormFile image, CancellationToken token = default);
+    Task<(Stream?, string?)> GetImageStreamAsync(string imageName);
 }
 
