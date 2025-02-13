@@ -1,13 +1,16 @@
 ﻿using Application.Errors;
 using Application.Features.Products.Command;
+using Application.Hubs;
 using Application.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Application.Features.Products.Handlers;
 public class AddProductCommandHandler(
     IProductRepository _repository,
     IUnitOfWork _unitOfWork,
     IFileService _fileService,
-    ICategoryRepository _categoryRepository) : IRequestHandler<AddProductCommand, Result<Guid>>
+    ICategoryRepository _categoryRepository,
+    IHubContext<ProductHub, IProductClient> _hubContext) : IRequestHandler<AddProductCommand, Result<Guid>>
 {
     
     public async Task<Result<Guid>> Handle(AddProductCommand command, CancellationToken cancellationToken)
@@ -30,7 +33,10 @@ public class AddProductCommandHandler(
         if (result.IsFailure)
             return result;
 
+
         await _unitOfWork.SaveChangeAsync(cancellationToken);
+
+        await _hubContext.Clients.All.ProductAdded(product.Adapt<ProductResponse>());
 
         return Result.Success(result.Value);
     }

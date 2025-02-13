@@ -27,4 +27,10 @@ public class AuthenticationErrors
 
     public static readonly Error InvalidNewPassword
         = Error.Conflict(nameof(InvalidNewPassword), "this password same old password");
+
+    public static readonly Error UserNotFound
+        = Error.NotFound(nameof(UserNotFound), "user not found");
+
+    public static readonly Error UnAutherizationAccess
+        = Error.UnAutherization(nameof(UnAutherizationAccess), "you don't have access to this resource");
 }

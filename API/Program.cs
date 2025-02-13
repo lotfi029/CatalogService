@@ -3,6 +3,7 @@ using Scalar.AspNetCore;
 using Serilog;
 using API.Hubs;
 using API.BackgroundServices;
+using Application.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,8 +54,10 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+//app.MapHub<ProductNotificationHub>("/product-hub");
+//app.MapHub<NotificationHub>("/notification-hub");
+
 app.MapHub<ProductHub>("/product-hub");
-app.MapHub<NotificationHub>("/notification-hub");
 
 app.MapCarter();
 

@@ -2,10 +2,6 @@
 using Application.Features.Products.Contract;
 using Application.Features.Products.Queries;
 using Application.Services;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static System.Net.Mime.MediaTypeNames;
-using System.IO;
-using System.Security.Claims;
 
 namespace API.Endpoints;
 
@@ -15,8 +11,8 @@ public class ProductEndpoint : ICarterModule
     {
         var group = app.MapGroup("api/product")
             .WithTags("Products")
-            .DisableAntiforgery();
-            //.RequireAuthorization();
+            .DisableAntiforgery()
+            .RequireAuthorization();
 
         group.MapPost("", Add);
 
@@ -33,11 +29,10 @@ public class ProductEndpoint : ICarterModule
 
         group.MapGet("category/{categoryId:guid}", ProductInCategory);
 
-        group.MapGet("image/{imageName}", StreamImage).WithName("stream-image");
-
-
+        group.MapGet("image/{imageName}", StreamImage)
+            .WithName("stream-image")
+            .AllowAnonymous();
     }
-    //[HasPermission(Permissions.ProductAdd)]
     private static async Task<IResult> Add(
         [FromForm] ProductRequest request,
         IValidator<ProductRequest> _validator,
@@ -152,10 +147,6 @@ public class ProductEndpoint : ICarterModule
         var command = new GetAllProductsQuery();
         
         var result = await _sender.Send(command, cancellationToken);
-
-        var userID = _httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var contect = _httpContext;
 
         return TypedResults.Ok(result);
     }

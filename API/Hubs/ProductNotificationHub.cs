@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Application.Features.Products.Contract;
+using Microsoft.AspNetCore.SignalR;
 
 namespace API.Hubs;
 
-public class ProductHub : Hub<IProductClient>
+public class ProductNotificationHub : Hub<IProductClientd>
 {
     public async Task ServerMethonName(string user, string product)
     {
-        await Clients.All.ProductAdded($"{user} add the {product}");
+        //await Clients.All.ProductAdded($"{user} add the {product}");
     }
     public async Task ProductUpdated(string product)
     {
@@ -32,9 +33,27 @@ public interface INotificationClient
 {
     Task ReceiveNotification(string message);
 }
-public interface IProductClient
+public interface IProductClientd
 {
-    Task ProductAdded(string product);
+    Task ProductAdded(ProductResponse product);
     Task ProductUpdated(string product);
     Task ProductDeleted(int productId);
+}
+
+public class ProductNotification(IHubContext<ProductNotificationHub, IProductClientd> _hubContext) : IProductClientd
+{
+    public async Task ProductAdded(ProductResponse product)
+    {
+        await _hubContext.Clients.All.ProductAdded(product);
+    }
+
+    public Task ProductDeleted(int productId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task ProductUpdated(string product)
+    {
+        throw new NotImplementedException();
+    }
 }
