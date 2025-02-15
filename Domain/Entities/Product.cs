@@ -14,4 +14,7 @@ public class Product : AuditableEntity
     public ICollection<Favourite> Favourites { get; set; } = [];
     public ICollection<BuyingHistory> BuyingHistories { get; set;} = [];
     public ICollection<UserBehavior> UserBehaviors { get; set; } = [];
+    public ICollection<OrderItem> Orders { get; set; } = [];
+    public ICollection<Comment> Comments { get; set; } = [];
+    
 }
