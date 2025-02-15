@@ -1,5 +1,4 @@
-﻿
-using Domain.Comman;
+﻿using Domain.Comman;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
@@ -18,6 +17,11 @@ public class ApplicationDbContext(
     public DbSet<Favourite> Favourites { get; set; }
     public DbSet<BuyingHistory> BuyingHistories { get; set; }
     public DbSet<UserBehavior> UserBehaviors { get; set; }
+    public DbSet<Order> Order { get; set; }
+    public DbSet<OrderItem> OrderDetails { get; set; }
+    public DbSet<Delivery> Deliveries { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Payment> Payments { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
