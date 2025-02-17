@@ -7,6 +7,7 @@ public class Delivery
     public string Address { get; set; } = string.Empty;
     public string? PhoneNumber { get; set; }
     public string Email { get; set; } = string.Empty;
+    public string DriverId { get; set; } = string.Empty;
     public string? Note { get; set; }
     public DateTime DeliveryDate { get; set; }
     public DeliveryStatus Status { get; set; } = DeliveryStatus.Default;
