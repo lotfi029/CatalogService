@@ -1,7 +1,8 @@
 ﻿namespace Domain.Entities;
 
-public class DriverProfile : AuditableEntity
+public class DriverProfile
 {
+    public string Id { get; set; } = string.Empty;
     public string VehicleType { get; set; } = string.Empty;
     public string VehicleModel { get; set; } = string.Empty;
     public string VehiclePlateNumber { get; set; } = string.Empty;
@@ -14,7 +15,5 @@ public class DriverProfile : AuditableEntity
     public int TotalTrips { get; set; }
     public int TotalEarnings { get; set; }
     public bool IsVerified { get; set; } = false;
-    public bool Status { get; set; } = true; // true: available, false: not available
-    public ICollection<Review> Reviews { get; set; } = [];
-    public ICollection<Order> Orders { get; set; } = [];
+    public bool Status { get; set; } = true;
 }

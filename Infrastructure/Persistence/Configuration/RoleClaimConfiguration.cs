@@ -10,16 +10,15 @@ public class RoleClaimConfiguration : IEntityTypeConfiguration<IdentityRoleClaim
         var roleAdminId = DefaultRoles.Admin.Id;
         int cnt = 0;
 
-        permissions.ForEach(e => roleAdminClaim.Add(
-            new() 
-            { 
-                Id = ++cnt, 
-                ClaimType = Permissions.Type, 
-                ClaimValue = e, 
-                RoleId = roleAdminId 
+        permissions.ForEach(e => roleAdminClaim.Add( 
+            new() {
+                Id = ++cnt,
+                ClaimType = Permissions.Type,
+                ClaimValue = e,
+                RoleId = roleAdminId   
             })
         );
-
+        
         builder.HasData(roleAdminClaim);
     }
 }

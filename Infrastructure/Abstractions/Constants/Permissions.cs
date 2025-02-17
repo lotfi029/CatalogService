@@ -20,5 +20,5 @@ public class Permissions
     public const string ActionDelete = "action:delete";
 
     public static IList<string> GetPermissions =>
-        typeof(Permissions).GetType().GetFields().Select(f => f.GetValue(f) as string).ToList()!;
+        typeof(Permissions).GetFields().Select(f => f.GetValue(f) as string).ToList()!;
 }

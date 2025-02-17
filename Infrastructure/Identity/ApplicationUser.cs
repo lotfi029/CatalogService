@@ -7,15 +7,14 @@ public class ApplicationUser : IdentityUser
     public bool IsDisabled { get; set; }
     public string? VisitorType { get; set; }
     public string? Region { get; set; }
-    public Guid? DriverProfileId { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
-    public ICollection<Favourite> Favourites { get; set; } = [];
-    public ICollection<BuyingHistory> BuyingHistories { get; set; } = [];
-    public ICollection<WishList>? WishLists { get; set; } = [];
-    public ICollection<UserBehavior> UserBehaviors { get; set; } = [];
-    public ICollection<Order> Orders { get; set; } = [];
-    public ICollection<Comment> Comments { get; set; } = [];
-    public ICollection<Review> Reviews { get; set; } = [];
-    public ICollection<TraderProfile>? TraderProfiles { get; set; } = [];
-    public DriverProfile? DriverProfile { get; set; }
+    //public ICollection<Favourite> Favourites { get; set; } = [];
+    //public ICollection<BuyingHistory> BuyingHistories { get; set; } = [];
+    //public ICollection<WishList>? WishLists { get; set; } = [];
+    //public ICollection<UserBehavior> UserBehaviors { get; set; } = [];
+    //public ICollection<Order> Orders { get; set; } = [];
+    //public ICollection<Comment> Comments { get; set; } = [];
+    //public ICollection<Review> Reviews { get; set; } = [];
+    //public ICollection<TraderProfile>? TraderProfiles { get; set; } = [];
+    //public DriverProfile? DriverProfile { get; set; }
 }

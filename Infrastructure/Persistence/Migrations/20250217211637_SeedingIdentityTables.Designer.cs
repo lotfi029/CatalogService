@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Infrastructure.Persistence.Migrations
+namespace Infrastructure.Presistance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250211165455_EditProductTable")]
-    partial class EditProductTable
+    [Migration("20250217211637_SeedingIdentityTables")]
+    partial class SeedingIdentityTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,119 +24,6 @@ namespace Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Domain.Entities.ActionType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedById")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("IsDisabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedById")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ActionType");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("0194ecf6-f88f-7d2c-bf43-6af89a607876"),
-                            CreatedAt = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedById = "019409bf-3ae7-7cdf-995b-db4620f2ff5f",
-                            Description = "the action affect when user do a purchase",
-                            IsDisabled = false,
-                            Name = "Purchase",
-                            UpdatedById = ""
-                        },
-                        new
-                        {
-                            Id = new Guid("0194ecf7-d6d6-79d5-b697-c3c157cbc1ba"),
-                            CreatedAt = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedById = "019409bf-3ae7-7cdf-995b-db4620f2ff5f",
-                            Description = "The action affect when user add product to wish list",
-                            IsDisabled = false,
-                            Name = "AddToWishList",
-                            UpdatedById = ""
-                        },
-                        new
-                        {
-                            Id = new Guid("0194ecf7-55dd-746a-8b97-daa9ac301b25"),
-                            CreatedAt = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedById = "019409bf-3ae7-7cdf-995b-db4620f2ff5f",
-                            Description = "The action affect when user add product to favourites",
-                            IsDisabled = false,
-                            Name = "AddToFavourites",
-                            UpdatedById = ""
-                        },
-                        new
-                        {
-                            Id = new Guid("0194ecf7-ee70-7744-a9ee-2f4b50a0cdc9"),
-                            CreatedAt = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedById = "019409bf-3ae7-7cdf-995b-db4620f2ff5f",
-                            Description = "The action affect when user add view a product",
-                            IsDisabled = false,
-                            Name = "View",
-                            UpdatedById = ""
-                        });
-                });
-
-            modelBuilder.Entity("Domain.Entities.BuyingHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<float>("Price")
-                        .HasColumnType("real");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("PurchaseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Quentity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("BuyingHistories");
-                });
 
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
@@ -149,56 +36,110 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.Property<string>("CreatedById")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsDisabled")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedById")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
 
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Favourite", b =>
+            modelBuilder.Entity("Domain.Entities.DriverProfile", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ApplicationUserId")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("DrivingLicense")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<bool>("IsVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
-                    b.Property<string>("UserId")
+                    b.Property<float>("Rating")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("real")
+                        .HasDefaultValue(0f);
+
+                    b.Property<bool>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<float>("TotalDiscount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("real")
+                        .HasDefaultValue(0f);
+
+                    b.Property<int>("TotalEarnings")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("TotalTrips")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("VehicleColor")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("VehicleLicense")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("VehicleModel")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("VehiclePlateNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("VehicleType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<float>("WalletBalance")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("real")
+                        .HasDefaultValue(0f);
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("Favourites");
+                    b.ToTable("DriverProfile");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -215,25 +156,31 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.Property<string>("CreatedById")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsDisabled")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<float>("Price")
                         .HasColumnType("real");
@@ -245,145 +192,82 @@ namespace Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UpdatedById")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UpdatedById");
+
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserBehavior", b =>
+            modelBuilder.Entity("Domain.Entities.TraderProfile", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ApplicationUserId")
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("CompanyAddress")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("CreatedById")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("CompanyDescription")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("Day")
-                        .HasColumnType("int");
+                    b.Property<string>("CompanyEmail")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<bool>("IsDisabled")
-                        .HasColumnType("bit");
+                    b.Property<string>("CompanyLicense")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
+                    b.Property<string>("CompanyLogo")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CompanyName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<bool>("Revenue")
-                        .HasColumnType("bit");
+                    b.Property<string>("CompanyPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("SearchKeyWord")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("CompanyTaxNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("CompanyType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("UpdatedById")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("CompanyWebsite")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<bool>("Weekend")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("UserBehaviors");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserBehaviorAction", b =>
-                {
-                    b.Property<Guid>("Id")
+                    b.Property<bool>("IsVerified")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
-                    b.Property<int>("ActionCount")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("ActionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("time");
-
-                    b.Property<Guid>("UserBehaviorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActionId");
-
-                    b.HasIndex("UserBehaviorId");
-
-                    b.ToTable("UserBehaviorAction");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserBehaviorDeviceInfo", b =>
-                {
-                    b.Property<Guid>("Id")
+                    b.Property<float>("Rating")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("real")
+                        .HasDefaultValue(0f);
 
-                    b.Property<string>("Browser")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OperatingSystem")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserBehaviorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserBehaviorId");
-
-                    b.ToTable("UserBehaviorDeviceInfo");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserBehaviorMetrics", b =>
-                {
-                    b.Property<Guid>("Id")
+                    b.Property<float>("WalletBalance")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("BounceRate")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CTR")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ExitRate")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PageValue")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserBehaviorId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("real")
+                        .HasDefaultValue(0f);
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserBehaviorId");
-
-                    b.ToTable("UserBehaviorMetrics");
+                    b.ToTable("TraderProfile");
                 });
 
             modelBuilder.Entity("Domain.Entities.WishList", b =>
@@ -392,21 +276,18 @@ namespace Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
-
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("WishList");
                 });
@@ -593,6 +474,92 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClaimType = "permissions",
+                            ClaimValue = "product:get",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ClaimType = "permissions",
+                            ClaimValue = "product:add",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ClaimType = "permissions",
+                            ClaimValue = "product:update",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ClaimType = "permissions",
+                            ClaimValue = "product:delete",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ClaimType = "permissions",
+                            ClaimValue = "category:get",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ClaimType = "permissions",
+                            ClaimValue = "category:add",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ClaimType = "permissions",
+                            ClaimValue = "category:update",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ClaimType = "permissions",
+                            ClaimValue = "category:delete",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ClaimType = "permissions",
+                            ClaimValue = "action:get",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ClaimType = "permissions",
+                            ClaimValue = "action:add",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ClaimType = "permissions",
+                            ClaimValue = "action:update",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            ClaimType = "permissions",
+                            ClaimValue = "action:delete",
+                            RoleId = "019409cc-7157-71a4-99d5-e295c82679db"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -683,34 +650,26 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.BuyingHistory", b =>
+            modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
                     b.HasOne("Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("BuyingHistories")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany("BuyingHistories")
-                        .HasForeignKey("ProductId")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.HasOne("Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Favourite", b =>
+            modelBuilder.Entity("Domain.Entities.DriverProfile", b =>
                 {
                     b.HasOne("Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("Favourites")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany("Favourites")
-                        .HasForeignKey("ProductId")
+                        .WithOne()
+                        .HasForeignKey("Domain.Entities.DriverProfile", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -721,74 +680,39 @@ namespace Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedById");
+
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserBehavior", b =>
+            modelBuilder.Entity("Domain.Entities.TraderProfile", b =>
                 {
                     b.HasOne("Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("UserBehaviors")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany("UserBehaviors")
-                        .HasForeignKey("ProductId")
+                        .WithOne()
+                        .HasForeignKey("Domain.Entities.TraderProfile", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserBehaviorAction", b =>
-                {
-                    b.HasOne("Domain.Entities.ActionType", "Action")
-                        .WithMany()
-                        .HasForeignKey("ActionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.UserBehavior", "UserBehavior")
-                        .WithMany("Actions")
-                        .HasForeignKey("UserBehaviorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Action");
-
-                    b.Navigation("UserBehavior");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserBehaviorDeviceInfo", b =>
-                {
-                    b.HasOne("Domain.Entities.UserBehavior", "UserBehavior")
-                        .WithMany("Devices")
-                        .HasForeignKey("UserBehaviorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("UserBehavior");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserBehaviorMetrics", b =>
-                {
-                    b.HasOne("Domain.Entities.UserBehavior", "UserBehavior")
-                        .WithMany("Metrics")
-                        .HasForeignKey("UserBehaviorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("UserBehavior");
                 });
 
             modelBuilder.Entity("Domain.Entities.WishList", b =>
                 {
-                    b.HasOne("Infrastructure.Identity.ApplicationUser", null)
-                        .WithMany("WishLists")
-                        .HasForeignKey("ApplicationUserId");
-
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithMany("WishLists")
                         .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -797,7 +721,7 @@ namespace Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Infrastructure.Identity.ApplicationUser", b =>
                 {
-                    b.OwnsMany("Domain.Entities.RefreshToken", "RefreshTokens", b1 =>
+                    b.OwnsMany("Infrastructure.Identity.RefreshToken", "RefreshTokens", b1 =>
                         {
                             b1.Property<string>("UserId")
                                 .HasColumnType("nvarchar(450)");
@@ -890,32 +814,6 @@ namespace Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
                 {
-                    b.Navigation("BuyingHistories");
-
-                    b.Navigation("Favourites");
-
-                    b.Navigation("UserBehaviors");
-
-                    b.Navigation("WishLists");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserBehavior", b =>
-                {
-                    b.Navigation("Actions");
-
-                    b.Navigation("Devices");
-
-                    b.Navigation("Metrics");
-                });
-
-            modelBuilder.Entity("Infrastructure.Identity.ApplicationUser", b =>
-                {
-                    b.Navigation("BuyingHistories");
-
-                    b.Navigation("Favourites");
-
-                    b.Navigation("UserBehaviors");
-
                     b.Navigation("WishLists");
                 });
 #pragma warning restore 612, 618

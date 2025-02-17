@@ -1,10 +1,6 @@
-﻿using API.Hubs;
-using Microsoft.AspNetCore.SignalR;
-
-namespace API.BackgroundServices;
+﻿namespace API.BackgroundServices;
 
 public class ServerTimeNotifyer(
-    IHubContext<NotificationHub, INotificationClient> _hubContext
     ) : BackgroundService
 {
     private static readonly TimeSpan Period = TimeSpan.FromSeconds(5);
@@ -19,7 +15,8 @@ public class ServerTimeNotifyer(
 
             //_logger.LogInformation("Executing : {server} {currentTime}", nameof(ServerTimeNotifyer), currentTime);  
 
-            await _hubContext.Clients.All.ReceiveNotification($"Server time: {currentTime}");
+            // TODO: SignalR
+            //await _hubContext.Clients.All.ReceiveNotification($"Server time: {currentTime}");
         }
     }
 }

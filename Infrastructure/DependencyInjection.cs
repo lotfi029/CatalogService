@@ -2,10 +2,12 @@
 using Application.Services;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Authentication;
+using Infrastructure.Identity.Authentication.Filters;
 using Infrastructure.Identity.Services;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,6 +41,9 @@ public static class DependencyInjection
         services.AddIdentity<ApplicationUser, ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+
+        services.AddTransient<IAuthorizationHandler, PermissionAutherizationHandler>();
+        services.AddTransient<IAuthorizationPolicyProvider, PermissionAutherizationPolicyProvider>();
 
         services.Configure<IdentityOptions>(options =>
         {

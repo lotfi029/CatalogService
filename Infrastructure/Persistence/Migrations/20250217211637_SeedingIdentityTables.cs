@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Infrastructure.Persistence.Migrations
+namespace Infrastructure.Presistance.Migrations
 {
     /// <inheritdoc />
-    public partial class InitAddIdentityTables : Migration
+    public partial class SeedingIdentityTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -166,6 +166,65 @@ namespace Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    IsDisabled = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Categories_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Categories_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DriverProfile",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    VehicleType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    VehicleModel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VehiclePlateNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    VehicleColor = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    VehicleLicense = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DrivingLicense = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    WalletBalance = table.Column<float>(type: "real", nullable: false, defaultValue: 0f),
+                    TotalDiscount = table.Column<float>(type: "real", nullable: false, defaultValue: 0f),
+                    Rating = table.Column<float>(type: "real", nullable: false, defaultValue: 0f),
+                    TotalTrips = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    TotalEarnings = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DriverProfile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DriverProfile_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefreshTokens",
                 columns: table => new
                 {
@@ -188,6 +247,101 @@ namespace Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TraderProfile",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CompanyName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CompanyAddress = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CompanyPhone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    CompanyEmail = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    CompanyWebsite = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CompanyLogo = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CompanyDescription = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CompanyTaxNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CompanyType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    CompanyLicense = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    WalletBalance = table.Column<float>(type: "real", nullable: false, defaultValue: 0f),
+                    Rating = table.Column<float>(type: "real", nullable: false, defaultValue: 0f),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TraderProfile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TraderProfile_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Products",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    Quentity = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDisabled = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Products_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Products_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Products_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WishList",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WishList", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WishList_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WishList_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "IsDisabled", "Name", "NormalizedName" },
@@ -201,6 +355,30 @@ namespace Infrastructure.Persistence.Migrations
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DateOfBirth", "Email", "EmailConfirmed", "FirstName", "IsDisabled", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Region", "SecurityStamp", "TwoFactorEnabled", "UserName", "VisitorType" },
                 values: new object[] { "019409bf-3ae7-7cdf-995b-db4620f2ff5f", 0, "019409C1-DB8B-7B6F-A8A1-8E35FB4D0748", new DateOnly(2025, 1, 5), "admin@PPRS.net", true, "PPRS", false, "Admin", false, null, "ADMIN@PPRS.NET", "ADMIN", "AQAAAAIAAYagAAAAECl9JOvxdQxpuavAKUNQ3NekBoKCjmJP/JgztKEreCfMtOTrv/ZnKq5gFycMbZIbzA==", null, false, "Platform", "019409c1-af2c-7e25-bc46-da6e10412d65", false, "admin", "Adminstrator" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoleClaims",
+                columns: new[] { "Id", "ClaimType", "ClaimValue", "RoleId" },
+                values: new object[,]
+                {
+                    { 1, "permissions", "product:get", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 2, "permissions", "product:add", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 3, "permissions", "product:update", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 4, "permissions", "product:delete", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 5, "permissions", "category:get", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 6, "permissions", "category:add", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 7, "permissions", "category:update", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 8, "permissions", "category:delete", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 9, "permissions", "action:get", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 10, "permissions", "action:add", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 11, "permissions", "action:update", "019409cc-7157-71a4-99d5-e295c82679db" },
+                    { 12, "permissions", "action:delete", "019409cc-7157-71a4-99d5-e295c82679db" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "019409cc-7157-71a4-99d5-e295c82679db", "019409bf-3ae7-7cdf-995b-db4620f2ff5f" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -240,6 +418,41 @@ namespace Infrastructure.Persistence.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_CreatedById",
+                table: "Categories",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_UpdatedById",
+                table: "Categories",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_CategoryId",
+                table: "Products",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_CreatedById",
+                table: "Products",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_UpdatedById",
+                table: "Products",
+                column: "UpdatedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WishList_ProductId",
+                table: "WishList",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WishList_UserId",
+                table: "WishList",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -261,10 +474,25 @@ namespace Infrastructure.Persistence.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "DriverProfile");
+
+            migrationBuilder.DropTable(
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
+                name: "TraderProfile");
+
+            migrationBuilder.DropTable(
+                name: "WishList");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

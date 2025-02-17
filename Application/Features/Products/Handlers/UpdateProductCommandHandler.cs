@@ -1,14 +1,10 @@
 ﻿using Application.Features.Products.Command;
-using Application.Hubs;
-using Microsoft.AspNetCore.SignalR;
-
 
 namespace Application.Features.Products.Handlers;
 
 public class UpdateProductCommandHandler(
     IProductRepository repository,
-    IUnitOfWork unitOfWork,
-    IHubContext<ProductHub, IProductClient> _hubContext) : IRequestHandler<UpdateProductCommand, Result>
+    IUnitOfWork unitOfWork) : IRequestHandler<UpdateProductCommand, Result>
 {
     private readonly IProductRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -29,7 +25,8 @@ public class UpdateProductCommandHandler(
 
         await _unitOfWork.SaveChangeAsync(cancellationToken);
 
-        await _hubContext.Clients.All.ProductUpdated(product.Adapt<ProductResponse>());
+        // TODO: SignalR
+        //await _hubContext.Clients.All.ProductUpdated(product.Adapt<ProductResponse>());
 
         return result;
     }

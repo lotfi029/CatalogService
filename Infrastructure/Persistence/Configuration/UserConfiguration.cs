@@ -6,6 +6,7 @@ public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
+
         builder.OwnsMany(e => e.RefreshTokens)
             .ToTable("RefreshTokens")
             .WithOwner()

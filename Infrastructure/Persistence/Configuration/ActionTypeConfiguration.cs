@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Infrastructure.Identity;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using static Domain.Abstractions.Constants.DefaultActions;
 
 namespace Infrastructure.Persistence.Configuration;
@@ -11,6 +12,14 @@ public class ActionTypeConfiguration : IEntityTypeConfiguration<ActionType>
 
         builder.Property(e => e.Description)
             .HasMaxLength(1000);
+
+        builder.HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(r => r.CreatedById);
+
+        builder.HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(r => r.CreatedById);
 
         List<ActionType> actions = [
             new() {
