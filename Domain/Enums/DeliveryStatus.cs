@@ -2,7 +2,6 @@
 
 public enum DeliveryStatus
 {
-    Default,
     Pending,
     Processing,
     Completed,
