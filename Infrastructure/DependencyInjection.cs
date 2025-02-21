@@ -27,7 +27,7 @@ public static class DependencyInjection
     }
     public static IServiceCollection AddDbConfiguration(this IServiceCollection services, IConfigurationManager configuration)
     {
-        var connectionString = configuration.GetConnectionString("defaultConnection");
+        var connectionString = configuration.GetConnectionString("VSConnectionString");
 
         services.AddDbContext<ApplicationDbContext>(options =>
         {

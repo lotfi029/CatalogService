@@ -12,7 +12,7 @@ public class FavoriteConfiguration : IEntityTypeConfiguration<Favourite>
             .HasForeignKey(r => r.UserId);
 
         builder.HasOne(e => e.Product)
-            .WithMany()
+            .WithMany(e => e.Favourites)
             .HasForeignKey(r => r.ProductId);
     }
 }

@@ -79,8 +79,7 @@ namespace Infrastructure.Presistance.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -97,11 +96,6 @@ namespace Infrastructure.Presistance.Migrations
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Favourites_Products_ProductId1",
-                        column: x => x.ProductId1,
-                        principalTable: "Products",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -109,11 +103,14 @@ namespace Infrastructure.Presistance.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TotalPrice = table.Column<int>(type: "int", nullable: false),
+                    TotalPrice = table.Column<float>(type: "real", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<float>(type: "real", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDisabled = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -211,17 +208,21 @@ namespace Infrastructure.Presistance.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DriverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeliveryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     EstimatedTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Deliveries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Deliveries_DriverProfile_DriverId",
+                        column: x => x.DriverId,
+                        principalTable: "DriverProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Deliveries_Order_OrderId",
                         column: x => x.OrderId,
@@ -331,6 +332,11 @@ namespace Infrastructure.Presistance.Migrations
                 column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Deliveries_DriverId",
+                table: "Deliveries",
+                column: "DriverId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Deliveries_OrderId",
                 table: "Deliveries",
                 column: "OrderId");
@@ -339,11 +345,6 @@ namespace Infrastructure.Presistance.Migrations
                 name: "IX_Favourites_ProductId",
                 table: "Favourites",
                 column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Favourites_ProductId1",
-                table: "Favourites",
-                column: "ProductId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Favourites_UserId",
