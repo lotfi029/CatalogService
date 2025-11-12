@@ -1,6 +1,6 @@
 using CatalogService.API;
-using CatalogService.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using CatalogService.API.Extensions;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,13 +11,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
-app.MapGet("api/products", async (ApplicationDbContext context, CancellationToken ct) =>
-{
-   var products = await context.Products.ToListAsync(ct);
-    return Results.Ok(products);
-});
+app.UseAuthorization();
+app.MapEndpoints();
 
 app.Run();

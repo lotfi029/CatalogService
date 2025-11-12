@@ -1,0 +1,17 @@
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: 'Select the environment to deploy to'
+                required: true
+                default: 'staging'
+                type: choice
+                options:
+                    - staging
+                    - production
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Manual deployment step
+              run: echo "This is a manual deployment step."-
