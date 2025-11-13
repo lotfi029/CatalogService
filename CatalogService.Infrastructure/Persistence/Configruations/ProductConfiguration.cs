@@ -1,9 +1,11 @@
 ﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
 
-public class ProductConfiguration : BaseEntityConfiguration<Product>
+internal sealed class ProductConfiguration : BaseEntityConfiguration<Product>
 {
     public override void Configure(EntityTypeBuilder<Product> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("products");
 
         builder.Property(p => p.Name)
@@ -29,6 +31,7 @@ public class ProductConfiguration : BaseEntityConfiguration<Product>
 
         builder.Property(p => p.VendorId)
             .HasColumnName("vendor_id")
+            .HasMaxLength(450)
             .IsRequired();
         builder.HasIndex(p => p.VendorId)
             .IsUnique()
@@ -43,22 +46,9 @@ public class ProductConfiguration : BaseEntityConfiguration<Product>
             .HasDatabaseName("idx_products_sku");
 
 
-        builder.OwnsOne(c => c.BasePrice, price =>
-        {
-            price.Property(e => e.Amount)
-                .HasColumnName("price")
-                .HasColumnType("DECIMAL(10, 2)")
-                .IsRequired();
-
-            price.Property(e => e.CurrencyType)
-                .HasColumnName("price_currency")
-                .HasMaxLength(5)
-                .IsRequired();
-
-            price.HasIndex(p => p.Amount)
-                .HasDatabaseName("idx_products_price");
-        });
-
-        base.Configure(builder);
+        builder.ToTable(p => p.HasCheckConstraint(
+            "chk_products_status",
+            "status IN (1, 2, 3, 4)"
+            ));
     }
 }

@@ -6,11 +6,10 @@ public class Product : Entity
     public string? Description { get; set; } = string.Empty;
     public string VendorId { get; set; } = string.Empty;
     public string? SKU { get; set; } = string.Empty;
-    public Price BasePrice { get; set; } = default!;
     public ProductStatus Status { get; set; } = ProductStatus.draft;
     public Dictionary<string, object>? Metadata {  get; set; }
 
-    //public ICollection<ProductAttributes> ProductAttributes { get; set; } = [];
-    //public ICollection<ProductVariant> ProductVariants { get; set; } = [];
-    //public ICollection<ProductCategories> ProductCategories { get; set; } = [];
+    public ICollection<ProductAttributes> ProductAttributes { get; set; } = [];
+    public ICollection<ProductVariant> ProductVariants { get; set; } = [];
+    public ICollection<ProductCategories> ProductCategories { get; set; } = [];
 }

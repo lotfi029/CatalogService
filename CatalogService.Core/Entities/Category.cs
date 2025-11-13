@@ -11,6 +11,8 @@ public class Category : Entity
     public string? Metadata { get; set; }
     public Category? Parent { get; set; }
 
+    public ICollection<Category>? Childerns { get; set; } = [];
     public ICollection<ProductCategories> ProductCategories { get; set; } = [];
+    public ICollection<CategoryVariantAttribute> CategoryVariantAttributes { get; set; } = [];
 }
 

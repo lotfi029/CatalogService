@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
 
-public class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : Entity
+internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : Entity
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
@@ -10,11 +10,11 @@ public class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : 
 
         builder.Property(e => e.CreatedAt)
             .HasColumnName("created_at")
-            .IsRequired();
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         builder.Property(e => e.CreatedBy)
             .HasColumnName("created_by")
-            .IsRequired();
+            .HasMaxLength(450);
 
         builder.Property(e => e.UpdatedAt)
             .HasColumnName("updated_at")
@@ -23,5 +23,8 @@ public class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : 
         builder.Property(b => b.IsActive)
             .HasColumnName("is_active")
             .IsRequired();
+
+        builder.HasIndex(e => e.IsActive)
+            .HasDatabaseName("idx_is_active");
     }
 }

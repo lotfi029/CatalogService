@@ -4,7 +4,7 @@ public class Attribute : Entity
 {
     public string Name {  set; get; } = string.Empty;
     public string Code { get; set; } = string.Empty;
-    public string Type {  get; set; } = string.Empty;
+    public AttibuteType Type {  get; set; }
 
     public bool IsFilterable { get; set; } = false;
     public bool IsSearchable { get; set; } = false;
