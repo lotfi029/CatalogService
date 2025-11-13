@@ -15,6 +15,8 @@ internal sealed class ProductAttributesConfiguration : IEntityTypeConfiguration<
         builder.Property(pa => pa.Value)
             .HasColumnName("value")
             .HasMaxLength(200);
+        builder.HasIndex(pa => pa.Value)
+            .HasDatabaseName("idx_product_attributes_value");
 
         builder.Property(pa => pa.CreatedAt)
             .HasColumnName("created_at")

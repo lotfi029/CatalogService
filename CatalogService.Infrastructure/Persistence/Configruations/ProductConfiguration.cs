@@ -10,12 +10,18 @@ internal sealed class ProductConfiguration : BaseEntityConfiguration<Product>
 
         builder.Property(p => p.Name)
             .HasColumnName("name")
-            .HasMaxLength(450)
+            .HasMaxLength(500)
             .IsRequired();
+        builder.HasIndex(p => p.Name)
+            .HasMethod("gin")
+            .IsTsVectorExpressionIndex("english");
 
         builder.Property(p => p.Description)
             .HasColumnName("description")
             .IsRequired(false);
+        builder.HasIndex(p => p.Description)
+            .HasMethod("gin")
+            .IsTsVectorExpressionIndex("english");
 
         builder.Property(e => e.Status)
             .HasColumnName("status")

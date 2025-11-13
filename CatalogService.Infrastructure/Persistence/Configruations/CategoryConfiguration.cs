@@ -30,7 +30,7 @@ internal class CategoryConfiguration : BaseEntityConfiguration<Category>
 
         builder.Property(c => c.Slug)
             .HasColumnName("slug")
-            .HasMaxLength(450)
+            .HasMaxLength(200)
             .IsRequired();
         builder.HasIndex(c => c.Slug)
             .IsUnique()

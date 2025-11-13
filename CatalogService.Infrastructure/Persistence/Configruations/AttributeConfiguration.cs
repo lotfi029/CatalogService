@@ -5,11 +5,12 @@ internal sealed class AttributeConfiguration : BaseEntityConfiguration<Core.Enti
     public override void Configure(EntityTypeBuilder<Core.Entities.Attribute> builder)
     {
         base.Configure(builder);
+
         builder.ToTable("attributes");
 
         builder.Property(a => a.Name)
             .HasColumnName("name")
-            .HasMaxLength(200);
+            .HasMaxLength(100);
 
         builder.Property(a => a.Code)
             .HasColumnName("code")
@@ -35,6 +36,9 @@ internal sealed class AttributeConfiguration : BaseEntityConfiguration<Core.Enti
         builder.Property(a => a.IsSearchable)
             .HasColumnName("is_searchable")
             .HasDefaultValue(false);
+        builder.HasIndex(a => a.IsSearchable)
+            .HasDatabaseName("idx_attributes_is_searchable")
+            .HasFilter("is_searchable = true");
 
         builder.Property(a => a.Options)
             .HasColumnName("options")

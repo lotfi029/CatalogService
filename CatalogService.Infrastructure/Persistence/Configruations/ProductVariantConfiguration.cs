@@ -27,6 +27,10 @@ internal sealed class ProductVariantConfiguration : BaseEntityConfiguration<Prod
                 .HasColumnName("price_currency")
                 .HasMaxLength(5)
                 .IsRequired();
+
+            price.HasIndex(e => e.Amount)
+                .HasDatabaseName("idx_product_variants_price_amount");
+
         });
         builder.OwnsOne(c => c.CompareAtPrice, price =>
         {

@@ -10,7 +10,7 @@ internal sealed class VariantAttributeDefinitionConfiguration : BaseEntityConfig
 
         builder.Property(vtd => vtd.Code)
             .HasColumnName("code")
-            .HasMaxLength(200)
+            .HasMaxLength(100)
             .IsRequired();
         builder.HasIndex(vtd => vtd.Code)
             .IsUnique()
@@ -19,8 +19,8 @@ internal sealed class VariantAttributeDefinitionConfiguration : BaseEntityConfig
         
         builder.Property(vtd => vtd.Name)
             .HasColumnName("name")
-            .HasMaxLength(200)
-            .IsRequired(true);
+            .HasMaxLength(100)
+            .IsRequired();
 
         builder.Property(vtd => vtd.DataType)
             .HasColumnName("data_type")
@@ -51,14 +51,5 @@ internal sealed class VariantAttributeDefinitionConfiguration : BaseEntityConfig
             .HasColumnName("validation_rules")
             .HasColumnType("jsonb")
             .IsRequired();
-
-        builder.ToTable(vtd =>
-        {
-            vtd.HasTrigger("");
-        });
-        
-        
-        builder.ToFunction()
     }
-
 }
