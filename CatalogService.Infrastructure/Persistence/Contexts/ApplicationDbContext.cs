@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Infrastructure.Persistence;
+﻿namespace CatalogService.Infrastructure.Persistence.Contexts;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {

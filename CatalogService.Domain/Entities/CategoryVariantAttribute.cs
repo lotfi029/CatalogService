@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Core.Entities;
+﻿namespace CatalogService.Domain.Entities;
 
 public class CategoryVariantAttribute
 {

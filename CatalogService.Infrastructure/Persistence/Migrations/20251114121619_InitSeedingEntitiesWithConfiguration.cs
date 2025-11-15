@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CatalogService.Infrastructure.Migrations
+namespace CatalogService.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedingTablesWithDatabase : Migration
+    public partial class InitSeedingEntitiesWithConfiguration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,20 +17,23 @@ namespace CatalogService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    type = table.Column<short>(type: "smallint", nullable: false),
                     is_filterable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_searchable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    options = table.Column<string>(type: "jsonb", nullable: true),
+                    options = table.Column<string>(type: "jsonb", nullable: true, defaultValue: "'[]'::jsonb"),
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_attributes", x => x.id);
+                    table.CheckConstraint("chk_attributes_type", "type > 0 AND type <= 6");
                 });
 
             migrationBuilder.CreateTable(
@@ -41,18 +44,21 @@ namespace CatalogService.Infrastructure.Migrations
                     parent_id = table.Column<Guid>(type: "uuid", nullable: true),
                     name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
-                    slug = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
+                    slug = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     path = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     level = table.Column<short>(type: "smallint", nullable: false),
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_categories", x => x.id);
+                    table.CheckConstraint("chk_categories_level", "level >= 0");
                     table.ForeignKey(
                         name: "FK_categories_categories_parent_id",
                         column: x => x.parent_id,
@@ -66,7 +72,7 @@ namespace CatalogService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
+                    name = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
                     vendor_id = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     sku = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -75,11 +81,14 @@ namespace CatalogService.Infrastructure.Migrations
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_products", x => x.id);
+                    table.CheckConstraint("chk_products_status", "status IN (1, 2, 3, 4)");
                 });
 
             migrationBuilder.CreateTable(
@@ -87,8 +96,8 @@ namespace CatalogService.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    code = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     data_type = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     is_required = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     affects_inventory = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
@@ -99,6 +108,8 @@ namespace CatalogService.Infrastructure.Migrations
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -151,7 +162,7 @@ namespace CatalogService.Infrastructure.Migrations
                         column: x => x.category_id,
                         principalTable: "categories",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_product_categories_products_product_id",
                         column: x => x.product_id,
@@ -176,11 +187,15 @@ namespace CatalogService.Infrastructure.Migrations
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_product_variants", x => x.id);
+                    table.CheckConstraint("chk_products_compare_at_price", "compare_at_price IS NULL OR compare_at_price >= 0");
+                    table.CheckConstraint("chk_products_price", "price >= 0");
                     table.ForeignKey(
                         name: "FK_product_variants_products_product_id",
                         column: x => x.product_id,
@@ -224,16 +239,43 @@ namespace CatalogService.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "idx_category_level",
+                name: "idx_attributes_is_filterable",
+                table: "attributes",
+                column: "is_filterable",
+                filter: "is_filterable = true");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_attributes_is_searchable",
+                table: "attributes",
+                column: "is_searchable",
+                filter: "is_searchable = true");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_attributes_type",
+                table: "attributes",
+                column: "type");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_is_active",
+                table: "attributes",
+                column: "is_active");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_categories_level",
                 table: "categories",
                 column: "level",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "idx_category_slug",
+                name: "idx_categories_slug",
                 table: "categories",
                 column: "slug",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "idx_is_active",
+                table: "categories",
+                column: "is_active");
 
             migrationBuilder.CreateIndex(
                 name: "IX_categories_parent_id",
@@ -246,6 +288,11 @@ namespace CatalogService.Infrastructure.Migrations
                 column: "variant_attribute_id");
 
             migrationBuilder.CreateIndex(
+                name: "idx_product_attributes_value",
+                table: "product_attributes",
+                column: "value");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_product_attributes_attribute_id",
                 table: "product_attributes",
                 column: "attribute_id");
@@ -254,6 +301,16 @@ namespace CatalogService.Infrastructure.Migrations
                 name: "IX_product_categories_category_id",
                 table: "product_categories",
                 column: "category_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_is_active",
+                table: "product_variants",
+                column: "is_active");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_product_variants_price_amount",
+                table: "product_variants",
+                column: "price");
 
             migrationBuilder.CreateIndex(
                 name: "idx_product_variants_sku",
@@ -265,6 +322,11 @@ namespace CatalogService.Infrastructure.Migrations
                 name: "IX_product_variants_product_id",
                 table: "product_variants",
                 column: "product_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_is_active",
+                table: "products",
+                column: "is_active");
 
             migrationBuilder.CreateIndex(
                 name: "idx_products_sku",
@@ -283,6 +345,25 @@ namespace CatalogService.Infrastructure.Migrations
                 table: "products",
                 column: "vendor_id",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_products_description",
+                table: "products",
+                column: "description")
+                .Annotation("Npgsql:IndexMethod", "gin")
+                .Annotation("Npgsql:TsVectorConfig", "english");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_products_name",
+                table: "products",
+                column: "name")
+                .Annotation("Npgsql:IndexMethod", "gin")
+                .Annotation("Npgsql:TsVectorConfig", "english");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_is_active",
+                table: "variant_attribute_definitions",
+                column: "is_active");
 
             migrationBuilder.CreateIndex(
                 name: "idx_variant_attribute_definition_code",

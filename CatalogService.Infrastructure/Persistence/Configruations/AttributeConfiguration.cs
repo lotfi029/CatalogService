@@ -1,8 +1,8 @@
 ﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
 
-internal sealed class AttributeConfiguration : BaseEntityConfiguration<Core.Entities.Attribute>
+internal sealed class AttributeConfiguration : BaseEntityConfiguration<Domain.Entities.Attribute>
 {
-    public override void Configure(EntityTypeBuilder<Core.Entities.Attribute> builder)
+    public override void Configure(EntityTypeBuilder<Domain.Entities.Attribute> builder)
     {
         base.Configure(builder);
 

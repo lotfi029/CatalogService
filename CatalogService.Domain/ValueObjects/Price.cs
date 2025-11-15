@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Core.ValueObjects;
+﻿namespace CatalogService.Domain.ValueObjects;
 
 public record Price 
 {

@@ -1,4 +1,4 @@
-﻿using CatalogService.Infrastructure.Persistence;
+﻿using CatalogService.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace CatalogService.API.Extensions;

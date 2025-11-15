@@ -1,4 +1,4 @@
-﻿using CatalogService.Infrastructure.Persistence;
+﻿using CatalogService.Infrastructure.Persistence.Contexts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;

@@ -2,4 +2,4 @@
 global using Microsoft.EntityFrameworkCore;
 
 
-global using CatalogService.Core.Entities;
+global using CatalogService.Domain.Entities;

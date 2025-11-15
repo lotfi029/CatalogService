@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Core.Enums;
+﻿namespace CatalogService.Domain.Enums;
 
 public enum AttibuteType
 {
