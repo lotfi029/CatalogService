@@ -16,10 +16,10 @@ internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T 
             .HasMaxLength(450);
         
         builder.Property(e => e.LastUpdatedAt)
-            .HasColumnName("updated_at")
+            .HasColumnName("last_updated_at")
             .IsRequired(false);
         builder.Property(e => e.LastUpdatedBy)
-            .HasColumnName("updated_at")
+            .HasColumnName("last_updated_by")
             .IsRequired(false);
 
         builder.Property(e => e.DeletedAt)

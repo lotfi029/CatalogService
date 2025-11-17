@@ -43,8 +43,7 @@ internal sealed class AttributeConfiguration : BaseEntityConfiguration<Domain.En
         builder.Property(a => a.Options)
             .HasColumnName("options")
             .HasColumnType("jsonb")
-            .IsRequired(false)
-            .HasDefaultValue("'[]'::jsonb");
+            .IsRequired(false);
 
         builder.ToTable(a => a.HasCheckConstraint(
             "chk_attributes_type",

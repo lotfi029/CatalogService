@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CatalogService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251114121619_InitSeedingEntitiesWithConfiguration")]
+    [Migration("20251117160458_InitSeedingEntitiesWithConfiguration")]
     partial class InitSeedingEntitiesWithConfiguration
     {
         /// <inheritdoc />
@@ -26,7 +26,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CatalogService.Core.Entities.Attribute", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.Attribute", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,6 +55,10 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("deleted_by");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -77,25 +81,27 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_searchable");
 
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_updated_at");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("last_updated_by");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.Property<string>("Options")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Dictionary<string, object>>("Options")
                         .HasColumnType("jsonb")
-                        .HasDefaultValue("'[]'::jsonb")
                         .HasColumnName("options");
 
                     b.Property<short>("Type")
                         .HasColumnType("smallint")
                         .HasColumnName("type");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -123,7 +129,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.Category", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -146,6 +152,10 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("deleted_by");
+
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
@@ -159,6 +169,14 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
                         .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_updated_at");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("last_updated_by");
 
                     b.Property<short>("Level")
                         .HasColumnType("smallint")
@@ -189,10 +207,6 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("slug");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
                     b.HasKey("Id");
 
                     b.HasIndex("IsActive")
@@ -214,7 +228,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.CategoryVariantAttribute", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.CategoryVariantAttribute", b =>
                 {
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
@@ -254,7 +268,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.ToTable("category_variant_attributes", (string)null);
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.Product", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -277,6 +291,10 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("deleted_by");
+
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
@@ -290,6 +308,14 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
                         .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_updated_at");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("last_updated_by");
 
                     b.Property<Dictionary<string, object>>("Metadata")
                         .HasColumnType("jsonb")
@@ -309,10 +335,6 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
 
                     b.Property<string>("VendorId")
                         .IsRequired()
@@ -353,7 +375,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.ProductAttributes", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.ProductAttributes", b =>
                 {
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
@@ -390,7 +412,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.ToTable("product_attributes", (string)null);
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.ProductCategories", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.ProductCategories", b =>
                 {
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
@@ -423,7 +445,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.ToTable("product_categories", (string)null);
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.ProductVariant", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.ProductVariant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -451,6 +473,10 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("deleted_by");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -461,6 +487,14 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_deleted");
 
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_updated_at");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("last_updated_by");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
                         .HasColumnName("product_id");
@@ -470,10 +504,6 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("sku");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
 
                     b.Property<string>("VariantAttributes")
                         .IsRequired()
@@ -499,7 +529,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.VariantAttributeDefinition", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.VariantAttributeDefinition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -551,6 +581,10 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("deleted_by");
+
                     b.Property<short>("DisplayOrder")
                         .HasColumnType("smallint")
                         .HasColumnName("display_order");
@@ -571,15 +605,19 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("is_required");
 
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_updated_at");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("last_updated_by");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
 
                     b.Property<Dictionary<string, object>>("ValidationRules")
                         .IsRequired()
@@ -598,9 +636,9 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.ToTable("variant_attribute_definitions", (string)null);
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.Category", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.Category", b =>
                 {
-                    b.HasOne("CatalogService.Core.Entities.Category", "Parent")
+                    b.HasOne("CatalogService.Domain.Entities.Category", "Parent")
                         .WithMany("Childerns")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -608,15 +646,15 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.CategoryVariantAttribute", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.CategoryVariantAttribute", b =>
                 {
-                    b.HasOne("CatalogService.Core.Entities.Category", "Category")
+                    b.HasOne("CatalogService.Domain.Entities.Category", "Category")
                         .WithMany("CategoryVariantAttributes")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CatalogService.Core.Entities.VariantAttributeDefinition", "VariantAttribute")
+                    b.HasOne("CatalogService.Domain.Entities.VariantAttributeDefinition", "VariantAttribute")
                         .WithMany("CategoryVariantAttributes")
                         .HasForeignKey("VariantAttributeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -627,15 +665,15 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Navigation("VariantAttribute");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.ProductAttributes", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.ProductAttributes", b =>
                 {
-                    b.HasOne("CatalogService.Core.Entities.Attribute", "Attribute")
+                    b.HasOne("CatalogService.Domain.Entities.Attribute", "Attribute")
                         .WithMany("ProductAttributes")
                         .HasForeignKey("AttributeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CatalogService.Core.Entities.Product", "Product")
+                    b.HasOne("CatalogService.Domain.Entities.Product", "Product")
                         .WithMany("ProductAttributes")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -646,15 +684,15 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.ProductCategories", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.ProductCategories", b =>
                 {
-                    b.HasOne("CatalogService.Core.Entities.Category", "Category")
+                    b.HasOne("CatalogService.Domain.Entities.Category", "Category")
                         .WithMany("ProductCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CatalogService.Core.Entities.Product", "Product")
+                    b.HasOne("CatalogService.Domain.Entities.Product", "Product")
                         .WithMany("ProductCategories")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -665,15 +703,15 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.ProductVariant", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.ProductVariant", b =>
                 {
-                    b.HasOne("CatalogService.Core.Entities.Product", "Product")
+                    b.HasOne("CatalogService.Domain.Entities.Product", "Product")
                         .WithMany("ProductVariants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("CatalogService.Core.ValueObjects.Price", "CompareAtPrice", b1 =>
+                    b.OwnsOne("CatalogService.Domain.ValueObjects.Price", "CompareAtPrice", b1 =>
                         {
                             b1.Property<Guid>("ProductVariantId")
                                 .HasColumnType("uuid");
@@ -697,7 +735,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("ProductVariantId");
                         });
 
-                    b.OwnsOne("CatalogService.Core.ValueObjects.Price", "Price", b1 =>
+                    b.OwnsOne("CatalogService.Domain.ValueObjects.Price", "Price", b1 =>
                         {
                             b1.Property<Guid>("ProductVariantId")
                                 .HasColumnType("uuid");
@@ -734,12 +772,12 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.Attribute", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.Attribute", b =>
                 {
                     b.Navigation("ProductAttributes");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.Category", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.Category", b =>
                 {
                     b.Navigation("CategoryVariantAttributes");
 
@@ -748,7 +786,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Navigation("ProductCategories");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.Product", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.Product", b =>
                 {
                     b.Navigation("ProductAttributes");
 
@@ -757,7 +795,7 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     b.Navigation("ProductVariants");
                 });
 
-            modelBuilder.Entity("CatalogService.Core.Entities.VariantAttributeDefinition", b =>
+            modelBuilder.Entity("CatalogService.Domain.Entities.VariantAttributeDefinition", b =>
                 {
                     b.Navigation("CategoryVariantAttributes");
                 });

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -22,13 +20,15 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     type = table.Column<short>(type: "smallint", nullable: false),
                     is_filterable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_searchable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    options = table.Column<string>(type: "jsonb", nullable: true, defaultValue: "'[]'::jsonb"),
+                    options = table.Column<Dictionary<string, object>>(type: "jsonb", nullable: true),
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_updated_by = table.Column<string>(type: "text", nullable: true),
+                    last_updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                    deleted_by = table.Column<string>(type: "text", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -50,10 +50,12 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     metadata = table.Column<string>(type: "jsonb", nullable: true),
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_updated_by = table.Column<string>(type: "text", nullable: true),
+                    last_updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                    deleted_by = table.Column<string>(type: "text", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -80,10 +82,12 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     metadata = table.Column<Dictionary<string, object>>(type: "jsonb", nullable: true),
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_updated_by = table.Column<string>(type: "text", nullable: true),
+                    last_updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                    deleted_by = table.Column<string>(type: "text", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -107,10 +111,12 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     validation_rules = table.Column<Dictionary<string, object>>(type: "jsonb", nullable: false),
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_updated_by = table.Column<string>(type: "text", nullable: true),
+                    last_updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                    deleted_by = table.Column<string>(type: "text", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -186,10 +192,12 @@ namespace CatalogService.Infrastructure.Persistence.Migrations
                     compare_at_price_currency = table.Column<string>(type: "character varying(5)", maxLength: 5, nullable: true),
                     created_by = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_updated_by = table.Column<string>(type: "text", nullable: true),
+                    last_updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                    deleted_by = table.Column<string>(type: "text", nullable: true),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
