@@ -8,3 +8,8 @@ public record SKUValueObject
         Value = value;
     }
 }
+
+
+
+
+// outbox pattern

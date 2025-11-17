@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.Entities;
 
-public class Attribute : Entity
+public class Attribute : AuditableEntity
 {
     public string Name {  set; get; } = string.Empty;
     public string Code { get; set; } = string.Empty;

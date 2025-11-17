@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
 
-internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : Entity
+internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : AuditableEntity
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
@@ -11,17 +11,23 @@ internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T 
         builder.Property(e => e.CreatedAt)
             .HasColumnName("created_at")
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-        builder.Property(e => e.UpdatedAt)
-            .HasColumnName("updated_at")
-            .IsRequired(false);
-        builder.Property(e => e.DeletedAt)
-            .HasColumnName("deleted_at")
-            .IsRequired(false);
-
         builder.Property(e => e.CreatedBy)
             .HasColumnName("created_by")
             .HasMaxLength(450);
+        
+        builder.Property(e => e.LastUpdatedAt)
+            .HasColumnName("updated_at")
+            .IsRequired(false);
+        builder.Property(e => e.LastUpdatedBy)
+            .HasColumnName("updated_at")
+            .IsRequired(false);
 
+        builder.Property(e => e.DeletedAt)
+            .HasColumnName("deleted_at")
+            .IsRequired(false);
+        builder.Property(e => e.DeletedBy)
+            .HasColumnName("deleted_by")
+            .IsRequired(false);
         builder.Property(e => e.IsDeleted)
             .HasColumnName("is_deleted")
             .IsRequired()
@@ -30,7 +36,6 @@ internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T 
         builder.Property(b => b.IsActive)
             .HasColumnName("is_active")
             .IsRequired();
-
         builder.HasIndex(e => e.IsActive)
             .HasDatabaseName("idx_is_active");
     }

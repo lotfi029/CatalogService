@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.Entities;
 
-public class Product : Entity
+public class Product : AuditableEntity
 {
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; } = string.Empty;

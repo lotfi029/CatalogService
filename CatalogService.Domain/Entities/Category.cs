@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.Entities;
 
-public class Category : Entity
+public class Category : AuditableEntity
 {
     public Guid? ParentId { get; set; }
     public string Name { get; set; } = string.Empty;

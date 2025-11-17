@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.Entities;
 
-public class ProductVariant : Entity
+public class ProductVariant : AuditableEntity
 {
     public Guid ProductId { get; set; }
     public string SKU { get; set; } = string.Empty;

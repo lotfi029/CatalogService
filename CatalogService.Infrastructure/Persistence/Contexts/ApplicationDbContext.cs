@@ -9,4 +9,37 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        var entities = ChangeTracker.Entries<IAuditable>();
+
+        foreach (var entityTrack in entities)
+        {
+            switch (entityTrack.State)
+            {
+                case EntityState.Added:
+                    entityTrack.Entity.SetCreationAudit(Guid.NewGuid().ToString());
+                    break;
+
+                case EntityState.Modified:
+                    if (entityTrack.Entity.IsDeleted)
+                    {
+                        var isDeletedProp = entityTrack.Property(e => e.IsDeleted);
+
+                        if (isDeletedProp.IsModified && isDeletedProp.OriginalValue == false)
+                        {
+                            entityTrack.Entity.SetDeletionAudit(Guid.NewGuid().ToString());
+                        }
+                    }
+                    else 
+                        entityTrack.Entity.SetCreationAudit(Guid.NewGuid().ToString());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
 }
