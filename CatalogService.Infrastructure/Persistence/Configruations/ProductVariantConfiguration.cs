@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
+﻿using CatalogService.Domain.ValueObjects;
+
+namespace CatalogService.Infrastructure.Persistence.Configruations;
 
 internal sealed class ProductVariantConfiguration : BaseEntityConfiguration<ProductVariant>
 {
@@ -9,6 +11,10 @@ internal sealed class ProductVariantConfiguration : BaseEntityConfiguration<Prod
         builder.ToTable("product_variants");
 
         builder.Property(pv => pv.SKU)
+            .HasConversion(
+                sku => sku.Value,
+                value => Sku.Create(value)!
+            )
             .HasColumnName("sku")
             .HasMaxLength(100)
             .IsRequired();

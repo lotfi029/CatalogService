@@ -5,8 +5,8 @@ public class Product : AuditableEntity
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; } = string.Empty;
     public string VendorId { get; set; } = string.Empty;
-    public string? SKU { get; set; } = string.Empty;
-    public Enums.ProductStatus Status { get; set; } = Enums.ProductStatus.Unspecified;
+    public Sku? SKU { get; set; }
+    public ProductStatus Status { get; set; } = ProductStatus.Unspecified;
     public Dictionary<string, object>? Metadata {  get; set; }
 
     public ICollection<ProductAttributes> ProductAttributes { get; set; } = [];

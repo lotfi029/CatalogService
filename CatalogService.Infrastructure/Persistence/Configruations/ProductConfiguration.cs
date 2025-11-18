@@ -44,6 +44,10 @@ internal sealed class ProductConfiguration : BaseEntityConfiguration<Product>
             .HasDatabaseName("idx_products_vendor_id");
 
         builder.Property(p => p.SKU)
+            .HasConversion(
+                sku => sku!.Value,
+                value => Sku.Create(value)!
+            )
             .HasColumnName("sku")
             .HasMaxLength(100)
             .IsRequired(false);

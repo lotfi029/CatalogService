@@ -3,7 +3,7 @@
 public class ProductVariant : AuditableEntity
 {
     public Guid ProductId { get; set; }
-    public string SKU { get; set; } = string.Empty;
+    public required Sku SKU { get; set; }
     public string VariantAttributes {  get; set; } = string.Empty; // json
     public string CustomizationOptions {  get; set; } = string.Empty; // json
 
