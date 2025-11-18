@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.ValueObjects;
 
-public record Sku
+public sealed record Sku
 {
     private const int DefaultLength = 8;
     private Sku(string vlaue)

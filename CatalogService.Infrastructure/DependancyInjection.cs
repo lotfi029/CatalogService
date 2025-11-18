@@ -1,4 +1,5 @@
-﻿using CatalogService.Infrastructure.Persistence.Contexts;
+﻿using CatalogService.Domain.IRepositories;
+using CatalogService.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -28,7 +29,10 @@ public static class DependancyInjection
         //{
         //    options.UseNpgsql(connectionString);
         //});
+        
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }
+    
 }

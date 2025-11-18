@@ -2,8 +2,8 @@
 public enum ProductStatus
 {
     Unspecified = 0,
-    draft,
-    active,
-    inactive,
-    archived
+    Draft,
+    Active,
+    Inactive,
+    Archived
 }

@@ -11,6 +11,7 @@ public class Attribute : AuditableEntity
 
     // Json
     public Dictionary<string, object>? Options { get; set; }
+    public ICollection<ProductAttributes> ProductAttributes { get; set; } = [];
 
     public Attribute() { }
     private Attribute(
@@ -39,6 +40,16 @@ public class Attribute : AuditableEntity
         Dictionary<string, object>? options = null
         )
     {
+        switch (type)
+        {
+            case AttibuteType.Select:
+                break;
+
+            default:
+                options = null;
+                break;
+        }
+
         return new Attribute(
             name,
             code,
@@ -48,14 +59,14 @@ public class Attribute : AuditableEntity
             options
             );
     }
-    public void Update(string name, bool isFilterable = false, bool isSearchable = false)
+    public void UpdateDetails(string name, bool isFilterable = false, bool isSearchable = false)
     {
         Name = name;
         IsFilterable = isFilterable;
         IsSearchable = isSearchable;
     }
-
-
-
-    public ICollection<ProductAttributes> ProductAttributes { get; set; } = [];
+    public void UpdateOptions(Dictionary<string, object> options)
+    {
+        Options = options;
+    }
 }

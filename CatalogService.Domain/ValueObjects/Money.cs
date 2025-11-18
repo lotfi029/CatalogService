@@ -1,16 +1,16 @@
 ﻿namespace CatalogService.Domain.ValueObjects;
 
-public record Price 
+public record Money 
 {
     public decimal Amount { get; set; } = 0.0m;
     public string CurrencyType { get; set; } = string.Empty;
 
-    public Price()
+    public Money()
     {
         Amount = 0.0m;
-        CurrencyType = string.Empty;
+        CurrencyType = "USD";
     }
-    public Price(decimal amount)
+    public Money(decimal amount)
     {
         if (amount < 0)
             throw new ArgumentException("Amount cannot be negative", nameof(amount));
@@ -18,7 +18,7 @@ public record Price
         Amount = amount;
         CurrencyType = "USD";
     }
-    public Price(decimal amount, string currencyType)
+    public Money(decimal amount, string currencyType)
     {
         if (amount < 0)
             throw new ArgumentException("Amount cannot be negative", nameof(amount));
@@ -29,4 +29,6 @@ public record Price
         Amount = amount;
         CurrencyType = currencyType.ToUpperInvariant();
     }
+
+
 }

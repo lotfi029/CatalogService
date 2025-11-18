@@ -1,15 +1,14 @@
-﻿using CatalogService.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CatalogService.Domain.IRepositories;
-public interface IUnitOfWork { }
+public interface IUnitOfWork 
+{
+    ICategoryRepository Categories { get; }
+    IProductRepository Products { get; }
+    IProductVariantRepository ProductVariants { get; }
 
-public interface IRepository<T> where T : Entity;
-public interface IProductRepsitory : IRepository<Product> { }
-public interface ICategoryRepository : IRepository<Category> { }
-public interface IVariantDefinitionRepository : IRepository<VariantAttributeDefinition> { }
-public interface IAttributeDefinitionRepository : IRepository<Entities.Attribute> { }
-
-
-
-
-
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
+    Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);
+    Task CommitTransactionAsync (IDbContextTransaction transaction, CancellationToken ct = default);
+    Task RollBackTransactionAsync(IDbContextTransaction transaction, CancellationToken ct = default);
+}
