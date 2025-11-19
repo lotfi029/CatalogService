@@ -7,9 +7,6 @@ public sealed class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
 {
     private readonly ApplicationDbContext _context = context;
 
-    public ICategoryRepository Categories 
-        => new CategoryRepository(_context);
-
     public IProductRepository Products 
         => new ProductRepository(_context);
 

@@ -1,4 +1,5 @@
 ﻿using CatalogService.Domain.Abstractions;
+using CatalogService.Domain.DomainEvents.Categories;
 
 namespace CatalogService.Domain.Entities;
 
@@ -13,9 +14,9 @@ public class Category : AuditableEntity
     public Dictionary<string, object>? Metadata { get; private set; }
     public Category? Parent { get; private set; }
 
-    public ICollection<Category>? Childerns { get; set; } = [];
-    public ICollection<ProductCategories> ProductCategories { get; set; } = [];
-    public ICollection<CategoryVariantAttribute> CategoryVariantAttributes { get; set; } = [];
+
+    private readonly List<CategoryVariantAttribute> _variantAttributes = [];
+    public IReadOnlyCollection<CategoryVariantAttribute> CategoryVariantAttributes => _variantAttributes.AsReadOnly();
 
 
 
@@ -48,7 +49,8 @@ public class Category : AuditableEntity
         string? path = null,
         Dictionary<string, object>? metadata = null)
     {
-        return new Category(
+
+        var category = new Category(
             name,
             slug,
             level,
@@ -56,8 +58,31 @@ public class Category : AuditableEntity
             description,
             path,
             metadata);
+
+        category.AddDomainEvent(new CategoryCreatedDomainEvent(category.Id));
+
+        return category;
     }
 
+    public void UpdateMetadata(Dictionary<string, object> metadata)
+    {
+        Metadata = metadata;
+    }
 
+    public void UpdateDetails(string name, string? description)
+    {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentException("Category name cannot be null or empty.", nameof(name));
+        Name = name;
+        if (description is not null)
+            Description = description;
+    }
+
+    public void AddVariantAttribute(CategoryVariantAttribute categoryVariantAttribute)
+    {
+        ArgumentNullException.ThrowIfNull(categoryVariantAttribute);
+
+        _variantAttributes.Add(categoryVariantAttribute);
+    }
 }
 

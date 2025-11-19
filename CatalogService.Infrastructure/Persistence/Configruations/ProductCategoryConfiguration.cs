@@ -30,7 +30,7 @@ public sealed class ProductCategoryConfiguration : IEntityTypeConfiguration<Prod
             .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasOne(pc => pc.Category)
-            .WithMany(c => c.ProductCategories)
+            .WithMany()
             .HasForeignKey(pc => pc.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
     }

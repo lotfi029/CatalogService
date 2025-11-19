@@ -23,7 +23,7 @@ internal class CategoryConfiguration : BaseEntityConfiguration<Category>
             .IsRequired(false);
 
         builder.HasOne(c => c.Parent)
-            .WithMany(c => c.Childerns)
+            .WithMany()
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired(false);

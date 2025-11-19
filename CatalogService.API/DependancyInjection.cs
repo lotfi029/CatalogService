@@ -1,6 +1,7 @@
 ﻿using CatalogService.API.Extensions;
 using CatalogService.API.Infrastructure;
 using CatalogService.Application;
+using CatalogService.Domain;
 using CatalogService.Infrastructure;
 
 namespace CatalogService.API;
@@ -21,6 +22,7 @@ public static class DependancyInjection
     private static IServiceCollection AddAntherLayers(this IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddDomain()
             .AddInfrastructure(configuration)
             .AddApplication();
 

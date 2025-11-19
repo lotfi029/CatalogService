@@ -3,7 +3,6 @@
 namespace CatalogService.Domain.IRepositories;
 public interface IUnitOfWork 
 {
-    ICategoryRepository Categories { get; }
     IProductRepository Products { get; }
     IProductVariantRepository ProductVariants { get; }
     IAttributeRepository AttributeDefinitions { get; }

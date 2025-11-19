@@ -30,6 +30,7 @@ public static class DependancyInjection
         //    options.UseNpgsql(connectionString);
         //});
         
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
