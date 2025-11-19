@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Domain.Entities;
+﻿namespace CatalogService.Domain.Abstractions;
 
 public interface IAuditable
 {

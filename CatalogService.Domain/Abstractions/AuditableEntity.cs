@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Domain.Entities;
+﻿namespace CatalogService.Domain.Abstractions;
 
 public abstract class AuditableEntity : Entity, IAuditable
 {

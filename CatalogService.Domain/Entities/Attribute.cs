@@ -1,18 +1,19 @@
-﻿namespace CatalogService.Domain.Entities;
+﻿using CatalogService.Domain.Abstractions;
 
-public class Attribute : AuditableEntity
+namespace CatalogService.Domain.Entities;
+
+public sealed class Attribute : AuditableEntity
 {
-    public string Name {  set; get; } = string.Empty;
-    public string Code { get; set; } = string.Empty;
-    public AttibuteType Type {  get; set; }
+    public string Name { get; private set; } = string.Empty;
+    public string Code { get; private set; } = string.Empty;
+    public AttibuteType Type {  get; private set; }
 
-    public bool IsFilterable { get; set; } = false;
-    public bool IsSearchable { get; set; } = false;
+    public bool IsFilterable { get; private set; } = false;
+    public bool IsSearchable { get; private set; } = false;
+
 
     // Json
-    public Dictionary<string, object>? Options { get; set; }
-    public ICollection<ProductAttributes> ProductAttributes { get; set; } = [];
-
+    public Dictionary<string, object>? Options { get; private set; }
     public Attribute() { }
     private Attribute(
         string name, 

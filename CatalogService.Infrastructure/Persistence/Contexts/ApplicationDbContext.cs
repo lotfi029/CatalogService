@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Contexts;
+﻿using CatalogService.Domain.Abstractions;
+
+namespace CatalogService.Infrastructure.Persistence.Contexts;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {

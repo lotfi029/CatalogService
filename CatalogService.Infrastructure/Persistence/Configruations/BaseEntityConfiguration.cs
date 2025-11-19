@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
+﻿using CatalogService.Domain.Abstractions;
+
+namespace CatalogService.Infrastructure.Persistence.Configruations;
 
 internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : AuditableEntity
 {

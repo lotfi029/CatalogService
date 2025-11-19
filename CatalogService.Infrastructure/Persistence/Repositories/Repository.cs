@@ -1,5 +1,5 @@
-﻿using CatalogService.Domain.IRepositories;
-using CatalogService.Infrastructure.Persistence.Contexts;
+﻿using CatalogService.Domain.Abstractions;
+using CatalogService.Domain.IRepositories;
 using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
@@ -23,6 +23,21 @@ public class Repository<T>(ApplicationDbContext _context) : IRepository<T>
     }
 
     public Task<int> DeleteAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> ExistsAsync(Guid id, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         throw new NotImplementedException();
     }

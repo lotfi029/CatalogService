@@ -9,11 +9,10 @@ public sealed record Sku
     
     public static Sku? Create(string value)
     {
-        if (string.IsNullOrEmpty(value))
-            return null;
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
         if (value.Length != DefaultLength)
-            return null;
+            throw new InvalidOperationException($"Sku must be {DefaultLength} characters long.");
 
         return new Sku(value);
     }

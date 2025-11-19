@@ -6,6 +6,8 @@ public interface IUnitOfWork
     ICategoryRepository Categories { get; }
     IProductRepository Products { get; }
     IProductVariantRepository ProductVariants { get; }
+    IAttributeRepository AttributeDefinitions { get; }
+    IVariantDefinitionRepository VariantDefinitions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);

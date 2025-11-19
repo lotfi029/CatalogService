@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Domain.Entities;
+﻿using CatalogService.Domain.Abstractions;
+
+namespace CatalogService.Domain.Entities;
 
 public class Product : AuditableEntity
 {
@@ -82,7 +84,7 @@ public class Product : AuditableEntity
     }
     public void AddAttribute(ProductAttributes attribute)
     {
-        // check if this attribute valid for this product or not
+
         ArgumentNullException.ThrowIfNull(attribute);
         if (_attributes.Any(e => e.AttributeId == attribute.AttributeId))
             throw new InvalidOperationException("Attribute already added to the product.");
@@ -91,7 +93,7 @@ public class Product : AuditableEntity
     }
     public void AddVariant(ProductVariant variant)
     {
-        // check if this variant valid for this product or not
+
         ArgumentNullException.ThrowIfNull(variant);
         if (_variants.Any(e => e.Id == variant.Id))
             throw new InvalidOperationException("Variant with the same SKU already exists for this product.");
@@ -102,9 +104,8 @@ public class Product : AuditableEntity
     public void ActiveProduct()
     {
         if (Status == ProductStatus.Active)
-        {
             throw new InvalidOperationException("Product is already active.");
-        }
+        
 
         Status = ProductStatus.Active;
         Active();
@@ -120,9 +121,8 @@ public class Product : AuditableEntity
     public void ArchiveProduct()
     {
         if (Status == ProductStatus.Archived)
-        {
             throw new InvalidOperationException("Product is already archived.");
-        }
+        
         Status = ProductStatus.Archived;
     }
     #endregion

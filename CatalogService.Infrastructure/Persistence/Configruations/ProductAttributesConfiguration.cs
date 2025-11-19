@@ -21,18 +21,14 @@ internal sealed class ProductAttributesConfiguration : IEntityTypeConfiguration<
         builder.Property(pa => pa.CreatedAt)
             .HasColumnName("created_at")
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-        
-        builder.Property(pa => pa.CreatedBy)
-            .HasColumnName("created_by")
-            .HasMaxLength(450)
-            .IsRequired(false);
 
         builder.HasOne(pa => pa.Product)
             .WithMany(p => p.ProductAttributes)
             .HasForeignKey(pa => pa.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasOne(pa => pa.Attribute)
-            .WithMany(a => a.ProductAttributes)
+            .WithMany()
             .HasForeignKey(pa => pa.AttributeId)
             .OnDelete(DeleteBehavior.Cascade);
 

@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Domain.Entities;
+﻿using CatalogService.Domain.Abstractions;
+
+namespace CatalogService.Domain.Entities;
 
 public class ProductVariant : AuditableEntity
 {

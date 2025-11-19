@@ -1,5 +1,4 @@
 ﻿using CatalogService.Domain.IRepositories;
-using CatalogService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
