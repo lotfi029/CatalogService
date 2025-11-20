@@ -38,7 +38,5 @@ internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T 
         builder.Property(b => b.IsActive)
             .HasColumnName("is_active")
             .IsRequired();
-        builder.HasIndex(e => e.IsActive)
-            .HasDatabaseName("idx_is_active");
     }
 }

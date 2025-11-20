@@ -25,7 +25,5 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
     - name: Test Domain 
       run: dotnet test ./Domain.UnitTests/Domain.UnitTests.csproj --no-build --verbosity normal

@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Application.Abstractions;
+﻿namespace CatalogService.Domain.Abstractions;
 
 public record Error(string Code, string Description, int? Status)
 {

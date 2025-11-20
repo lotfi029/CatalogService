@@ -45,6 +45,10 @@ internal sealed class AttributeConfiguration : BaseEntityConfiguration<Domain.En
             .HasColumnType("jsonb")
             .IsRequired(false);
 
+
+        builder.HasIndex(e => e.IsActive)
+            .HasDatabaseName("idx_attributes_is_active");
+
         builder.ToTable(a => a.HasCheckConstraint(
             "chk_attributes_type",
             "type > 0 AND type <= 6"

@@ -1,4 +1,4 @@
-﻿using CatalogService.Application.Abstractions;
+﻿using CatalogService.Domain.Abstractions;
 using CatalogService.Domain.DomainService;
 using Microsoft.Extensions.Logging;
 
@@ -9,22 +9,18 @@ public sealed record CreateCategoryCommand(
     string Slug,
     Guid? ParentId,
     string? Description,
-    string? Path,
     Dictionary<string, object>? Metadata
     ) : ICommand<Guid>;
 
 
 public sealed class CreateCategoryCommandHandler(
     IUnitOfWork unitOfWork,
-    CategoryDomainService categoryDomainService,
+    ICategoryDomainService categoryDomainService,
     ICategoryRepository repository,
     ILogger<CreateCategoryCommandHandler> logger) : ICommandHandler<CreateCategoryCommand, Guid>
 {
     public async Task<Result<Guid>> HandleAsync(CreateCategoryCommand command, CancellationToken ct = default)
-    {
-        // when path is not null check if it valid and unique
-
-        // generate a business logic for metadata if not null
+    {    
         try
         {
             var category = await categoryDomainService.CreateCategoryAsync(
@@ -34,11 +30,23 @@ public sealed class CreateCategoryCommandHandler(
                 description: command.Description,
                 ct: ct);
 
-            await repository.AddAsync(category, ct);
+            if (category.IsFailure)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning(
+                        "Failed to created category. Error: {ErrorCode} - {ErrorMessage}",
+                        category.Error.Code,
+                        category.Error.Description
+                        );
+                }
 
+                return category.Error;
+            }
+
+            await repository.AddAsync(category.Value!, ct);
             await unitOfWork.SaveChangesAsync(ct);
-        
-            return Result.Success(category.Id);
+            return Result.Success(category.Value!.Id);
         }
         catch (Exception ex)
         {

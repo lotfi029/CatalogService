@@ -1,5 +1,4 @@
-﻿using CatalogService.Domain.Abstractions;
-using CatalogService.Domain.DomainEvents.Categories;
+﻿using CatalogService.Domain.DomainEvents.Categories;
 
 namespace CatalogService.Domain.Entities;
 
@@ -50,6 +49,12 @@ public class Category : AuditableEntity
         Dictionary<string, object>? metadata = null)
     {
 
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(slug));
+
+        if (level < 0)
+            throw new ArgumentException("level can't be negative value", nameof(level));
+
         var category = new Category(
             name,
             slug,
@@ -71,8 +76,7 @@ public class Category : AuditableEntity
 
     public void UpdateDetails(string name, string? description)
     {
-        if (string.IsNullOrEmpty(name))
-            throw new ArgumentException("Category name cannot be null or empty.", nameof(name));
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
         Name = name;
         if (description is not null)
             Description = description;

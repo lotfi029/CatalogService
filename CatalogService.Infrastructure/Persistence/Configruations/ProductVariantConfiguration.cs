@@ -70,6 +70,10 @@ internal sealed class ProductVariantConfiguration : BaseEntityConfiguration<Prod
             .HasForeignKey(pv => pv.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
+
+        builder.HasIndex(e => e.IsActive)
+            .HasDatabaseName("idx_product_variants_is_active");
+
         builder.ToTable(p => p.HasCheckConstraint(
             "chk_products_price",
             "price >= 0"

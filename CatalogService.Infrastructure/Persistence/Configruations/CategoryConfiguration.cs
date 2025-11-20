@@ -53,6 +53,10 @@ internal class CategoryConfiguration : BaseEntityConfiguration<Category>
             .HasColumnType("jsonb")
             .IsRequired(false);
 
+
+        builder.HasIndex(e => e.IsActive)
+            .HasDatabaseName("idx_categories_is_active");
+
         builder.ToTable(c => c.HasCheckConstraint(
             "chk_categories_level",
             "level >= 0"

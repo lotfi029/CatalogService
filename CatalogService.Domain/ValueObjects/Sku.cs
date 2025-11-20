@@ -7,7 +7,7 @@ public sealed record Sku
         => Value = vlaue;
     public string Value { get; private init; }
     
-    public static Sku? Create(string value)
+    public static Sku Create(string? value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
@@ -17,8 +17,3 @@ public sealed record Sku
         return new Sku(value);
     }
 }
-
-
-
-
-// outbox pattern

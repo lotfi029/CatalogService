@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CatalogService.Infrastructure\CatalogService.Infrastructure.csproj" />
+    <ProjectReference Include="..\Ecommerce.CatalogService.ServiceDefaults\Ecommerce.CatalogService.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

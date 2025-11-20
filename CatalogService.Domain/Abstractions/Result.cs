@@ -1,8 +1,8 @@
-﻿namespace CatalogService.Application.Abstractions;
+﻿namespace CatalogService.Domain.Abstractions;
 
 public class Result
 {
-    public Result(bool isSuccess, Error error)
+    protected Result(bool isSuccess, Error error)
     {
         if (isSuccess && error != Error.Non || !isSuccess && error == Error.Non)
             throw new ArgumentException("invalid argument result!");

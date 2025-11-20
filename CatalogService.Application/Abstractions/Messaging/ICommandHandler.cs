@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Application.Abstractions.Messaging;
+﻿using CatalogService.Domain.Abstractions;
+
+namespace CatalogService.Application.Abstractions.Messaging;
 
 public interface ICommandHandler<in TCommand>
     where TCommand : ICommand

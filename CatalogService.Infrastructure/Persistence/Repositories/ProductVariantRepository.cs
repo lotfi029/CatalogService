@@ -1,9 +1,11 @@
 ﻿using CatalogService.Domain.IRepositories;
-using CatalogService.Infrastructure.Persistence.Contexts;
+
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
 
-public sealed class ProductVariantRepository(ApplicationDbContext context)
-    : Repository<ProductVariant>(context), IProductVariantRepository
+public sealed class ProductVariantRepository(
+    ApplicationDbContext context,
+    ILogger<Repository<ProductVariant>> logger)
+    : Repository<ProductVariant>(context, logger), IProductVariantRepository
 {
 }

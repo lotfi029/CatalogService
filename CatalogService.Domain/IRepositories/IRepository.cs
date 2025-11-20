@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 
 namespace CatalogService.Domain.IRepositories;
-
 public interface IRepository<T> where T : Entity
 {
     Task<Guid> AddAsync(T entity, CancellationToken ct = default);

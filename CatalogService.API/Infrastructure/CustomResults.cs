@@ -1,4 +1,4 @@
-﻿using CatalogService.Application.Abstractions;
+﻿using CatalogService.Domain.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogService.API.Infrastructure;

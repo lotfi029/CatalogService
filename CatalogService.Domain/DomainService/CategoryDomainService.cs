@@ -1,10 +1,11 @@
-﻿using CatalogService.Domain.IRepositories;
+﻿using CatalogService.Domain.Errors;
+using CatalogService.Domain.IRepositories;
 
 namespace CatalogService.Domain.DomainService;
 
 public sealed class CategoryDomainService(ICategoryRepository _repository) : ICategoryDomainService
 {
-    public async Task<Category> CreateCategoryAsync(
+    public async Task<Result<Category>> CreateCategoryAsync(
         string name,
         string slug,
         Guid? parentId = null,
@@ -12,8 +13,8 @@ public sealed class CategoryDomainService(ICategoryRepository _repository) : ICa
         CancellationToken ct = default
         )
     {
-        if (await _repository.ExistsAsync(e => e.Slug == slug, ct)) 
-            throw new InvalidOperationException($"Category with slug '{slug}' already exists.");
+        if (await _repository.ExistsAsync(e => e.Slug == slug, ct))
+            return CategoryErrors.SlugAlreadyExist(slug);
 
         short level = 0;
 
@@ -21,11 +22,14 @@ public sealed class CategoryDomainService(ICategoryRepository _repository) : ICa
         {
             var parentExists = await _repository.ExistsAsync(parentId.Value, ct);
             if (!parentExists)
-                throw new InvalidOperationException("Parent category does not exist");
+                return CategoryErrors.ParentNotFound(parentId.Value);
 
             var parents = await _repository.GetAllParentAsync(parentId.Value, ct);
+
             level = (short)(parents?.Count() ?? 0);
         }
+
+        
 
         return Category.Create(
             name: name, 

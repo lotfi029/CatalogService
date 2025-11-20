@@ -56,6 +56,9 @@ internal sealed class ProductConfiguration : BaseEntityConfiguration<Product>
             .HasDatabaseName("idx_products_sku");
 
 
+        builder.HasIndex(e => e.IsActive)
+            .HasDatabaseName("idx_products_is_active");
+
         builder.ToTable(p => p.HasCheckConstraint(
             "chk_products_status",
             "status IN (1, 2, 3, 4)"

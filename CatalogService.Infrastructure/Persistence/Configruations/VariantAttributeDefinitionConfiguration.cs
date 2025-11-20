@@ -51,5 +51,9 @@ internal sealed class VariantAttributeDefinitionConfiguration : BaseEntityConfig
             .HasColumnName("validation_rules")
             .HasColumnType("jsonb")
             .IsRequired();
+
+
+        builder.HasIndex(e => e.IsActive)
+            .HasDatabaseName("idx_variant_attribute_definitions_is_active");
     }
 }
