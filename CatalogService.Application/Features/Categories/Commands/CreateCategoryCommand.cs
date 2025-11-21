@@ -31,18 +31,7 @@ public sealed class CreateCategoryCommandHandler(
                 ct: ct);
 
             if (category.IsFailure)
-            {
-                if (logger.IsEnabled(LogLevel.Warning))
-                {
-                    logger.LogWarning(
-                        "Failed to created category. Error: {ErrorCode} - {ErrorMessage}",
-                        category.Error.Code,
-                        category.Error.Description
-                        );
-                }
-
                 return category.Error;
-            }
 
             await repository.AddAsync(category.Value!, ct);
             await unitOfWork.SaveChangesAsync(ct);

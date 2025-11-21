@@ -19,10 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogService.Domain", "Ca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.UnitTests", "Domain.UnitTests\Domain.UnitTests.csproj", "{F3BB05DE-CF01-4594-9BA6-C3BB2BE56CCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.CatalogService.AppHost", "Ecommerce.CatalogService.AppHost\Ecommerce.CatalogService.AppHost.csproj", "{D2BD1DDC-268D-42A2-95A6-697CC09ADBEF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce.CatalogService.ServiceDefaults", "Ecommerce.CatalogService.ServiceDefaults\Ecommerce.CatalogService.ServiceDefaults.csproj", "{F16B9598-FD8D-5E60-EA96-B4E18DE2DC0C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,14 +49,6 @@ Global
 		{F3BB05DE-CF01-4594-9BA6-C3BB2BE56CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3BB05DE-CF01-4594-9BA6-C3BB2BE56CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3BB05DE-CF01-4594-9BA6-C3BB2BE56CCB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D2BD1DDC-268D-42A2-95A6-697CC09ADBEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D2BD1DDC-268D-42A2-95A6-697CC09ADBEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D2BD1DDC-268D-42A2-95A6-697CC09ADBEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D2BD1DDC-268D-42A2-95A6-697CC09ADBEF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F16B9598-FD8D-5E60-EA96-B4E18DE2DC0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F16B9598-FD8D-5E60-EA96-B4E18DE2DC0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F16B9598-FD8D-5E60-EA96-B4E18DE2DC0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F16B9598-FD8D-5E60-EA96-B4E18DE2DC0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

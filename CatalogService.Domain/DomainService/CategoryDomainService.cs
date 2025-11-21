@@ -29,8 +29,6 @@ public sealed class CategoryDomainService(ICategoryRepository _repository) : ICa
             level = (short)(parents?.Count() ?? 0);
         }
 
-        
-
         return Category.Create(
             name: name, 
             slug: slug, 

@@ -1,7 +1,4 @@
-﻿using CatalogService.Domain.Abstractions;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-
-namespace CatalogService.Domain.Errors;
+﻿namespace CatalogService.Domain.Errors;
 
 public sealed class CategoryErrors
 {
