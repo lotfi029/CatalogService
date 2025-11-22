@@ -3,5 +3,6 @@ public sealed record CreateCategoryRequest(
     string Name,
     string Slug,
     string? Description,
-    Guid? ParentId
+    Guid? ParentId,
+    bool IsActive
     );

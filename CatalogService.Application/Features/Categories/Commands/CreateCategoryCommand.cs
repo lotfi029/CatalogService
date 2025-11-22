@@ -7,20 +7,20 @@ namespace CatalogService.Application.Features.Categories.Commands;
 public sealed record CreateCategoryCommand(
     string Name,
     string Slug,
+    bool IsActive,
     Guid? ParentId,
-    string? Description,
-    Dictionary<string, object>? Metadata
+    string? Description
     ) : ICommand<Guid>;
 
 
-public sealed class CreateCategoryCommandHandler(
+internal sealed class CreateCategoryCommandHandler(
     IUnitOfWork unitOfWork,
     ICategoryDomainService categoryDomainService,
     ICategoryRepository repository,
     ILogger<CreateCategoryCommandHandler> logger) : ICommandHandler<CreateCategoryCommand, Guid>
 {
     public async Task<Result<Guid>> HandleAsync(CreateCategoryCommand command, CancellationToken ct = default)
-    {    
+    {
         try
         {
             var category = await categoryDomainService.CreateCategoryAsync(

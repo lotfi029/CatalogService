@@ -1,6 +1,5 @@
 ﻿using CatalogService.Domain.Abstractions;
 using CatalogService.Domain.IRepositories;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
@@ -63,17 +62,8 @@ public class Repository<T> : IRepository<T>
     public async Task<T?> FindAsync(Expression<Func<T, bool>> expression, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(expression);
-
-        try
-        {
-            return await _dbSet.AsNoTracking()
-                .SingleOrDefaultAsync(expression, ct);
-        }
-        catch (Exception ex) 
-        {
-            _logger.LogError(ex, "Failed to find entity of type {EntityType}", typeof(T).Name);
-            throw;
-        }
+        return await _dbSet.AsNoTracking()
+            .SingleOrDefaultAsync(expression, ct);
     }
     public Task UpdateAsync(T entity, CancellationToken ct = default)
     {

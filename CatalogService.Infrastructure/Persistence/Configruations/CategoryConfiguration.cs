@@ -48,10 +48,10 @@ internal class CategoryConfiguration : BaseEntityConfiguration<Category>
             .IsUnique()
             .HasDatabaseName("idx_categories_level");
 
-        builder.Property(c => c.Metadata)
-            .HasColumnName("metadata")
-            .HasColumnType("jsonb")
-            .IsRequired(false);
+        //builder.Property(c => c.Metadata)
+        //    .HasColumnName("metadata")
+        //    .HasColumnType("jsonb")
+        //    .IsRequired(false);
 
 
         builder.HasIndex(e => e.IsActive)

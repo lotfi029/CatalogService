@@ -14,8 +14,3 @@ public interface IRepository<T> where T : Entity
     Task<bool> ExistsAsync(Guid id, CancellationToken ct = default);
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
 }
-
-
-
-
-

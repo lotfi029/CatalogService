@@ -7,7 +7,7 @@ public sealed class CategoryRepository(
     ILogger<Repository<Category>> repositoryLogger)
     : Repository<Category>(context, repositoryLogger), ICategoryRepository
 {
-    public async Task<IEnumerable<Category>?> GetAllParentAsync(Guid id, CancellationToken ct = default)
+    public async Task<IEnumerable<Category>?> GetAllParentAsync(Guid id, int maxDepth, CancellationToken ct = default)
     {
         FormattableString sql = $"""
             WITH RECURSIVE parent_chain AS (
@@ -18,7 +18,7 @@ public sealed class CategoryRepository(
                 SELECT c.*, pc.depth + 1
                 FROM categories c
                 INNER JOIN parent_chain pc ON c.id = pc.parent_id
-                WHERE pc.depth < 100
+                WHERE pc.depth < {maxDepth}
             )
             SELECT * FROM parent_chain
             ORDER BY depth

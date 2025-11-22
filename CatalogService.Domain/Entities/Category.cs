@@ -10,14 +10,11 @@ public class Category : AuditableEntity
     public string Slug { get; private set; } = string.Empty;
     public string? Path {  get; private set; } = string.Empty;
     public short Level { get; private set; } = 0;
-    public Dictionary<string, object>? Metadata { get; private set; }
     public Category? Parent { get; private set; }
 
 
     private readonly List<CategoryVariantAttribute> _variantAttributes = [];
     public IReadOnlyCollection<CategoryVariantAttribute> CategoryVariantAttributes => _variantAttributes.AsReadOnly();
-
-
 
     private Category() { }
     private Category(
@@ -25,9 +22,9 @@ public class Category : AuditableEntity
         string slug,
         short level,
         Guid? parentId = null,
+        bool isActive = true,
         string? description = null,
-        string? path = null,
-        Dictionary<string, object>? metadata = null)
+        string? path = null)
         : base()
     {
         Name = name;
@@ -36,17 +33,21 @@ public class Category : AuditableEntity
         ParentId = parentId;
         Description = description;
         Path = path;
-        Metadata = metadata;
+
+        if (isActive)
+            Active();
+        else
+            Deactive();
     }
 
     public static Category Create(
         string name,
         string slug,
         short level,
+        bool isActive = true,
         Guid? parentId = null,
         string? description = null,
-        string? path = null,
-        Dictionary<string, object>? metadata = null)
+        string? path = null)
     {
 
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
@@ -60,26 +61,28 @@ public class Category : AuditableEntity
             slug,
             level,
             parentId,
+            isActive,
             description,
-            path,
-            metadata);
+            path);
 
         category.AddDomainEvent(new CategoryCreatedDomainEvent(category.Id));
 
         return category;
     }
-
-    public void UpdateMetadata(Dictionary<string, object> metadata)
+    public void MoveCategory(Guid newParentId)
     {
-        Metadata = metadata;
-    }
+        ParentId = newParentId;
 
+        AddDomainEvent(new CategoryMovedDomainEvent(Id));
+    }
     public void UpdateDetails(string name, string? description)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
         Name = name;
         if (description is not null)
             Description = description;
+
+        AddDomainEvent(new CategoryDetailsUpdatedDomainEvent(Id));
     }
 
     public void AddVariantAttribute(CategoryVariantAttribute categoryVariantAttribute)

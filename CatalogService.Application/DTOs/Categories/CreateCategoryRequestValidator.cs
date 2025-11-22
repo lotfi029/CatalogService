@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-namespace CatalogService.Application.DTOs.Categories;
+﻿namespace CatalogService.Application.DTOs.Categories;
 
 public sealed class CreateCategoryRequestValidator : AbstractValidator<CreateCategoryRequest>
 {
@@ -38,6 +36,9 @@ public sealed class CreateCategoryRequestValidator : AbstractValidator<CreateCat
                 return true;
 
             }).WithMessage("{PropertyName} must be valid GUID");
+
+        RuleFor(c => c.IsActive)
+            .NotEmpty();
 
     }
 }
