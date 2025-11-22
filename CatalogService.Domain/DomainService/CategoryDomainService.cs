@@ -8,6 +8,7 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
     public async Task<Result<Category>> CreateCategoryAsync(
         string name,
         string slug,
+        bool isActive,
         Guid? parentId = null,
         int? maxDepth = null,
         string? description = null,
@@ -33,6 +34,7 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
         return Category.Create(
             name: name, 
             slug: slug, 
+            isActive: isActive,
             level: level,
             parentId: parentId,
             description: description);

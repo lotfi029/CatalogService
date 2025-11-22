@@ -1,4 +1,5 @@
-﻿using CatalogService.Domain.DomainService;
+﻿using CatalogService.Domain.Abstractions;
+using CatalogService.Domain.DomainService;
 using CatalogService.Domain.Entities;
 using CatalogService.Domain.Errors;
 using CatalogService.Domain.IRepositories;
@@ -15,7 +16,9 @@ public sealed class CategoryDomainServiceTests
     const string _name = "Electronics";
     const string _slug = "electronics";
     const string _Description = "Electronics Products";
-    Guid _parentId = Guid.CreateVersion7();
+    const bool _isActive = true;
+    const int _maxDepth = 100;
+    readonly Guid _parentId = Guid.CreateVersion7();
     public CategoryDomainServiceTests()
     {
         _mockRepository = new Mock<ICategoryRepository>();
@@ -29,8 +32,10 @@ public sealed class CategoryDomainServiceTests
             .ReturnsAsync(true);
 
         var result = await _sut.CreateCategoryAsync(
-            _name,
-            _slug);
+            name:_name,
+            slug:_slug,
+            isActive: _isActive,
+            description: _Description);
 
         Category Action() => result.Value!;
 
@@ -55,10 +60,12 @@ public sealed class CategoryDomainServiceTests
             .ReturnsAsync(false);
 
         var result = await _sut.CreateCategoryAsync(
-            _name, 
-            _slug, 
-            _parentId, 
-            100);
+            name: _name,
+            slug: _slug,
+            isActive: _isActive,
+            parentId: _parentId, 
+            maxDepth: _maxDepth,
+            description: _Description);
 
         Category Action() => result.Value!;
 
@@ -69,6 +76,74 @@ public sealed class CategoryDomainServiceTests
             .Should()
             .Throw<ArgumentException>()
             .Which.Message.Should().Be("invalid success result");
+    }
+    [Fact]
+    public async Task CreateCategoryAsync_WhenParentIdIsNull_Should_Success()
+    {
+        _mockRepository.Setup(x =>
+            x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>())
+        ).ReturnsAsync(false);
+
+        _mockRepository.Verify(x =>
+            x.ExistsAsync(_parentId, It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        var result = await _sut.CreateCategoryAsync(
+            name: _name,
+            slug: _slug,
+            isActive: _isActive,
+            description: _Description);
+
+        result.IsFailure.Should().Be(false);
+        result.IsSuccess.Should().BeTrue();
+        result.Error.Should().Be(Error.Non);
+        result.Value.Should().NotBeNull();
+        result.Value.Name.Should().Be(_name);
+        result.Value.Slug.Should().Be(_slug);
+        result.Value.Path.Should().BeNull();
+        result.Value.Description.Should().Be(_Description);
+        result.Value.IsActive.Should().Be(_isActive);
+        result.Value.Level.Should().Be(0);
+    }
+    [Fact]
+    public async Task CreateCategoryAsync_WithValidParent_Should_SuccessWithCorrectLevel()
+    {
+        var parentList = new List<Category>
+        {
+            Category.Create(_name, _slug, 0, _isActive, null, _Description, null),
+            Category.Create(_name, _slug, 1, _isActive, Guid.NewGuid(), _Description, null)
+        };
+
+        var correctLevel = (short)parentList.Count;
+
+        _mockRepository.Setup(x =>
+            x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>())
+        ).ReturnsAsync(false);
+
+        _mockRepository.Setup(x =>
+            x.ExistsAsync(_parentId, It.IsAny<CancellationToken>())
+            ).ReturnsAsync(true);
+        _mockRepository.Setup(x =>
+            x.GetAllParentAsync(_parentId, _maxDepth, It.IsAny<CancellationToken>())
+            ).ReturnsAsync(parentList);
+
+        var result = await _sut.CreateCategoryAsync(
+            name: _name,
+            slug: _slug,
+            isActive: _isActive,
+            parentId: _parentId,
+            maxDepth: _maxDepth,
+            description: _Description);
+
+        result.IsFailure.Should().Be(false);
+        result.IsSuccess.Should().BeTrue();
+        result.Error.Should().Be(Error.Non);
+        result.Value.Should().NotBeNull();
+        result.Value.Name.Should().Be(_name);
+        result.Value.Slug.Should().Be(_slug);
+        result.Value.Description.Should().Be(_Description);
+        result.Value.IsActive.Should().Be(_isActive);
+        result.Value.Level.Should().Be(correctLevel);
     }
 
 }

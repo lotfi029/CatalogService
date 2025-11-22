@@ -26,6 +26,7 @@ internal sealed class CreateCategoryCommandHandler(
             var category = await categoryDomainService.CreateCategoryAsync(
                 name: command.Name,
                 slug: command.Slug,
+                isActive: command.IsActive,
                 parentId: command.ParentId,
                 description: command.Description,
                 ct: ct);

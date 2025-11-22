@@ -6,3 +6,4 @@ global using CatalogService.Domain.Entities;
 
 
 
+global using SharedKernel;

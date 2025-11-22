@@ -21,8 +21,8 @@ public class Category : AuditableEntity
         string name,
         string slug,
         short level,
+        bool isActive,
         Guid? parentId = null,
-        bool isActive = true,
         string? description = null,
         string? path = null)
         : base()
@@ -44,14 +44,14 @@ public class Category : AuditableEntity
         string name,
         string slug,
         short level,
-        bool isActive = true,
+        bool isActive,
         Guid? parentId = null,
         string? description = null,
         string? path = null)
     {
 
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
-        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(slug));
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(slug)); // make it domain exception
 
         if (level < 0)
             throw new ArgumentException("level can't be negative value", nameof(level));
@@ -60,8 +60,8 @@ public class Category : AuditableEntity
             name,
             slug,
             level,
-            parentId,
             isActive,
+            parentId,
             description,
             path);
 

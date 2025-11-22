@@ -7,3 +7,5 @@ global using CatalogService.Domain.Entities;
 global using CatalogService.Domain.ValueObjects;
 
 global using CatalogService.Infrastructure.Persistence.Contexts;
+
+global using SharedKernel;
