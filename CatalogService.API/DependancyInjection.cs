@@ -28,6 +28,8 @@ public static class DependancyInjection
         services.AddAntherLayers(configuration);
         services.AddEndpoints(typeof(DependancyInjection).Assembly);
 
+        services.AddHealthChecks();
+
         return services;
     }
     private static IServiceCollection AddAntherLayers(this IServiceCollection services, IConfiguration configuration)

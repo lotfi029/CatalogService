@@ -60,16 +60,17 @@ public class Repository<T> : IRepository<T>
             .ExecuteDeleteAsync(ct);
     }
 
-    public async Task<int> ExecuteUpdateAsync(
-        Expression<Func<T, bool>> predicate, 
-        Expression<Func<SetPropertyCalls<T>,SetPropertyCalls<T>>> setPropertyCalls, 
-        CancellationToken ct = default) 
-    {
-        ArgumentNullException.ThrowIfNull(predicate);
+    //public async Task<int> ExecuteUpdateAsync(
+    //    Expression<Func<T, bool>> predicate, 
+    //    Action<UpdateSettersBuilder<T>> setPropertyCalls, 
+    //    CancellationToken ct = default) 
+    //{
+    //    ArgumentNullException.ThrowIfNull(predicate);
 
-        return await _dbSet.Where(predicate)
-            .ExecuteUpdateAsync(setPropertyCalls, ct);
-    }
+    //    return await _dbSet.Where(predicate)
+    //        .ExecuteUpdateAsync(setPropertyCalls, ct);
+
+    //}
     #endregion
     public async Task<bool> ExistsAsync(Guid id, CancellationToken ct = default)
     {

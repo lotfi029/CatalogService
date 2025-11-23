@@ -11,7 +11,7 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddPresistence(configuration);
-
+        
         return services;
     }
 
@@ -25,13 +25,16 @@ public static class DependancyInjection
         // Use the configured data source
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(dataSource));
-        //services.AddDbContext<ApplicationDbContext>(options =>
-        //{
-        //    options.UseNpgsql(connectionString);
-        //});
-        
+        services.AddDbContext<ApplicationDbContext>(options =>
+        {
+            options.UseNpgsql(dataSource);
+        });
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
+        services.AddHealthChecks()
+            .AddNpgSql(name: "ApplicationDb", connectionString: connectionString!);
+
 
         return services;
     }

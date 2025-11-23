@@ -10,7 +10,7 @@ public interface IRepository<T> where T : Entity
     void UpdateRange(IEnumerable<T> entity);
     void Remove(T entity);
     void RemoveRange(IEnumerable<T> entities);
-    Task<int> ExecuteUpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setProperityCalls, CancellationToken ct = default);
+    //Task<int> ExecuteUpdateAsync(Expression<Func<T, bool>> predicate, Action<UpdateSetterBuilder> setPropertyCalls, CancellationToken ct = default);
     Task<int> ExecuteDeleteAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
     Task<T?> FindByIdAsync(Guid id, CancellationToken ct = default);
     Task<T?> FindAsync(Expression<Func<T, bool>> expression, CancellationToken ct = default);
