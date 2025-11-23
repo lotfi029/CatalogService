@@ -1,4 +1,6 @@
-﻿using CatalogService.API.Endpoints;
+﻿using Asp.Versioning;
+using Asp.Versioning.Builder;
+using CatalogService.API.Endpoints;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 
@@ -25,9 +27,20 @@ public static class EndpointExtensions
         )
     {
         IEnumerable<IEndpoint> endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
+        
+        ApiVersionSet apiVersionSet = app.NewApiVersionSet()
+            .HasApiVersion(new ApiVersion(1, 0))
+            .HasApiVersion(new ApiVersion(2, 0))
+            .ReportApiVersions()
+            .Build();
 
-        IEndpointRouteBuilder builder = routeGroupBuilder is null ? app : routeGroupBuilder;
+        var versionedGroup = app.MapGroup("api/v{apiVersion:apiVersion}")
+            .WithApiVersionSet(apiVersionSet);
 
+        IEndpointRouteBuilder builder = routeGroupBuilder is null 
+            ? versionedGroup : routeGroupBuilder;
+
+        
         foreach (var endpoint in endpoints)
         {
             endpoint.MapEndpoint(builder);
@@ -35,4 +48,7 @@ public static class EndpointExtensions
 
         return app;
     }
+
+    
+
 }

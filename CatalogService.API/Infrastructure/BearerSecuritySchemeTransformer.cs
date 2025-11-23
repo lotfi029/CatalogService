@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace CatalogService.API.Infrastructure;
 
@@ -22,7 +22,7 @@ internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvi
                 }
             };
             document.Components ??= new OpenApiComponents();
-            document.Components.SecuritySchemes = requirements;
+            document.Components.SecuritySchemes = (IDictionary<string, IOpenApiSecurityScheme>?)requirements;
         }
     }
 }

@@ -1,18 +1,29 @@
-﻿using CatalogService.Application.DTOs.Categories;
+﻿using Asp.Versioning;
+using Asp.Versioning.Builder;
+using CatalogService.Application.DTOs.Categories;
 using CatalogService.Application.Features.Categories.Commands;
 
 namespace CatalogService.API.Endpoints;
 
-internal sealed class ICategoryEndpoints : IEndpoint
+internal sealed class CategoryEndpoints : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("v1/api/categories");
-
+        var group = app.MapGroup("categories");
+        
         group.MapPost("/", Create)
             .Produces<Guid>(statusCode: StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesValidationProblem();
+            .ProducesValidationProblem()
+            .MapToApiVersion(1);
+
+        group.MapGet("/", GetAll)
+            .MapToApiVersion(2);
+    }
+
+    private async Task<IResult> GetAll()
+    {
+        return Results.Ok("ok");
     }
 
     private async Task<IResult> Create(
