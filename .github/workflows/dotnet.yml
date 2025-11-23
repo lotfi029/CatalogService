@@ -4,26 +4,29 @@ on:
   push:
     branches: 
       - master
-      - develop
   pull_request:
     branches: 
       - master
-      - develop
-
+env:
+  DOTNET_VERSION: "10.x"
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
-    - name: Restore dependencies
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+  
+    - name: Restore 
       run: dotnet restore
+
     - name: Build
-      run: dotnet build --no-restore
-    - name: Test Domain 
-      run: dotnet test ./Domain.UnitTests/Domain.UnitTests.csproj --no-build --verbosity normal
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Test
+      run: dotnet test --configuration Release --no-build --no-restore
+
