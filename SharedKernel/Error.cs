@@ -1,8 +1,8 @@
-﻿namespace CatalogService.Domain.Abstractions;
+﻿namespace SharedKernel;
 
 public record Error(string Code, string Description, int? Status)
 {
-    public static Error Non
+    public static Error None
         => new(string.Empty, string.Empty, null);
 
     public static Error BadRequest(string Code, string Description)
@@ -24,5 +24,5 @@ public record Error(string Code, string Description, int? Status)
         => new(Code, Description, 500);
 
     public static Error Unexpected(string Description)
-        => new("Unexpected", Description, 500);
+        => new("Error.Unexpected", Description, 500);
 }

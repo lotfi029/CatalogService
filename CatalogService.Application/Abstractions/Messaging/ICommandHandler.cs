@@ -1,4 +1,4 @@
-﻿using CatalogService.Domain.Abstractions;
+﻿using SharedKernel;
 
 namespace CatalogService.Application.Abstractions.Messaging;
 

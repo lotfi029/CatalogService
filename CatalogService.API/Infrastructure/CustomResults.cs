@@ -1,5 +1,5 @@
-﻿using CatalogService.Domain.Abstractions;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SharedKernel;
 
 namespace CatalogService.API.Infrastructure;
 

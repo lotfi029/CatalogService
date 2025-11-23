@@ -1,6 +1,6 @@
-﻿using CatalogService.Domain.Abstractions;
-using CatalogService.Domain.DomainService;
+﻿using CatalogService.Domain.DomainService;
 using Microsoft.Extensions.Logging;
+using SharedKernel;
 
 namespace CatalogService.Application.Features.Categories.Commands;
 
@@ -28,13 +28,14 @@ internal sealed class CreateCategoryCommandHandler(
                 slug: command.Slug,
                 isActive: command.IsActive,
                 parentId: command.ParentId,
+                maxDepth: 100,
                 description: command.Description,
                 ct: ct);
 
             if (category.IsFailure)
                 return category.Error;
 
-            await repository.AddAsync(category.Value!, ct);
+            repository.Add(category.Value!);
             await unitOfWork.SaveChangesAsync(ct);
             return Result.Success(category.Value!.Id);
         }

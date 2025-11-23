@@ -1,10 +1,10 @@
-﻿using CatalogService.Domain.Abstractions;
-using CatalogService.Domain.DomainService;
+﻿using CatalogService.Domain.DomainService;
 using CatalogService.Domain.Entities;
 using CatalogService.Domain.Errors;
 using CatalogService.Domain.IRepositories;
 using FluentAssertions;
 using Moq;
+using SharedKernel;
 using System.Linq.Expressions;
 
 namespace Domain.UnitTests.DomainService;
@@ -96,7 +96,7 @@ public sealed class CategoryDomainServiceTests
 
         result.IsFailure.Should().Be(false);
         result.IsSuccess.Should().BeTrue();
-        result.Error.Should().Be(Error.Non);
+        result.Error.Should().Be(Error.None);
         result.Value.Should().NotBeNull();
         result.Value.Name.Should().Be(_name);
         result.Value.Slug.Should().Be(_slug);
@@ -137,7 +137,7 @@ public sealed class CategoryDomainServiceTests
 
         result.IsFailure.Should().Be(false);
         result.IsSuccess.Should().BeTrue();
-        result.Error.Should().Be(Error.Non);
+        result.Error.Should().Be(Error.None);
         result.Value.Should().NotBeNull();
         result.Value.Name.Should().Be(_name);
         result.Value.Slug.Should().Be(_slug);

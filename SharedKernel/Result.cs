@@ -1,10 +1,10 @@
-﻿namespace CatalogService.Domain.Abstractions;
+﻿namespace SharedKernel;
 
 public class Result
 {
     protected Result(bool isSuccess, Error error)
     {
-        if (isSuccess && error != Error.Non || !isSuccess && error == Error.Non)
+        if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
             throw new ArgumentException("invalid argument result!");
         IsSuccess = isSuccess;
         Error = error;
@@ -15,11 +15,11 @@ public class Result
     public Error Error { get; }
 
     public static Result Success()
-        => new(true, Error.Non);
+        => new(true, Error.None);
     public static Result Failure(Error error)
         => new(false, error);
     public static Result<T> Success<T>(T result)
-        => new(result, true, Error.Non);
+        => new(result, true, Error.None);
     public static Result<T> Failure<T>(Error error)
         => new(default, false, error);
 

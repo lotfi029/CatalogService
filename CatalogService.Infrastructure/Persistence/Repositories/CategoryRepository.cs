@@ -2,10 +2,8 @@
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
 
-public sealed class CategoryRepository(
-    ApplicationDbContext context,
-    ILogger<Repository<Category>> repositoryLogger)
-    : Repository<Category>(context, repositoryLogger), ICategoryRepository
+public sealed class CategoryRepository(ApplicationDbContext context)
+    : Repository<Category>(context), ICategoryRepository
 {
     public async Task<IEnumerable<Category>?> GetAllParentAsync(Guid id, int maxDepth, CancellationToken ct = default)
     {

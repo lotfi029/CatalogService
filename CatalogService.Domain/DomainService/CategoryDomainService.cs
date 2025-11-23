@@ -10,7 +10,7 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
         string slug,
         bool isActive,
         Guid? parentId = null,
-        int? maxDepth = null,
+        int maxDepth = 100,
         string? description = null,
         CancellationToken ct = default
         )
@@ -26,7 +26,7 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
             if (!parentExists)
                 return CategoryErrors.ParentNotFound(parentId.Value);
 
-            var parents = await repository.GetAllParentAsync(parentId.Value, maxDepth ?? 100, ct);
+            var parents = await repository.GetAllParentAsync(parentId.Value, maxDepth, ct);
 
             level = (short)(parents?.Count() ?? 0);
         }

@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Domain.Abstractions;
+﻿namespace SharedKernel;
 
 public abstract class Entity : IEquatable<Entity>
 {
