@@ -33,9 +33,9 @@ public static class DependancyInjection
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), publicOnly: false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
-            //.AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), publicOnly: false)
-            //    .AsImplementedInterfaces()
-            //    .WithScopedLifetime()
+            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), publicOnly: false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
         );
 
         

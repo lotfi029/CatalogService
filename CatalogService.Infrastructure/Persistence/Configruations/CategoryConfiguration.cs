@@ -44,9 +44,6 @@ internal class CategoryConfiguration : BaseEntityConfiguration<Category>
         builder.Property(c => c.Level)
             .HasColumnName("level")
             .IsRequired();
-        builder.HasIndex(c => c.Level)
-            .IsUnique()
-            .HasDatabaseName("idx_categories_level");
 
         //builder.Property(c => c.Metadata)
         //    .HasColumnName("metadata")

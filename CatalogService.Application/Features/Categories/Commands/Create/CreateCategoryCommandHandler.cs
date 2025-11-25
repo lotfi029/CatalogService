@@ -1,17 +1,7 @@
 ﻿using CatalogService.Domain.DomainService;
 using Microsoft.Extensions.Logging;
-using SharedKernel;
 
-namespace CatalogService.Application.Features.Categories.Commands;
-
-public sealed record CreateCategoryCommand(
-    string Name,
-    string Slug,
-    bool IsActive,
-    Guid? ParentId,
-    string? Description
-    ) : ICommand<Guid>;
-
+namespace CatalogService.Application.Features.Categories.Commands.Create;
 
 internal sealed class CreateCategoryCommandHandler(
     IUnitOfWork unitOfWork,

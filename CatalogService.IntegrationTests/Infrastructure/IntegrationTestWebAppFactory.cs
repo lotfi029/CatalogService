@@ -16,6 +16,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         .WithDatabase("catalog")
         .WithUsername("postgres")
         .WithPassword("postgres")
+        .WithCleanUp(true)
         .Build();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

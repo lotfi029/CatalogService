@@ -22,11 +22,10 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
 
         if (parentId.HasValue && parentId.Value != Guid.Empty)
         {
-            var parentExists = await repository.ExistsAsync(parentId.Value, ct);
-            if (!parentExists)
-                return CategoryErrors.ParentNotFound(parentId.Value);
-
             var parents = await repository.GetAllParentAsync(parentId.Value, maxDepth, ct);
+            
+            if (parents is null || !parents.Any())
+                return CategoryErrors.ParentNotFound(parentId.Value);
 
             level = (short)(parents?.Count() ?? 0);
         }
@@ -38,5 +37,16 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
             level: level,
             parentId: parentId,
             description: description);
+    }
+
+    public async Task<Result<Category>> MoveToNewParent(Category childCat, Guid newParentId, CancellationToken ct = default)
+    {
+        // logic
+        var allParents = await repository.GetAllParentAsync(newParentId, int.MaxValue, ct);
+        
+        if (allParents is null || !allParents.Any())
+            return CategoryErrors.ParentNotFound(newParentId);
+
+        throw new NotImplementedException();
     }
 }

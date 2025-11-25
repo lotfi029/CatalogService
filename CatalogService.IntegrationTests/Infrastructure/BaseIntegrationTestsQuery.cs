@@ -12,6 +12,6 @@ public class BaseIntegrationTestsQuery<TQuery, TResponse> : BaseIntegrationTests
     public BaseIntegrationTestsQuery(IntegrationTestWebAppFactory factory)
         : base(factory)
     {
-        queryHandler = _scope.ServiceProvider.GetRequiredService<IQueryHandler<TQuery, TResponse>>();
+        queryHandler = Scope.ServiceProvider.GetRequiredService<IQueryHandler<TQuery, TResponse>>();
     }
 }

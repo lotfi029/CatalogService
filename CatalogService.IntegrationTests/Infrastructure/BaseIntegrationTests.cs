@@ -6,17 +6,17 @@ namespace CatalogService.IntegrationTests.Infrastructure;
 
 public abstract class BaseIntegrationTests : IClassFixture<IntegrationTestWebAppFactory>
 {
-    protected IServiceScope _scope;
-    private readonly ApplicationDbContext dbContext;
-
+    protected IServiceScope Scope { get; private init; } = null!;
+    protected ApplicationDbContext AppDbContext { get; private init; } = null!;
+    
     public BaseIntegrationTests(IntegrationTestWebAppFactory factory)
     {
-        _scope = factory.Services.CreateScope();
-        dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Scope = factory.Services.CreateScope();
+        AppDbContext = Scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        if (dbContext.Database.GetPendingMigrations().Any())
+        if (AppDbContext.Database.GetPendingMigrations().Any())
         {
-            dbContext.Database.Migrate();
+            AppDbContext.Database.Migrate();
         }
     }
 }

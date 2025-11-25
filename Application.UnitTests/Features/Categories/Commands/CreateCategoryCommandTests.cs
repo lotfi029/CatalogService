@@ -1,12 +1,5 @@
-﻿using CatalogService.Application.Features.Categories.Commands;
+﻿using CatalogService.Application.Features.Categories.Commands.Create;
 using CatalogService.Domain.DomainService;
-using CatalogService.Domain.Entities;
-using CatalogService.Domain.Errors;
-using CatalogService.Domain.IRepositories;
-using FluentAssertions;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using SharedKernel;
 
 namespace Application.UnitTests.Features.Categories.Commands;
 

@@ -12,17 +12,17 @@ public abstract class BaseIntegrationTestsCommand<TCommand> : BaseIntegrationTes
     public BaseIntegrationTestsCommand(IntegrationTestWebAppFactory factory)
         : base(factory)
     {
-        commandHandler = _scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand>>();
+        commandHandler = Scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand>>();
     }
 }
 public abstract class BaseIntegrationTestsCommand<TCommand, TResponse> : BaseIntegrationTests
     where TCommand : ICommand<TResponse>
 {
-    protected readonly ICommandHandler<TCommand, TResponse> commandHandler;
+    protected readonly ICommandHandler<TCommand, TResponse> CommandHandler;
 
     public BaseIntegrationTestsCommand(IntegrationTestWebAppFactory factory)
         : base(factory)
     {
-        commandHandler = _scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand, TResponse>>();   
+        CommandHandler = Scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand, TResponse>>();   
     }
 }
