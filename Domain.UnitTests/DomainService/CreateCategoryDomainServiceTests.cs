@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Domain.UnitTests.DomainService;
 
-public sealed class CategoryDomainServiceTests
+public sealed class CreateCategoryDomainServiceTests
 {
     private readonly Mock<ICategoryRepository> _mockRepository;
     private readonly CategoryDomainService _sut;
@@ -17,9 +17,8 @@ public sealed class CategoryDomainServiceTests
     const string _slug = "electronics";
     const string _Description = "Electronics Products";
     const bool _isActive = true;
-    const int _maxDepth = 100;
     readonly Guid _parentId = Guid.CreateVersion7();
-    public CategoryDomainServiceTests()
+    public CreateCategoryDomainServiceTests()
     {
         _mockRepository = new Mock<ICategoryRepository>();
         _sut = new CategoryDomainService(_mockRepository.Object);

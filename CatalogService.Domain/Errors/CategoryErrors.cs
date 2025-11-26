@@ -38,8 +38,8 @@ public sealed class CategoryErrors
             $"{_code}.{nameof(InconsistentTreeStructure)}",
             $"in consistent tree structure");
 
-    public static Error CategoryAlreadyHaveThisParent
+    public static Error AlreadyHasThisParent
         => Error.BadRequest(
-            $"{_code}.{nameof(CategoryAlreadyHaveThisParent)}",
+            $"{_code}.{nameof(AlreadyHasThisParent)}",
             "Category Already Have This Parent");
 }
