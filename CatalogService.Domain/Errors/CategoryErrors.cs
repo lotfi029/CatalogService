@@ -23,8 +23,23 @@ public sealed class CategoryErrors
             $"{_code}.{nameof(InvalidId)}",
             $"Please enter a valid id");
 
-    public static Error InvalidParentId
+    public static Error CannotMoveToSelf
         => Error.Conflict(
-            $"{_code}.{nameof(InvalidParentId)}",
-            $"invalid parent id");
+            $"{_code}.{nameof(CannotMoveToSelf)}",
+            $"can't move to it self");
+
+    public static Error InvalidChildToMoving
+        => Error.Conflict(
+            $"{_code}.{nameof(InvalidChildToMoving)}",
+            "can't make move the category to subCategory of it self");
+
+    public static Error InconsistentTreeStructure
+        => Error.BadRequest(
+            $"{_code}.{nameof(InconsistentTreeStructure)}",
+            $"in consistent tree structure");
+
+    public static Error CategoryAlreadyHaveThisParent
+        => Error.BadRequest(
+            $"{_code}.{nameof(CategoryAlreadyHaveThisParent)}",
+            "Category Already Have This Parent");
 }

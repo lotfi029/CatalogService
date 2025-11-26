@@ -1,28 +1,27 @@
 ﻿using CatalogService.Application.Abstractions.Messaging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CatalogService.IntegrationTests.Infrastructure;
 
-public abstract class BaseIntegrationTestsCommand<TCommand> : BaseIntegrationTests
+public abstract class BaseIntegrationTestsCommand<TCommand>(IntegrationTestWebAppFactory factory) : BaseIntegrationTests(factory)
     where TCommand : ICommand
 {
-    private readonly ICommandHandler<TCommand> commandHandler;
+    protected ICommandHandler<TCommand> CommandHandler { get; private set; } = null!;
 
-    public BaseIntegrationTestsCommand(IntegrationTestWebAppFactory factory)
-        : base(factory)
+    public override async Task InitializeAsync()
     {
-        commandHandler = Scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand>>();
+        await base.InitializeAsync();
+        CommandHandler = GetService<ICommandHandler<TCommand>>();
     }
 }
-public abstract class BaseIntegrationTestsCommand<TCommand, TResponse> : BaseIntegrationTests
+public abstract class BaseIntegrationTestsCommand<TCommand, TResponse>(
+    IntegrationTestWebAppFactory factory) : BaseIntegrationTests(factory)
     where TCommand : ICommand<TResponse>
 {
-    protected readonly ICommandHandler<TCommand, TResponse> CommandHandler;
+    protected ICommandHandler<TCommand, TResponse> CommandHandler { get; private set; } = null!;
 
-    public BaseIntegrationTestsCommand(IntegrationTestWebAppFactory factory)
-        : base(factory)
+    public override async Task InitializeAsync()
     {
-        CommandHandler = Scope.ServiceProvider.GetRequiredService<ICommandHandler<TCommand, TResponse>>();   
+        await base.InitializeAsync();
+        CommandHandler = GetService<ICommandHandler<TCommand, TResponse>>();
     }
 }

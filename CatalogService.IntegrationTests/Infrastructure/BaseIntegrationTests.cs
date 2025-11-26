@@ -4,19 +4,26 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CatalogService.IntegrationTests.Infrastructure;
 
-public abstract class BaseIntegrationTests : IClassFixture<IntegrationTestWebAppFactory>
+public abstract class BaseIntegrationTests(IntegrationTestWebAppFactory factory) : IClassFixture<IntegrationTestWebAppFactory>, IAsyncLifetime
 {
-    protected IServiceScope Scope { get; private init; } = null!;
-    protected ApplicationDbContext AppDbContext { get; private init; } = null!;
-    
-    public BaseIntegrationTests(IntegrationTestWebAppFactory factory)
+    protected IServiceScope Scope { get; private set; } = null!;
+    protected ApplicationDbContext AppDbContext { get; private set; } = null!;
+
+    public virtual async Task InitializeAsync()
     {
+        await factory.ResetDatabaseAsync();
+
         Scope = factory.Services.CreateScope();
         AppDbContext = Scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    }
+    public Task DisposeAsync()
+    {
+        Scope?.Dispose();
+        return Task.CompletedTask;
+    }
 
-        if (AppDbContext.Database.GetPendingMigrations().Any())
-        {
-            AppDbContext.Database.Migrate();
-        }
+    protected T GetService<T>() where T : notnull
+    {
+        return Scope.ServiceProvider.GetRequiredService<T>();
     }
 }

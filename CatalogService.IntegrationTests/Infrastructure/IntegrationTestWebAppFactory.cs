@@ -18,6 +18,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         .WithPassword("postgres")
         .WithCleanUp(true)
         .Build();
+    private readonly SemaphoreSlim _resetLock = new(1, 1);
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -41,13 +42,53 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         });
     }
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        return _dbContainer.StartAsync();
+        await _dbContainer.StartAsync();
+
+        using var scope = Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
+    }
+    public async Task ResetDatabaseAsync()
+    {
+        await _resetLock.WaitAsync();
+        try
+        {
+            using var scope = Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            var tableNames = context.Model.GetEntityTypes()
+                .Select(t => t.GetTableName())
+                .Where(t => t != null && t != "__EFMigrationsHistory")
+                .Distinct()
+                .ToList();
+
+            if (tableNames.Count == 0)
+                return;
+
+            
+            await context.Database.ExecuteSqlAsync(
+                $"SET session_replication_role = 'replica';");
+
+            foreach (var tableName in tableNames)
+            {
+                await context.Database.ExecuteSqlRawAsync(
+                    $"TRUNCATE TABLE \"{tableName}\" RESTART IDENTITY CASCADE;");
+            }
+
+            await context.Database.ExecuteSqlRawAsync(
+                "SET session_replication_role = 'origin';");
+        }
+        finally
+        {
+            _resetLock.Release();
+        }
     }
 
-    Task IAsyncLifetime.DisposeAsync()
+    async Task IAsyncLifetime.DisposeAsync()
     {
-        return _dbContainer.StartAsync();
+        _resetLock.Dispose();
+        await _dbContainer.StartAsync();
     }
 }

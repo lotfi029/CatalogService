@@ -10,43 +10,75 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
         string slug,
         bool isActive,
         Guid? parentId = null,
-        int maxDepth = 100,
         string? description = null,
-        CancellationToken ct = default
-        )
+        CancellationToken ct = default)
     {
         if (await repository.ExistsAsync(e => e.Slug == slug, ct))
             return CategoryErrors.SlugAlreadyExist(slug);
 
         short level = 0;
-
+        var path = "";
         if (parentId.HasValue && parentId.Value != Guid.Empty)
         {
-            var parents = await repository.GetAllParentAsync(parentId.Value, maxDepth, ct);
-            
-            if (parents is null || !parents.Any())
+            if (await repository.FindByIdAsync(parentId.Value, ct) is not { } parent)
                 return CategoryErrors.ParentNotFound(parentId.Value);
-
-            level = (short)(parents?.Count() ?? 0);
+            
+            path = parent.Path!;
+            
+            level = (short)(parent.Level + 1);
         }
 
         return Category.Create(
-            name: name, 
-            slug: slug, 
+            name: name,
+            slug: slug,
             isActive: isActive,
             level: level,
             parentId: parentId,
-            description: description);
+            description: description,
+            path: path);
     }
 
-    public async Task<Result<Category>> MoveToNewParent(Category childCat, Guid newParentId, CancellationToken ct = default)
+    public async Task<Result<List<Category>>> MoveToNewParent(
+        Guid id, 
+        Category parent, 
+        CancellationToken ct = default)
     {
-        // logic
-        var allParents = await repository.GetAllParentAsync(newParentId, int.MaxValue, ct);
-        
-        if (allParents is null || !allParents.Any())
-            return CategoryErrors.ParentNotFound(newParentId);
+        var categoryTree = await repository.GetChildrenAsync(id, ct);
 
-        throw new NotImplementedException();
+        if (categoryTree is null || categoryTree.Count == 0)
+            return CategoryErrors.NotFound(id);
+
+        if (categoryTree.Exists(e => e.Id == parent.Id))
+            return CategoryErrors.InvalidChildToMoving;
+
+        var rootCategory = categoryTree.Where(e => e.Id == id).FirstOrDefault()!;
+        
+        rootCategory.MoveCategory(parent.Id, parent.Path, parent.Level);
+
+        var queue = new Queue<Category>();
+        queue.Enqueue(rootCategory);
+        
+        var processed = new HashSet<Guid> { rootCategory.Id };
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            var children = categoryTree
+                .Where(c => c.ParentId == current.Id && !processed.Contains(c.Id))
+                .ToList();
+
+            foreach (var child in children)
+            {
+                child.MoveCategory(current.Id, current.Path, current.Level);
+                processed.Add(child.Id);
+                queue.Enqueue(child);
+            }
+        }
+
+        if (processed.Count != categoryTree.Count)
+            return CategoryErrors.InconsistentTreeStructure;
+
+        return categoryTree;
     }
 }

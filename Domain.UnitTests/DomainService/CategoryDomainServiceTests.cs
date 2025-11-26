@@ -63,8 +63,7 @@ public sealed class CategoryDomainServiceTests
             name: _name,
             slug: _slug,
             isActive: _isActive,
-            parentId: _parentId, 
-            maxDepth: _maxDepth,
+            parentId: _parentId,
             description: _Description);
 
         Category Action() => result.Value!;
@@ -100,7 +99,7 @@ public sealed class CategoryDomainServiceTests
         result.Value.Should().NotBeNull();
         result.Value.Name.Should().Be(_name);
         result.Value.Slug.Should().Be(_slug);
-        result.Value.Path.Should().BeNull();
+        result.Value.Path.Should().Be(_slug);
         result.Value.Description.Should().Be(_Description);
         result.Value.IsActive.Should().Be(_isActive);
         result.Value.Level.Should().Be(0);
@@ -108,14 +107,8 @@ public sealed class CategoryDomainServiceTests
     [Fact]
     public async Task CreateCategoryAsync_WithValidParent_Should_SuccessWithCorrectLevel()
     {
-        var parentList = new List<Category>
-        {
-            Category.Create(_name, _slug, 0, _isActive, null, _Description, null),
-            Category.Create(_name, _slug, 1, _isActive, Guid.NewGuid(), _Description, null)
-        };
-
-        var correctLevel = (short)parentList.Count;
-
+        var parent = Category.Create(_name, _slug, 1, _isActive, Guid.NewGuid(), _Description, null);
+        var correctLevel = (short)(parent.Level + 1);
         _mockRepository.Setup(x =>
             x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>())
         ).ReturnsAsync(false);
@@ -124,15 +117,14 @@ public sealed class CategoryDomainServiceTests
             x.ExistsAsync(_parentId, It.IsAny<CancellationToken>())
             ).ReturnsAsync(true);
         _mockRepository.Setup(x =>
-            x.GetAllParentAsync(_parentId, _maxDepth, It.IsAny<CancellationToken>())
-            ).ReturnsAsync(parentList);
+            x.FindByIdAsync(_parentId, It.IsAny<CancellationToken>())
+            ).ReturnsAsync(parent);
 
         var result = await _sut.CreateCategoryAsync(
             name: _name,
             slug: _slug,
             isActive: _isActive,
             parentId: _parentId,
-            maxDepth: _maxDepth,
             description: _Description);
 
         result.IsFailure.Should().Be(false);

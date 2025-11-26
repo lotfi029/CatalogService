@@ -1,17 +1,15 @@
 ﻿using CatalogService.Application.Abstractions.Messaging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CatalogService.IntegrationTests.Infrastructure;
 
-public class BaseIntegrationTestsQuery<TQuery, TResponse> : BaseIntegrationTests
+public class BaseIntegrationTestsQuery<TQuery, TResponse>(IntegrationTestWebAppFactory factory) : BaseIntegrationTests(factory)
     where TQuery : IQuery<TResponse>
 {
-    private readonly IQueryHandler<TQuery, TResponse> queryHandler;
+    protected IQueryHandler<TQuery, TResponse> QueryHandler { get; private set; } = null!;
 
-    public BaseIntegrationTestsQuery(IntegrationTestWebAppFactory factory)
-        : base(factory)
+    public override async Task InitializeAsync()
     {
-        queryHandler = Scope.ServiceProvider.GetRequiredService<IQueryHandler<TQuery, TResponse>>();
+        await base.InitializeAsync();
+        QueryHandler = GetService<IQueryHandler<TQuery, TResponse>>();
     }
 }

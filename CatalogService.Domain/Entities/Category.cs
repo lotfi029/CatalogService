@@ -1,4 +1,5 @@
 ﻿using CatalogService.Domain.DomainEvents.Categories;
+using System.Runtime.InteropServices;
 
 namespace CatalogService.Domain.Entities;
 
@@ -12,10 +13,10 @@ public class Category : AuditableEntity
     public short Level { get; private set; } = 0;
     public Category? Parent { get; private set; }
 
-
+    private readonly List<Category> _children = [];
     private readonly List<CategoryVariantAttribute> _variantAttributes = [];
     public IReadOnlyCollection<CategoryVariantAttribute> CategoryVariantAttributes => _variantAttributes.AsReadOnly();
-
+    public IReadOnlyCollection<Category> Children => _children.AsReadOnly(); 
     private Category() { }
     private Category(
         string name,
@@ -63,15 +64,27 @@ public class Category : AuditableEntity
             isActive,
             parentId,
             description,
-            path);
+            CreatePath(path, slug));
 
         category.AddDomainEvent(new CategoryCreatedDomainEvent(category.Id));
 
         return category;
     }
-    public void MoveCategory(Guid newParentId)
+    public static string CreatePath(string? parentPath, string slug)
     {
-        ParentId = newParentId;
+        if (!string.IsNullOrWhiteSpace(parentPath))
+            return $"{parentPath}/{slug}";
+
+        return slug;
+    }
+    public void MoveCategory(Guid? parentId, string? parentPath, short parentLevel)
+    {
+        if (parentLevel < 0)
+            throw new ArgumentException("Category.MoveCategory the prevLevel can't be negative", nameof(parentLevel));
+
+        ParentId = parentId.HasValue ? parentId : ParentId;
+        Path = CreatePath(parentPath, Slug);
+        Level = (short)(parentLevel + 1);
 
         AddDomainEvent(new CategoryMovedDomainEvent(Id));
     }
@@ -84,7 +97,9 @@ public class Category : AuditableEntity
 
         AddDomainEvent(new CategoryDetailsUpdatedDomainEvent(Id));
     }
-
+    public void AddChild(Category child)
+        => _children.Add(child);
+    
     public void AddVariantAttribute(CategoryVariantAttribute categoryVariantAttribute)
     {
         ArgumentNullException.ThrowIfNull(categoryVariantAttribute);

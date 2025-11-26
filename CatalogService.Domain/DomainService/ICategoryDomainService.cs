@@ -1,6 +1,14 @@
-﻿namespace CatalogService.Domain.DomainService;
+﻿
+namespace CatalogService.Domain.DomainService;
 
 public interface ICategoryDomainService
 {
-    Task<Result<Category>> CreateCategoryAsync(string name, string slug, bool isActive, Guid? parentId = null, int maxDepth = 100, string? description = null, CancellationToken ct = default);
+    Task<Result<Category>> CreateCategoryAsync(
+        string name, 
+        string slug, 
+        bool isActive, 
+        Guid? parentId = null,
+        string? description = null, 
+        CancellationToken ct = default);
+    Task<Result<List<Category>>> MoveToNewParent(Guid id, Category parent, CancellationToken ct = default);
 }

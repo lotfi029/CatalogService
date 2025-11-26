@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
+﻿using FluentValidation.Validators;
+
+namespace CatalogService.Infrastructure.Persistence.Configruations;
 
 internal class CategoryConfiguration : BaseEntityConfiguration<Category>
 {
@@ -23,7 +25,7 @@ internal class CategoryConfiguration : BaseEntityConfiguration<Category>
             .IsRequired(false);
 
         builder.HasOne(c => c.Parent)
-            .WithMany()
+            .WithMany(e => e.Children)
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired(false);

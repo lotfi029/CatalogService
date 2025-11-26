@@ -47,7 +47,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 command.IsActive,
                 command.ParentId,
-                100,
                 command.Description,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(_testCat));
@@ -73,7 +72,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 command.IsActive,
                 command.ParentId,
-                100,
                 command.Description,
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -105,7 +103,6 @@ public class CreateCategoryCommandHandlerTests
                 It.IsAny<string>(),
                 It.IsAny<bool>(),
                 It.IsAny<Guid?>(),
-                It.IsAny<int>(),
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Failure<Category>(error));
@@ -143,7 +140,6 @@ public class CreateCategoryCommandHandlerTests
                 It.IsAny<string>(),
                 It.IsAny<bool>(),
                 It.IsAny<Guid?>(),
-                It.IsAny<int>(),
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(exception);
@@ -180,7 +176,6 @@ public class CreateCategoryCommandHandlerTests
                 It.IsAny<string>(),
                 It.IsAny<bool>(),
                 It.IsAny<Guid?>(),
-                It.IsAny<int>(),
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(_testCat));
@@ -216,7 +211,6 @@ public class CreateCategoryCommandHandlerTests
                 It.IsAny<string>(),
                 It.IsAny<bool>(),
                 It.IsAny<Guid?>(),
-                It.IsAny<int>(),
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(_testCat));
@@ -255,7 +249,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 command.IsActive,
                 command.ParentId,
-                100,
                 command.Description,
                 ct))
             .ReturnsAsync(Result.Success(_testCat));
@@ -279,7 +272,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 command.IsActive,
                 command.ParentId,
-                100,
                 command.Description,
                 ct),
             Times.Once);
@@ -314,7 +306,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 command.IsActive,
                 command.ParentId,
-                100,
                 command.Description,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(childCat));
@@ -339,7 +330,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 command.IsActive,
                 parentId,
-                100,
                 command.Description,
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -376,7 +366,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 false,
                 command.ParentId,
-                100,
                 command.Description,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Success(inactiveCat));
@@ -400,7 +389,6 @@ public class CreateCategoryCommandHandlerTests
                 command.Slug,
                 false,
                 command.ParentId,
-                100,
                 command.Description,
                 It.IsAny<CancellationToken>()),
             Times.Once);

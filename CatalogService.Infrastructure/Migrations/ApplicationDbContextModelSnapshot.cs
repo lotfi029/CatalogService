@@ -713,7 +713,7 @@ namespace CatalogService.Infrastructure.Migrations
 
                             b1.HasKey("ProductVariantId");
 
-                            b1.ToTable("product_variants");
+                            b1.ToTable("product_variants", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductVariantId");
@@ -741,7 +741,7 @@ namespace CatalogService.Infrastructure.Migrations
                             b1.HasIndex("Amount")
                                 .HasDatabaseName("idx_product_variants_price_amount");
 
-                            b1.ToTable("product_variants");
+                            b1.ToTable("product_variants", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductVariantId");

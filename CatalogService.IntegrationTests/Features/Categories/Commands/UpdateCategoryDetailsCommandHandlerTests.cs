@@ -3,11 +3,6 @@ using CatalogService.IntegrationTests.Infrastructure;
 
 namespace CatalogService.IntegrationTests.Features.Categories.Commands;
 
-public class UpdateCategoryDetailsCommandHandlerTests : BaseIntegrationTestsCommand<UpdateCategoryDetailsCommand>
+public class UpdateCategoryDetailsCommandHandlerTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTestsCommand<UpdateCategoryDetailsCommand>(factory)
 {
-    public UpdateCategoryDetailsCommandHandlerTests(IntegrationTestWebAppFactory factory)
-        : base(factory)
-    {
-    }
-
 }

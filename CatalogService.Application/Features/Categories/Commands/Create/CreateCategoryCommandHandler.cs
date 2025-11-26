@@ -18,7 +18,6 @@ internal sealed class CreateCategoryCommandHandler(
                 slug: command.Slug,
                 isActive: command.IsActive,
                 parentId: command.ParentId,
-                maxDepth: 100,
                 description: command.Description,
                 ct: ct);
 

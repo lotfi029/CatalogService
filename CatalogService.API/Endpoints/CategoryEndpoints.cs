@@ -1,9 +1,9 @@
-﻿using CatalogService.Application.DTOs.Categories;
+﻿using CatalogService.API.Extensions;
+using CatalogService.Application.DTOs.Categories;
 using CatalogService.Application.Features.Categories.Commands.Create;
 using CatalogService.Application.Features.Categories.Commands.Delete;
 using CatalogService.Application.Features.Categories.Commands.Move;
 using CatalogService.Application.Features.Categories.Commands.UpdateDetails;
-using CatalogService.Domain.Entities;
 
 namespace CatalogService.API.Endpoints;
 
@@ -50,18 +50,14 @@ internal sealed class CategoryEndpoints : IEndpoint
     private async Task<IResult> Move(
         [FromRoute] Guid id,
         [FromQuery] Guid newParent,
-        [FromServices] ICommandHandler<MoveCategoryToNewParentCommand, IEnumerable<Category>> handler,
+        [FromServices] ICommandHandler<MoveCategoryToNewParentCommand> handler,
         CancellationToken ct
 
         )
     {
         var command = new MoveCategoryToNewParentCommand(id, newParent);
-
         var result = await handler.HandleAsync(command, ct);
-
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : result.ToProblem();
+        return result.Match(Results.NoContent, CustomResults.ToProblem);
     }
 
     private async Task<IResult> UpdateDetails(
@@ -74,13 +70,9 @@ internal sealed class CategoryEndpoints : IEndpoint
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
             return Results.ValidationProblem(validationResult.ToDictionary());
-
         var command = new UpdateCategoryDetailsCommand(id, request);
         var result = await handler.HandleAsync(command, ct);
-
-        return result.IsSuccess
-            ? Results.NoContent()
-            : result.ToProblem();
+        return result.Match(TypedResults.NoContent, CustomResults.ToProblem);
     }
     private async Task<IResult> Create(
         [FromBody] CreateCategoryRequest request,
@@ -98,10 +90,7 @@ internal sealed class CategoryEndpoints : IEndpoint
             IsActive: request.IsActive,
             ParentId: request.ParentId,
             Description: request.Description);
-
         var result = await handler.HandleAsync(command, ct);
-        return result.IsSuccess
-            ? TypedResults.Created()
-            : result.ToProblem();
+        return result.Match(TypedResults.Created, CustomResults.ToProblem);
     }
 }
