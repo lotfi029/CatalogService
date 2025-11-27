@@ -1,5 +1,4 @@
 ﻿using CatalogService.Domain.IRepositories;
-using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;

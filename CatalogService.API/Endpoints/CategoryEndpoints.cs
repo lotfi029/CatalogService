@@ -36,44 +36,28 @@ internal sealed class CategoryEndpoints : IEndpoint
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
             .MapToApiVersion(1);
+
+        group.MapGet("/{id:guid}", GetById)
+            .Produces(statusCode: StatusCodes.Status200OK)
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .MapToApiVersion(1);
+
+        group.MapGet("/slug/{slug:alpha}", GetBySlug)
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .MapToApiVersion(1);
+
+        group.MapGet("/{id:guid}/products", GetProducts)
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .MapToApiVersion(1);
+
+        group.MapGet("/tree", GetTree)
+            .Produces(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .MapToApiVersion(1);
     }
 
-    private async Task<IResult> Delete(
-        [FromRoute] Guid id,
-        [FromServices] ICommandHandler<DeleteCategoryCommand> handler,
-        CancellationToken ct
-        )
-    {
-        throw new NotImplementedException();
-    }
-
-    private async Task<IResult> Move(
-        [FromRoute] Guid id,
-        [FromQuery] Guid newParent,
-        [FromServices] ICommandHandler<MoveCategoryToNewParentCommand> handler,
-        CancellationToken ct
-
-        )
-    {
-        var command = new MoveCategoryToNewParentCommand(id, newParent);
-        var result = await handler.HandleAsync(command, ct);
-        return result.Match(Results.NoContent, CustomResults.ToProblem);
-    }
-
-    private async Task<IResult> UpdateDetails(
-        [FromRoute] Guid id,
-        [FromBody] UpdateCategoryDetailsRequest request,
-        [FromServices] IValidator<UpdateCategoryDetailsRequest> validator,
-        [FromServices] ICommandHandler<UpdateCategoryDetailsCommand> handler,
-        CancellationToken ct
-        )
-    {
-        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
-            return Results.ValidationProblem(validationResult.ToDictionary());
-        var command = new UpdateCategoryDetailsCommand(id, request);
-        var result = await handler.HandleAsync(command, ct);
-        return result.Match(TypedResults.NoContent, CustomResults.ToProblem);
-    }
     private async Task<IResult> Create(
         [FromBody] CreateCategoryRequest request,
         [FromServices] IValidator<CreateCategoryRequest> validator,
@@ -92,5 +76,63 @@ internal sealed class CategoryEndpoints : IEndpoint
             Description: request.Description);
         var result = await handler.HandleAsync(command, ct);
         return result.Match(TypedResults.Created, CustomResults.ToProblem);
+    }
+    private async Task<IResult> UpdateDetails(
+        [FromRoute] Guid id,
+        [FromBody] UpdateCategoryDetailsRequest request,
+        [FromServices] IValidator<UpdateCategoryDetailsRequest> validator,
+        [FromServices] ICommandHandler<UpdateCategoryDetailsCommand> handler,
+        CancellationToken ct
+        )
+    {
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
+            return Results.ValidationProblem(validationResult.ToDictionary());
+        var command = new UpdateCategoryDetailsCommand(id, request);
+        var result = await handler.HandleAsync(command, ct);
+        return result.Match(TypedResults.NoContent, CustomResults.ToProblem);
+    }
+    private async Task<IResult> Move(
+        [FromRoute] Guid id,
+        [FromQuery] Guid newParent,
+        [FromServices] ICommandHandler<MoveCategoryToNewParentCommand> handler,
+        CancellationToken ct
+
+        )
+    {
+        var command = new MoveCategoryToNewParentCommand(id, newParent);
+        var result = await handler.HandleAsync(command, ct);
+        return result.Match(Results.NoContent, CustomResults.ToProblem);
+    }
+
+    private async Task<IResult> Delete(
+        [FromRoute] Guid id,
+        [FromQuery] Guid? moveProductTo,
+        [FromServices] ICommandHandler<DeleteCategoryCommand> handler,
+        CancellationToken ct
+        )
+    {
+        throw new NotImplementedException();
+    }
+    private async Task GetTree(
+        [FromQuery] Guid? parentId,
+        [FromQuery] int? maxDepth)
+    {
+        throw new NotImplementedException();
+    }
+
+    private async Task GetById(
+        [FromRoute] Guid id)
+    {
+        throw new NotImplementedException();
+    }
+    private async Task GetBySlug(
+        [FromRoute] string slug)
+    {
+        throw new NotImplementedException();
+    }
+    private async Task GetProducts(
+        [FromRoute] Guid id)
+    {
+        throw new NotImplementedException();
     }
 }

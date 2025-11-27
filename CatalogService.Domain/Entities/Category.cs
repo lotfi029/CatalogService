@@ -1,5 +1,4 @@
 ﻿using CatalogService.Domain.DomainEvents.Categories;
-using System.Runtime.InteropServices;
 
 namespace CatalogService.Domain.Entities;
 
@@ -99,7 +98,6 @@ public class Category : AuditableEntity
     }
     public void AddChild(Category child)
         => _children.Add(child);
-    
     public void AddVariantAttribute(CategoryVariantAttribute categoryVariantAttribute)
     {
         ArgumentNullException.ThrowIfNull(categoryVariantAttribute);
