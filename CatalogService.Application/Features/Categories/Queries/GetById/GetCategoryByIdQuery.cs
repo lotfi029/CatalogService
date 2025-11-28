@@ -1,3 +1,6 @@
-﻿namespace CatalogService.Application.Features.Categories.Queries.GetById;
+﻿using CatalogService.Application.DTOs.Categories;
 
-public sealed record GetCategoryByIdQuery(Guid id) : IQuery<Guid>;
+namespace CatalogService.Application.Features.Categories.Queries.GetById;
+
+public sealed record GetCategoryByIdQuery(Guid Id) : IQuery<CategoryDetailedResponse>;
+

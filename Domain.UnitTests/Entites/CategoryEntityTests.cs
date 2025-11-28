@@ -37,7 +37,7 @@ public sealed class CategoryEntityTests
             level: 2,
             isActive: true,
             parentId: Guid.NewGuid(),
-            path: parentPath);
+            parentPath: parentPath);
 
         category.Path.Should().Be("electronics/computers/laptops");
     }

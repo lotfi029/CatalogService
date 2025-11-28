@@ -135,9 +135,9 @@ public sealed class MoveToNewParentDomainServiceTests
     [Fact]
     public async Task MoveToNewParent_WithDeepHierarchy_Should_UpdateAllLevels()
     {
-        var root = Category.Create("Root", "root", 2, true, Guid.NewGuid(), path: "parent1/parent2");
-        var level1 = Category.Create("Level1", "level1", 3, true, root.Id, path: "parent1/parent2/root");
-        var level2 = Category.Create("Level2", "level2", 4, true, level1.Id, path: "parent1/parent2/root/level1");
+        var root = Category.Create("Root", "root", 2, true, Guid.NewGuid());
+        var level1 = Category.Create("Level1", "level1", 3, true, root.Id, parentPath: "root");
+        var level2 = Category.Create("Level2", "level2", 4, true, level1.Id, parentPath: "root/level1");
 
         var categoryTree = new List<Category> { root, level1, level2 };
         var newParent = Category.Create("NewParent", "new-parent", 0, true);

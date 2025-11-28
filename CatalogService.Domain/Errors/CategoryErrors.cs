@@ -42,4 +42,9 @@ public sealed class CategoryErrors
         => Error.BadRequest(
             $"{_code}.{nameof(AlreadyHasThisParent)}",
             "Category Already Have This Parent");
+
+    public static Error SlugNotFound(string slug)
+        => Error.NotFound(
+            $"{_code}.{nameof(SlugNotFound)}",
+            $"Category with slug: '{slug}' does not exist");
 }

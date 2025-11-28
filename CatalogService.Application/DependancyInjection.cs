@@ -27,9 +27,9 @@ public static class DependancyInjection
     private static IServiceCollection AddCQRS(this IServiceCollection services)
     {
         services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            //.AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
-            //    .AsImplementedInterfaces()
-            //    .WithScopedLifetime()
+            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), publicOnly: false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()

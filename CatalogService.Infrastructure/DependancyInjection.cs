@@ -1,4 +1,7 @@
-﻿using CatalogService.Domain.IRepositories;
+﻿using CatalogService.Application;
+using CatalogService.Domain.IRepositories;
+using CatalogService.Infrastructure.Persistence;
+using CatalogService.Infrastructure.Persistence.Dapper;
 using CatalogService.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +14,6 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddPresistence(configuration);
-        
         return services;
     }
 
@@ -19,10 +21,9 @@ public static class DependancyInjection
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
-        dataSourceBuilder.EnableDynamicJson(); // Enable dynamic JSON for Dictionary<string, object>
+        dataSourceBuilder.EnableDynamicJson();
         var dataSource = dataSourceBuilder.Build();
 
-        // Use the configured data source
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseNpgsql(dataSource);
@@ -34,7 +35,13 @@ public static class DependancyInjection
             .AddNpgSql(name: "ApplicationDb", connectionString: connectionString!);
 
 
+        services.Configure<DapperOptions>(opt =>
+        {
+            opt.ConnectionString = connectionString!;
+        });
+        
+        services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
+
         return services;
     }
-    
 }

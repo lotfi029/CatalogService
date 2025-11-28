@@ -1,4 +1,6 @@
-﻿using CatalogService.Infrastructure.Persistence.Contexts;
+﻿using CatalogService.Application;
+using CatalogService.Infrastructure.Persistence;
+using CatalogService.Infrastructure.Persistence.Contexts;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -31,13 +33,18 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             {
                 services.Remove(descripter);
             }
-
+            
             var dataSourceBuilder = new NpgsqlDataSourceBuilder(_dbContainer.GetConnectionString());
             dataSourceBuilder.EnableDynamicJson();
             var dataSource = dataSourceBuilder.Build();
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseNpgsql(dataSource);
+            });
+
+            services.Configure<DapperOptions>(opt =>
+            {
+                opt.ConnectionString = _dbContainer.GetConnectionString();
             });
         });
     }

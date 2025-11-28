@@ -47,7 +47,7 @@ public class Category : AuditableEntity
         bool isActive,
         Guid? parentId = null,
         string? description = null,
-        string? path = null)
+        string? parentPath = null)
     {
 
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
@@ -63,7 +63,7 @@ public class Category : AuditableEntity
             isActive,
             parentId,
             description,
-            CreatePath(path, slug));
+            CreatePath(parentPath, slug));
 
         category.AddDomainEvent(new CategoryCreatedDomainEvent(category.Id));
 

@@ -1,25 +1,22 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Data;
 
 namespace CatalogService.Infrastructure.Persistence.Contexts;
 
-public class DapperDbContext(IConfiguration configuration) : IDisposable
+public class DapperDbContext(IOptions<DapperOptions> options) : IDisposable
 {
-    private readonly string _connectionString
-        = configuration.GetConnectionStringOrThrow(ConnectionStringConstants.DefaultConnection);
-
     private IDbConnection? _connection;
-    private IDbTransaction? _transaction;
     private bool _disposed;
+    private readonly DapperOptions _options = options.Value;
 
-    public IDbConnection? Connection
+    public IDbConnection NpgConnection
     {
         get
         {
             if (_connection == null)
             {
-                _connection = new NpgsqlConnection(_connectionString);
+                _connection = new NpgsqlConnection(_options.ConnectionString);
                 _connection.Open();
             }
             else if (_connection.State != ConnectionState.Open)
@@ -29,29 +26,12 @@ public class DapperDbContext(IConfiguration configuration) : IDisposable
             return _connection; 
         }
     }
-
-    public IDbTransaction? Transaction => _transaction;
-
-    public void Commit()
-    {
-        _transaction?.Commit();
-        _transaction?.Dispose();
-        _transaction = null;
-    }
-    public void RollBack()
-    {
-        _transaction?.Rollback();
-        _transaction?.Dispose();
-        _transaction = null;
-    }
-
     public void Dispose()
     {
         if (_disposed)
             return;
 
-        _transaction?.Rollback();
-        _transaction?.Dispose();
+        _connection?.Dispose();
         _disposed = true;
 
         GC.SuppressFinalize(this);

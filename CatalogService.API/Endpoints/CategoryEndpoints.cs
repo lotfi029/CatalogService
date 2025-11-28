@@ -4,6 +4,9 @@ using CatalogService.Application.Features.Categories.Commands.Create;
 using CatalogService.Application.Features.Categories.Commands.Delete;
 using CatalogService.Application.Features.Categories.Commands.Move;
 using CatalogService.Application.Features.Categories.Commands.UpdateDetails;
+using CatalogService.Application.Features.Categories.Queries;
+using CatalogService.Application.Features.Categories.Queries.GetById;
+using CatalogService.Application.Features.Categories.Queries.Tree;
 
 namespace CatalogService.API.Endpoints;
 
@@ -38,12 +41,12 @@ internal sealed class CategoryEndpoints : IEndpoint
             .MapToApiVersion(1);
 
         group.MapGet("/{id:guid}", GetById)
-            .Produces(statusCode: StatusCodes.Status200OK)
+            .Produces<CategoryDetailedResponse>(statusCode: StatusCodes.Status200OK)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .MapToApiVersion(1);
 
         group.MapGet("/slug/{slug:alpha}", GetBySlug)
-            .Produces(StatusCodes.Status200OK)
+            .Produces<CategoryDetailedResponse>(StatusCodes.Status200OK)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .MapToApiVersion(1);
 
@@ -53,7 +56,7 @@ internal sealed class CategoryEndpoints : IEndpoint
             .MapToApiVersion(1);
 
         group.MapGet("/tree", GetTree)
-            .Produces(StatusCodes.Status200OK)
+            .Produces<CategoryResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .MapToApiVersion(1);
     }
@@ -113,24 +116,47 @@ internal sealed class CategoryEndpoints : IEndpoint
     {
         throw new NotImplementedException();
     }
-    private async Task GetTree(
+    private async Task<IResult> GetTree(
         [FromQuery] Guid? parentId,
-        [FromQuery] int? maxDepth)
+        [FromServices] IQueryHandler<GetAllCategoryQuery, IEnumerable<CategoryResponse>> handler,
+        CancellationToken ct
+        )
     {
-        throw new NotImplementedException();
+        var quer = new GetAllCategoryQuery(parentId);
+        var result = await handler.HandleAsync(quer, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
     }
 
-    private async Task GetById(
-        [FromRoute] Guid id)
+    private async Task<IResult> GetById(
+        [FromRoute] Guid id,
+        [FromServices] IQueryHandler<GetCategoryByIdQuery, CategoryDetailedResponse> handler,
+        CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var query = new GetCategoryByIdQuery(id);
+        var result = await handler.HandleAsync(query, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
     }
-    private async Task GetBySlug(
-        [FromRoute] string slug)
+   
+    private async Task<IResult> GetBySlug(
+        [FromRoute] string slug,
+        [FromServices] IQueryHandler<GetCategoryBySlugQuery, CategoryDetailedResponse> handler,
+        CancellationToken ct
+        )
     {
-        throw new NotImplementedException();
+        var query = new GetCategoryBySlugQuery(slug);
+        var result = await handler.HandleAsync(query, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
     }
-    private async Task GetProducts(
+    private async Task<IResult> GetProducts(
         [FromRoute] Guid id)
     {
         throw new NotImplementedException();

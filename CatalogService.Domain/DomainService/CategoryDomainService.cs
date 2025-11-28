@@ -34,8 +34,7 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
             isActive: isActive,
             level: level,
             parentId: parentId,
-            description: description,
-            path: path);
+            description: description);
     }
 
     public async Task<Result<List<Category>>> MoveToNewParent(

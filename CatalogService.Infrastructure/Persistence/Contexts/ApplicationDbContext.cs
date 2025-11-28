@@ -36,7 +36,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                         }
                     }
                     else 
-                        entityTrack.Entity.SetCreationAudit(Guid.NewGuid().ToString());
+                        entityTrack.Entity.SetUpdateAudit(Guid.NewGuid().ToString());
                     break;
                 default:
                     break;
