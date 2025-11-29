@@ -1,5 +1,4 @@
-﻿using CatalogService.Application;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System.Data;
 
 namespace CatalogService.Infrastructure.Persistence.Dapper;

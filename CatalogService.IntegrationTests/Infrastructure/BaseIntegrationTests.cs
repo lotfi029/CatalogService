@@ -8,7 +8,7 @@ public abstract class BaseIntegrationTests(IntegrationTestWebAppFactory factory)
 {
     protected IServiceScope Scope { get; private set; } = null!;
     protected ApplicationDbContext AppDbContext { get; private set; } = null!;
-
+    
     public virtual async Task InitializeAsync()
     {
         await factory.ResetDatabaseAsync();

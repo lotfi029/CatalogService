@@ -92,7 +92,6 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             _resetLock.Release();
         }
     }
-
     async Task IAsyncLifetime.DisposeAsync()
     {
         _resetLock.Dispose();

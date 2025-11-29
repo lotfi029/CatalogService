@@ -1,7 +1,8 @@
-﻿using CatalogService.Application;
+﻿using CatalogService.Application.Features.Categories.Queries;
 using CatalogService.Domain.IRepositories;
 using CatalogService.Infrastructure.Persistence;
 using CatalogService.Infrastructure.Persistence.Dapper;
+using CatalogService.Infrastructure.Persistence.Dapper.Queries;
 using CatalogService.Infrastructure.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,11 +14,11 @@ public static class DependancyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddPresistence(configuration);
+        services.AddPersistence(configuration);
         return services;
     }
 
-    private static IServiceCollection AddPresistence(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
@@ -41,6 +42,7 @@ public static class DependancyInjection
         });
         
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
+        services.AddScoped<ICategoryQueries, CategoryQueries>();
 
         return services;
     }

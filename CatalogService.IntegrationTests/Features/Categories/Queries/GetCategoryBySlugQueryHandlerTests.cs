@@ -1,10 +1,13 @@
 ﻿using CatalogService.Application.DTOs.Categories;
-using CatalogService.Application.Features.Categories.Queries.GetById;
+using CatalogService.Application.Features.Categories.Queries.GetBySlug;
+using CatalogService.Domain.Entities;
 using CatalogService.IntegrationTests.Infrastructure;
+using FluentAssertions;
 
 namespace CatalogService.IntegrationTests.Features.Categories.Queries;
 
-public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTestsQuery<GetCategoryByIdQuery, CategoryDetailedResponse>(factory)
+public class GetCategoryBySlugQueryHandlerTests(IntegrationTestWebAppFactory factory)
+    : BaseIntegrationTestsQuery<GetCategoryBySlugQuery, CategoryDetailedResponse>(factory)
 {
     [Fact]
     public async Task HandleAsync_WithExistingCategory_Should_ReturnCategory()
@@ -19,33 +22,45 @@ public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory facto
         AppDbContext.Categories.Add(category);
         await AppDbContext.SaveChangesAsync();
 
-        var query = new GetCategoryByIdQuery(category.Id);
+        var query = new GetCategoryBySlugQuery("electronics");
 
         var result = await QueryHandler.HandleAsync(query);
 
         result.IsSuccess.Should().BeTrue();
         result.Value!.Should().NotBeNull();
-        result.Value!.Id.Should().Be(category.Id);
-        result.Value!.Name.Should().Be("Electronics");
         result.Value!.Slug.Should().Be("electronics");
+        result.Value!.Name.Should().Be("Electronics");
         result.Value!.Description.Should().Be("Electronic products");
-        result.Value!.Path.Should().Be("electronics");
         result.Value!.Level.Should().Be(0);
     }
 
     [Fact]
-    public async Task HandleAsync_WithNonExistentId_Should_ReturnNotFound()
+    public async Task HandleAsync_WithNonExistentSlug_Should_ReturnSlugNotFound()
     {
-        var query = new GetCategoryByIdQuery(Guid.NewGuid());
+        var query = new GetCategoryBySlugQuery("non-existent");
 
         var result = await QueryHandler.HandleAsync(query);
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Contain("NotFound");
+        result.Error.Code.Should().Contain("SlugNotFound");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task HandleAsync_WithInvalidSlug_Should_ReturnInvalidSlug(string invalidSlug)
+    {
+        var query = new GetCategoryBySlugQuery(invalidSlug);
+
+        var result = await QueryHandler.HandleAsync(query);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Contain("Invalid");
     }
 
     [Fact]
-    public async Task HandleAsync_WithDeletedCategory_Should_ReturnNotFound()
+    public async Task HandleAsync_WithDeletedCategory_Should_ReturnSlugNotFound()
     {
         var category = Category.Create("Electronics", "electronics", 0, true);
         AppDbContext.Categories.Add(category);
@@ -54,24 +69,23 @@ public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory facto
         category.Delete();
         await AppDbContext.SaveChangesAsync();
 
-        var query = new GetCategoryByIdQuery(category.Id);
+        var query = new GetCategoryBySlugQuery("electronics");
 
         var result = await QueryHandler.HandleAsync(query);
-        var error = CategoryErrors.NotFound(category.Id);
+
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Contain(error.Code);
     }
 
     [Fact]
     public async Task HandleAsync_WithCategoryWithParent_Should_ReturnParentId()
     {
         var parent = Category.Create("Electronics", "electronics", 0, true);
-        var child = Category.Create("Computers", "computers", 1, true, parent.Id);
+        var child = Category.Create("Laptops", "laptops", 1, true, parent.Id, parentPath: parent.Path);
 
         AppDbContext.Categories.AddRange(parent, child);
         await AppDbContext.SaveChangesAsync();
 
-        var query = new GetCategoryByIdQuery(child.Id);
+        var query = new GetCategoryBySlugQuery("laptops");
 
         var result = await QueryHandler.HandleAsync(query);
 
@@ -87,7 +101,7 @@ public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory facto
         AppDbContext.Categories.Add(category);
         await AppDbContext.SaveChangesAsync();
 
-        var query = new GetCategoryByIdQuery(category.Id);
+        var query = new GetCategoryBySlugQuery("electronics");
 
         var result = await QueryHandler.HandleAsync(query);
 
@@ -96,14 +110,18 @@ public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory facto
     }
 
     [Fact]
-    public async Task HandleAsync_WithEmptyGuid_Should_ReturnInvalidId()
+    public async Task HandleAsync_WithNullDescription_Should_ReturnNullDescription()
     {
-        var query = new GetCategoryByIdQuery(Guid.Empty);
+        var category = Category.Create("Electronics", "electronics", 0, true, description: null);
+        AppDbContext.Categories.Add(category);
+        await AppDbContext.SaveChangesAsync();
+
+        var query = new GetCategoryBySlugQuery("electronics");
 
         var result = await QueryHandler.HandleAsync(query);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Contain("Invalid");
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Description.Should().BeNull();
     }
 
     [Fact]
@@ -111,9 +129,9 @@ public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory facto
     {
         var category = Category.Create("Electronics", "electronics", 0, true);
         AppDbContext.Categories.Add(category);
-        var affected = await AppDbContext.SaveChangesAsync();
+        await AppDbContext.SaveChangesAsync();
 
-        var query = new GetCategoryByIdQuery(category.Id);
+        var query = new GetCategoryBySlugQuery("electronics");
 
         var result1 = await QueryHandler.HandleAsync(query);
         var result2 = await QueryHandler.HandleAsync(query);
@@ -127,18 +145,37 @@ public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory facto
     public async Task HandleAsync_WithComplexHierarchy_Should_ReturnCorrectLevel()
     {
         var root = Category.Create("Root", "root", 0, true);
-        var level1 = Category.Create("Level1", "level1", 1, true, root.Id);
-        var level2 = Category.Create("Level2", "level2", 2, true, level1.Id);
+        var level1 = Category.Create("Level1", "level1", 1, true, root.Id, parentPath: root.Path);
+        var level2 = Category.Create("Level2", "level2", 2, true, level1.Id, parentPath: level1.Path);
 
         AppDbContext.Categories.AddRange(root, level1, level2);
         await AppDbContext.SaveChangesAsync();
 
-        var query = new GetCategoryByIdQuery(level2.Id);
+        var query = new GetCategoryBySlugQuery("level2");
 
         var result = await QueryHandler.HandleAsync(query);
 
         result.IsSuccess.Should().BeTrue();
         result.Value!.Level.Should().Be(2);
         result.Value!.ParentId.Should().Be(level1.Id);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithComplexPath_Should_ReturnFullPath()
+    {
+        var root = Category.Create("Electronics", "electronics", 0, true);
+        var level1 = Category.Create("Laptops", "laptops", 1, true, root.Id, parentPath: root.Path);
+        var level2 = Category.Create("Gaming", "gaming", 2, true, level1.Id, parentPath: level1.Path);
+
+        AppDbContext.Categories.AddRange(root, level1, level2);
+        await AppDbContext.SaveChangesAsync();
+
+        var query = new GetCategoryBySlugQuery("gaming");
+
+        var result = await QueryHandler.HandleAsync(query);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Path.Should().Be("electronics/laptops/gaming");
+        result.Value!.Level.Should().Be(2);
     }
 }

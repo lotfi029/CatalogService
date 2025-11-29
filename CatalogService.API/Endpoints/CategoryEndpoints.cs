@@ -4,8 +4,8 @@ using CatalogService.Application.Features.Categories.Commands.Create;
 using CatalogService.Application.Features.Categories.Commands.Delete;
 using CatalogService.Application.Features.Categories.Commands.Move;
 using CatalogService.Application.Features.Categories.Commands.UpdateDetails;
-using CatalogService.Application.Features.Categories.Queries;
 using CatalogService.Application.Features.Categories.Queries.GetById;
+using CatalogService.Application.Features.Categories.Queries.GetBySlug;
 using CatalogService.Application.Features.Categories.Queries.Tree;
 
 namespace CatalogService.API.Endpoints;
@@ -118,11 +118,11 @@ internal sealed class CategoryEndpoints : IEndpoint
     }
     private async Task<IResult> GetTree(
         [FromQuery] Guid? parentId,
-        [FromServices] IQueryHandler<GetAllCategoryQuery, IEnumerable<CategoryResponse>> handler,
+        [FromServices] IQueryHandler<GetCategoryTreeQuery, IEnumerable<CategoryResponse>> handler,
         CancellationToken ct
         )
     {
-        var quer = new GetAllCategoryQuery(parentId);
+        var quer = new GetCategoryTreeQuery(parentId);
         var result = await handler.HandleAsync(quer, ct);
 
         return result.IsSuccess
