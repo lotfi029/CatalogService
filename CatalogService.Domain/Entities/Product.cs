@@ -4,12 +4,12 @@ namespace CatalogService.Domain.Entities;
 
 public class Product : AuditableEntity
 {
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; } = string.Empty;
-    public string VendorId { get; set; } = string.Empty;
-    public Sku SKU { get; set; } = default!;
-    public ProductStatus Status { get; set; } = ProductStatus.Unspecified;
-    public Dictionary<string, object>? Metadata {  get; set; }
+    public string Name { get; private set; } = string.Empty;
+    public string? Description { get; private set; } = string.Empty;
+    public string VendorId { get; private set; } = string.Empty;
+    public Sku SKU { get; private set; } = default!;
+    public ProductStatus Status { get; private set; } = ProductStatus.Unspecified;
+    public Dictionary<string, object>? Metadata {  get; private set; }
 
 
     private readonly List<ProductVariant> _variants = [];

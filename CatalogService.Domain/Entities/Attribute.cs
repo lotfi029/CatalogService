@@ -1,8 +1,6 @@
-﻿using CatalogService.Domain.Abstractions;
+﻿namespace CatalogService.Domain.Entities;
 
-namespace CatalogService.Domain.Entities;
-
-public sealed class Attribute : AuditableEntity
+public class Attribute : AuditableEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string Code { get; private set; } = string.Empty;
@@ -14,7 +12,7 @@ public sealed class Attribute : AuditableEntity
 
     // Json
     public Dictionary<string, object>? Options { get; private set; }
-    public Attribute() { }
+    private Attribute() { }
     private Attribute(
         string name, 
         string code, 

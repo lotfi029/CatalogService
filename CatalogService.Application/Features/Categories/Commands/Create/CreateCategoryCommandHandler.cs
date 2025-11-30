@@ -1,5 +1,4 @@
-﻿using CatalogService.Domain.DomainService;
-using Microsoft.Extensions.Logging;
+﻿using CatalogService.Domain.DomainService.Categories;
 
 namespace CatalogService.Application.Features.Categories.Commands.Create;
 

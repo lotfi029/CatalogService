@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.Categories.Queries.GetById;
 
-public sealed class GetCategoryByIdQueryHandler(
+internal sealed class GetCategoryByIdQueryHandler(
     ICategoryQueries queries,
     ILogger<GetCategoryByIdQueryHandler> logger) : IQueryHandler<GetCategoryByIdQuery, CategoryDetailedResponse>
 {

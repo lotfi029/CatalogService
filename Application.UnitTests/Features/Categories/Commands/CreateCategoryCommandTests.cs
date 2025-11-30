@@ -1,5 +1,5 @@
 ﻿using CatalogService.Application.Features.Categories.Commands.Create;
-using CatalogService.Domain.DomainService;
+using CatalogService.Domain.DomainService.Categories;
 
 namespace Application.UnitTests.Features.Categories.Commands;
 

@@ -42,6 +42,7 @@ public abstract class AuditableEntity : Entity, IAuditable
 
         IsDeleted = true;
         DeletedAt = DateTime.UtcNow;
+        Deactive();
 
     }
     public virtual void Active()

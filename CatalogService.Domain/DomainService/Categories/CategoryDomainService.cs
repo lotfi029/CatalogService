@@ -1,7 +1,7 @@
 ﻿using CatalogService.Domain.Errors;
 using CatalogService.Domain.IRepositories;
 
-namespace CatalogService.Domain.DomainService;
+namespace CatalogService.Domain.DomainService.Categories;
 
 public sealed class CategoryDomainService(ICategoryRepository repository) : ICategoryDomainService
 {

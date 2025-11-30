@@ -1,5 +1,4 @@
-﻿
-namespace CatalogService.Domain.DomainService;
+﻿namespace CatalogService.Domain.DomainService.Categories;
 
 public interface ICategoryDomainService
 {

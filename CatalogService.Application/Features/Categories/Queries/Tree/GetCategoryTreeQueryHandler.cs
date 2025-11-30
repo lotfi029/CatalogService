@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.Categories.Queries.Tree;
 
-public sealed class GetCategoryTreeQueryHandler(
+internal sealed class GetCategoryTreeQueryHandler(
     ICategoryQueries categoryQueries,
     ILogger<GetCategoryTreeQueryHandler> logger) : IQueryHandler<GetCategoryTreeQuery, IEnumerable<CategoryResponse>>
 {

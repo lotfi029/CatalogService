@@ -2,7 +2,7 @@
 
 public sealed class CategoryErrors
 {
-    private const string _code = "Category";
+    private const string _code = "Categories";
     public static Error ParentNotFound(Guid parentId)
         => Error.NotFound(
             $"{_code}.{nameof(ParentNotFound)}",

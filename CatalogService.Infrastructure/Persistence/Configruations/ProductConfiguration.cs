@@ -26,8 +26,8 @@ internal sealed class ProductConfiguration : BaseEntityConfiguration<Product>
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired();
+
         builder.HasIndex(e => e.Status)
-            .IsUnique()
             .HasDatabaseName("idx_products_status");
 
         builder.Property(e => e.Metadata)

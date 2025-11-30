@@ -2,9 +2,9 @@
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
 
-public sealed class VariantDefinitionRepository(ApplicationDbContext context)
+public sealed class VariantAttributeRepository(ApplicationDbContext context)
     : Repository<VariantAttributeDefinition>(context),
-      IVariantDefinitionRepository
+      IVariantAttributeRepository
 {
     
 }

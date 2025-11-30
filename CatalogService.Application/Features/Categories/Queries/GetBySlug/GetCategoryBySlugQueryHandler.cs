@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.Categories.Queries.GetBySlug;
 
-public sealed class GetCategoryBySlugQueryHandler(
+internal sealed class GetCategoryBySlugQueryHandler(
     ILogger<GetCategoryBySlugQueryHandler> logger,
     ICategoryQueries queries) : IQueryHandler<GetCategoryBySlugQuery, CategoryDetailedResponse>
 {

@@ -7,6 +7,7 @@ using CatalogService.Application.Features.Categories.Commands.UpdateDetails;
 using CatalogService.Application.Features.Categories.Queries.GetById;
 using CatalogService.Application.Features.Categories.Queries.GetBySlug;
 using CatalogService.Application.Features.Categories.Queries.Tree;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace CatalogService.API.Endpoints;
 

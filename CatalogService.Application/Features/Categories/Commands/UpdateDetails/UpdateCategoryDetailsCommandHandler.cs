@@ -1,7 +1,4 @@
-﻿using CatalogService.Domain.Errors;
-using Microsoft.Extensions.Logging;
-
-namespace CatalogService.Application.Features.Categories.Commands.UpdateDetails;
+﻿namespace CatalogService.Application.Features.Categories.Commands.UpdateDetails;
 
 internal sealed class UpdateCategoryDetailsCommandHandler(
     IUnitOfWork unitOfWork,

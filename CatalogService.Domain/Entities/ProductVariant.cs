@@ -1,19 +1,17 @@
-﻿using CatalogService.Domain.Abstractions;
-
-namespace CatalogService.Domain.Entities;
+﻿namespace CatalogService.Domain.Entities;
 
 public class ProductVariant : AuditableEntity
 {
-    public Guid ProductId { get; set; }
-    public Sku SKU { get; set; } = default!;
-    public string VariantAttributes {  get; set; } = string.Empty; // json
-    public string CustomizationOptions {  get; set; } = string.Empty; // json
+    public Guid ProductId { get; private set; }
+    public Sku SKU { get; private set; } = default!;
+    public string VariantAttributes {  get; private set; } = string.Empty; // json
+    public string CustomizationOptions {  get; private set; } = string.Empty; // json
 
 
-    public Money Price { get; set; } = new();
-    public Money CompareAtPrice { get; set; } = new();
+    public Money Price { get; private set; } = new();
+    public Money CompareAtPrice { get; private set; } = new();
 
-    public Product Product { get; set; } = default!;
+    public Product Product { get; private set; } = default!;
 
     private ProductVariant() { }
     private ProductVariant(

@@ -1,4 +1,5 @@
-﻿using CatalogService.Domain.DomainService;
+﻿using CatalogService.Domain.DomainService.Categories;
+using CatalogService.Domain.DomainService.VariantAttributes;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CatalogService.Domain;
@@ -15,6 +16,7 @@ public static class DependancyInjection
     private static IServiceCollection AddDomainService(this IServiceCollection services)
     {
         services.AddScoped<ICategoryDomainService, CategoryDomainService>();
+        services.AddScoped<IVariantAttributeDomainService, VariantAttributeDomainService>();
         return services;
     }
 }
