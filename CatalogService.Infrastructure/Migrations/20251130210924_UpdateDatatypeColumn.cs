@@ -5,11 +5,21 @@
 namespace CatalogService.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDatatypeColumna : Migration
+    public partial class UpdateDatatypeColumn : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql(@"
+                ALTER TABLE variant_attribute_definitions
+                ALTER COLUMN data_type TYPE integer
+                USING CASE
+                    WHEN data_type = 'Select' THEN 1
+                    WHEN data_type = 'Text' THEN 2
+                    WHEN data_type = 'Boolean' THEN 3
+                    ELSE 0
+                END;
+                ");
             migrationBuilder.DropIndex(
                 name: "idx_products_status",
                 table: "products");

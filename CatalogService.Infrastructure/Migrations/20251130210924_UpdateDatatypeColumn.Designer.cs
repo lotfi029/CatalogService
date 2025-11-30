@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CatalogService.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251130001430_UpdateDatatypeColumna")]
-    partial class UpdateDatatypeColumna
+    [Migration("20251130210924_UpdateDatatypeColumn")]
+    partial class UpdateDatatypeColumn
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
