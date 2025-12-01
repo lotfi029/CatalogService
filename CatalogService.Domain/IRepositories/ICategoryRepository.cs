@@ -1,5 +1,4 @@
-﻿
-namespace CatalogService.Domain.IRepositories;
+﻿namespace CatalogService.Domain.IRepositories;
 
 public interface ICategoryRepository : IRepository<Category>
 {

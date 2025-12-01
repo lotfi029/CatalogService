@@ -7,10 +7,10 @@ public class Category : AuditableEntity
     public Guid? ParentId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
-    public string Slug { get; private set; } = string.Empty;
+    public string Slug { get; private init; } = string.Empty;
     public string? Path {  get; private set; } = string.Empty;
     public short Level { get; private set; } = 0;
-    public Category? Parent { get; private set; }
+    public Category? Parent { get; private init; }
 
     private readonly List<Category> _children = [];
     private readonly List<CategoryVariantAttribute> _variantAttributes = [];
@@ -98,11 +98,21 @@ public class Category : AuditableEntity
     }
     public void AddChild(Category child)
         => _children.Add(child);
-    public void AddVariantAttribute(CategoryVariantAttribute categoryVariantAttribute)
+    public void AddVariantAttribute(Guid variantId, bool isRequired, short displayOrder)
     {
-        ArgumentNullException.ThrowIfNull(categoryVariantAttribute);
+        if (variantId == Guid.Empty)
+            throw new ArgumentException("'variantId' cannot be empty", nameof(variantId));
 
-        _variantAttributes.Add(categoryVariantAttribute);
+        var variantAttribute = CategoryVariantAttribute.Create(
+            categoryId: Id,
+            variantAttributeId: variantId,
+            isRequired: isRequired,
+            displayOrder: displayOrder,
+            createdBy: CreatedBy);
+
+        _variantAttributes.Add(variantAttribute);
+
+        AddDomainEvent(new VariantAttributeAddedToCategoryDomainEvent(Id, variantId));
     }
 }
 

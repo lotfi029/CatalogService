@@ -1,5 +1,5 @@
-﻿using CatalogService.API.Extensions;
-using CatalogService.Application.DTOs.Categories;
+﻿using CatalogService.Application.DTOs.Categories;
+using CatalogService.Application.Features.Categories.Commands.AddVariant;
 using CatalogService.Application.Features.Categories.Commands.Create;
 using CatalogService.Application.Features.Categories.Commands.Delete;
 using CatalogService.Application.Features.Categories.Commands.Move;
@@ -7,7 +7,6 @@ using CatalogService.Application.Features.Categories.Commands.UpdateDetails;
 using CatalogService.Application.Features.Categories.Queries.GetById;
 using CatalogService.Application.Features.Categories.Queries.GetBySlug;
 using CatalogService.Application.Features.Categories.Queries.Tree;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace CatalogService.API.Endpoints;
 
@@ -54,7 +53,7 @@ internal sealed class CategoryEndpoints : IEndpoint
         group.MapGet("/{id:guid}/products", GetProducts)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .MapToApiVersion(1);
+            .MapToApiVersion(1); // TODO:
 
         group.MapGet("/tree", GetTree)
             .Produces<CategoryResponse>(StatusCodes.Status200OK)

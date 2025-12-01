@@ -1,9 +1,8 @@
-﻿using CatalogService.Domain.Errors;
-using CatalogService.Domain.IRepositories;
+﻿namespace CatalogService.Domain.DomainService.Categories;
 
-namespace CatalogService.Domain.DomainService.Categories;
-
-public sealed class CategoryDomainService(ICategoryRepository repository) : ICategoryDomainService
+public sealed class CategoryDomainService(
+    ICategoryRepository repository,
+    ICategoryVariantAttributeRepository categoryVariantRepository) : ICategoryDomainService
 {
     public async Task<Result<Category>> CreateCategoryAsync(
         string name,
@@ -79,5 +78,60 @@ public sealed class CategoryDomainService(ICategoryRepository repository) : ICat
             return CategoryErrors.InconsistentTreeStructure;
 
         return categoryTree;
+    }
+
+    public async Task<Result<Category>> AddVariantAttributeToCategoryAsync(
+        Category category, 
+        Guid variantId,
+        short displayOrder,
+        bool isRequired,
+        CancellationToken ct = default)
+    {
+        if (await categoryVariantRepository.ExistsAsync(category.Id, variantId, ct))
+            return CategoryErrors.VariantAlreadyExist;
+
+        category.AddVariantAttribute(
+            variantId: variantId,
+            displayOrder: displayOrder,
+            isRequired: isRequired);
+
+        return category;
+    }
+
+    public async Task<Result> UpdateCategoryVariantAsync(
+        Guid id, 
+        Guid variantId, 
+        short? displayOrder,
+        bool? isRequired,
+        CancellationToken ct = default)
+    {
+        if (await categoryVariantRepository.GetAsync(id, variantId, ct) is not { } categoryVariant)
+            return CategoryErrors.CategoryVariantNotFound(id, variantId);
+
+        if (displayOrder is not null)
+        {
+            categoryVariant.UpdateDisplayOrder(displayOrder.Value);
+        }
+        if (isRequired is not null)
+        {
+            if (isRequired.Value)
+                categoryVariant.MarkRequired();
+            else
+                categoryVariant.MarkOptional();
+        }
+
+        categoryVariantRepository.Update(categoryVariant);
+        return Result.Success();
+    }
+    public async Task<Result> RemoveCategoryVariantAsync(
+        Guid id,
+        Guid variantId,
+        CancellationToken ct = default)
+    {
+        if (await categoryVariantRepository.GetAsync(id, variantId, ct) is not { } categoryVariant)
+            return CategoryErrors.CategoryVariantNotFound(id, variantId);
+
+        categoryVariantRepository.Remove(categoryVariant);
+        return Result.Success();
     }
 }

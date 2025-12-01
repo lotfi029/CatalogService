@@ -1,6 +1,5 @@
 ﻿using CatalogService.Application.Features.Categories.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
-using CatalogService.Domain.IRepositories;
 using CatalogService.Infrastructure.Persistence;
 using CatalogService.Infrastructure.Persistence.Dapper;
 using CatalogService.Infrastructure.Persistence.Dapper.Queries;
@@ -33,6 +32,8 @@ public static class DependancyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IVariantAttributeRepository, VariantAttributeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddScoped<ICategoryVariantAttributeRepository, CategoryVariantAttributeRepository>();
         
         services.AddHealthChecks()
             .AddNpgSql(name: "ApplicationDb", connectionString: connectionString!);

@@ -1,6 +1,7 @@
 ﻿using CatalogService.Domain.DomainEvents.Categories;
 using CatalogService.Domain.Entities;
 using FluentAssertions;
+using System.Security.AccessControl;
 
 namespace Domain.UnitTests.Entites;
 
@@ -273,14 +274,17 @@ public sealed class CategoryEntityTests
     public void AddVariantAttribute_WithValidAttribute_Should_AddToCollection()
     {
         var category = Category.Create("Electronics", "electronics", 0, true);
-        var attribute = new CategoryVariantAttribute
-        {
-            CategoryId = category.Id,
-            VariantAttributeId = Guid.NewGuid(),
-            IsRequired = true
-        };
+        var attribute = CategoryVariantAttribute.Create(
+            category.Id,
+            variantAttributeId: Guid.CreateVersion7(),
+            isRequired: false,
+            displayOrder: 1,
+            category.CreatedBy);
 
-        category.AddVariantAttribute(attribute);
+        category.AddVariantAttribute(
+            variantId: attribute.VariantAttributeId,
+            isRequired: attribute.IsRequired,
+            displayOrder: attribute.DisplayOrder);
 
         category.CategoryVariantAttributes.Should().ContainSingle();
         category.CategoryVariantAttributes.First().Should().Be(attribute);
@@ -291,7 +295,7 @@ public sealed class CategoryEntityTests
     {
         var category = Category.Create("Electronics", "electronics", 0, true);
 
-        Action act = () => category.AddVariantAttribute(null!);
+        Action act = () => category.AddVariantAttribute(Guid.Empty, false, 1);
 
         act.Should().Throw<ArgumentNullException>();
     }

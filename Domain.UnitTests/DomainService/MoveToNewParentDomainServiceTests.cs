@@ -10,12 +10,14 @@ namespace Domain.UnitTests.DomainService;
 public sealed class MoveToNewParentDomainServiceTests
 {
     private readonly Mock<ICategoryRepository> _mockRepository;
+    private readonly Mock<ICategoryVariantAttributeRepository> _mokeCategoryVariantRepository;
     private readonly CategoryDomainService _sut;
 
     public MoveToNewParentDomainServiceTests()
     {
         _mockRepository = new Mock<ICategoryRepository>();
-        _sut = new CategoryDomainService(_mockRepository.Object);
+        _mokeCategoryVariantRepository = new Mock<ICategoryVariantAttributeRepository>();
+        _sut = new CategoryDomainService(_mockRepository.Object, _mokeCategoryVariantRepository.Object);
     }
 
     [Fact]

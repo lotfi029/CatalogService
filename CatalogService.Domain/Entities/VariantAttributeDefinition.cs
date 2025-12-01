@@ -10,8 +10,8 @@ public class VariantAttributeDefinition : AuditableEntity
     public VariantDatatype Datatype { get; private set; } = default!;
    
     public bool AffectsInventory { get; private set; } = false;
-    public bool AffectsPricing { get; private set; } = false;
-    public short DisplayOrder { get; private set; } = 0;
+    public bool AffectsPricing { get; private set; } = false; // deleted
+    public short DisplayOrder { get; private set; } = 0; // deleted
 
     public AllowedValuesJson? AllowedValues { get; private set; }
 

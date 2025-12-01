@@ -52,4 +52,14 @@ public sealed class CategoryErrors
         => Error.NotFound(
             $"{_code}.{nameof(SlugNotFound)}",
             $"Category with slug: '{slug}' does not exist");
+
+    public static Error VariantAlreadyExist
+        => Error.BadRequest(
+            $"{_code}.{nameof(VariantAlreadyExist)}",
+            "category have this variant already");
+
+    public static Error CategoryVariantNotFound(Guid id, Guid variantId)
+        => Error.NotFound(
+            $"{_code}.{nameof(CategoryVariantNotFound)}",
+            $"'VariantAttribute' with id '{variantId}' not found for the category: '{id}'");
 }
