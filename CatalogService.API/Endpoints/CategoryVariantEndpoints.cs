@@ -15,7 +15,7 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
         group.MapPost("/", AddVariantAttribute)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .ProducesProblem(statusCode: StatusCodes.Status404NotFound);
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound); // add delete 
         
         group.MapPut("/{variantAttributeId:guid}", UpdateVariantAttribute)
             .Produces(statusCode: StatusCodes.Status204NoContent)
