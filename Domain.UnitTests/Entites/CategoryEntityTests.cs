@@ -274,30 +274,27 @@ public sealed class CategoryEntityTests
     public void AddVariantAttribute_WithValidAttribute_Should_AddToCollection()
     {
         var category = Category.Create("Electronics", "electronics", 0, true);
-        var attribute = CategoryVariantAttribute.Create(
-            category.Id,
-            variantAttributeId: Guid.CreateVersion7(),
-            isRequired: false,
-            displayOrder: 1,
-            category.CreatedBy);
+        var variantAttributeId = Guid.CreateVersion7();
 
         category.AddVariantAttribute(
-            variantId: attribute.VariantAttributeId,
-            isRequired: attribute.IsRequired,
-            displayOrder: attribute.DisplayOrder);
+            variantId: variantAttributeId,
+            isRequired: true,
+            displayOrder: 1);
 
         category.CategoryVariantAttributes.Should().ContainSingle();
-        category.CategoryVariantAttributes.First().Should().Be(attribute);
+        category.CategoryVariantAttributes.First().VariantAttributeId.Should().Be(variantAttributeId);
+        category.CategoryVariantAttributes.First().IsRequired.Should().Be(true);
+        category.CategoryVariantAttributes.First().DisplayOrder.Should().Be(1);
     }
 
     [Fact]
-    public void AddVariantAttribute_WithNullAttribute_Should_ThrowArgumentNullException()
+    public void AddVariantAttribute_WithNullVairantId_Should_ThrowArgumentException()
     {
         var category = Category.Create("Electronics", "electronics", 0, true);
 
         Action act = () => category.AddVariantAttribute(Guid.Empty, false, 1);
 
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
