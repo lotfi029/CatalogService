@@ -1,8 +1,8 @@
-﻿namespace CatalogService.Domain.DomainService.Categories;
+﻿
+namespace CatalogService.Domain.DomainService.Categories;
 
 public interface ICategoryDomainService
 {
-    Task<Result<Category>> AddVariantAttributeToCategoryAsync(Category category, Guid variantId, short displayOrder, bool isRequired, CancellationToken ct = default);
     Task<Result<Category>> CreateCategoryAsync(
         string name, 
         string slug, 
@@ -11,6 +11,9 @@ public interface ICategoryDomainService
         string? description = null, 
         CancellationToken ct = default);
     Task<Result<List<Category>>> MoveToNewParent(Guid id, Category parent, CancellationToken ct = default);
-    Task<Result> RemoveCategoryVariantAsync(Guid id, Guid variantId, CancellationToken ct = default);
-    Task<Result> UpdateCategoryVariantAsync(Guid id, Guid variantId, short? displayOrder, bool? isRequired, CancellationToken ct = default);
+
+    Task<Result> AddVariantAttributeToCategoryAsync(Guid id, Guid variantId, short displayOrder, bool isRequired, CancellationToken ct = default);
+    Task<Result> RemoveVariantAttributeFromCategoryAsync(Guid id, Guid variantId, CancellationToken ct = default);
+    Task<Result> UpdateCategoryVariantAttributeAsync(Guid id, Guid variantId, short displayOrder, bool isRequired, CancellationToken ct = default);
+    Task<Result> AddBulkCategoryVariantAttributeAsync(Guid id, IEnumerable<(Guid variantId, bool isRequired, short displayOrder)> variants, CancellationToken ct = default);
 }

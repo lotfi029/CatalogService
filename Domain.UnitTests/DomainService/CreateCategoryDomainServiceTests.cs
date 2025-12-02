@@ -13,6 +13,7 @@ public sealed class CreateCategoryDomainServiceTests
 {
     private readonly Mock<ICategoryRepository> _mockRepository;
     private readonly Mock<ICategoryVariantAttributeRepository> _mokeCategoryVariantRepository;
+    private readonly Mock<IVariantAttributeRepository> _mokeVariantAttributeRepository;
     private readonly CategoryDomainService _sut;
     const string _name = "Electronics";
     const string _slug = "electronics";
@@ -23,7 +24,12 @@ public sealed class CreateCategoryDomainServiceTests
     {
         _mockRepository = new Mock<ICategoryRepository>();
         _mokeCategoryVariantRepository = new Mock<ICategoryVariantAttributeRepository>();
-        _sut = new CategoryDomainService(_mockRepository.Object, _mokeCategoryVariantRepository.Object);
+        _mokeVariantAttributeRepository = new Mock<IVariantAttributeRepository>();
+
+        _sut = new CategoryDomainService(
+            _mockRepository.Object, 
+            _mokeVariantAttributeRepository.Object,
+            _mokeCategoryVariantRepository.Object);
     }
     [Fact]
     public async Task CreateCateogryAsync_Should_ReturnError_WhenSlugNotUnique()

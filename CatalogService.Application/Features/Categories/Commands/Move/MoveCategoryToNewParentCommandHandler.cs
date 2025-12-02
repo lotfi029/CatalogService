@@ -1,6 +1,4 @@
 ﻿using CatalogService.Domain.DomainService.Categories;
-using CatalogService.Domain.Errors;
-using Microsoft.Extensions.Logging;
 
 namespace CatalogService.Application.Features.Categories.Commands.Move;
 
@@ -15,7 +13,7 @@ internal sealed class MoveCategoryToNewParentCommandHandler(
     {
         if (command.Id == Guid.Empty || command.NewParentId == Guid.Empty)
             return CategoryErrors.InvalidId;
-        
+
         if (command.Id == command.NewParentId)
             return CategoryErrors.CannotMoveToSelf;
 

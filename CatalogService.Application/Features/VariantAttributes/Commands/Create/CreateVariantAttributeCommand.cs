@@ -7,7 +7,6 @@ public sealed record CreateVariantAttributeCommand(CreateVariantAttributeRequest
 
 internal sealed class CreateVariantAttributeCommandHanlder(
     ILogger<CreateVariantAttributeCommandHanlder> logger,
-    IVariantAttributeRepository variantRepository,
     IVariantAttributeDomainService variantService,
     IUnitOfWork unitOfWork) : ICommandHandler<CreateVariantAttributeCommand, Guid>
 {
@@ -20,8 +19,6 @@ internal sealed class CreateVariantAttributeCommandHanlder(
                 name: command.Request.Name,
                 datatype: command.Request.Datatype,
                 affectsInventory: command.Request.AffectedInventory,
-                affectsPricing: command.Request.AffectedPricing,
-                diplayOrder: command.Request.DisplayOrder,
                 allowedValues: command.Request.AllowedValues,
                 ct);
 
@@ -30,7 +27,6 @@ internal sealed class CreateVariantAttributeCommandHanlder(
 
             var variant = variantResult.Value!;
 
-            variantRepository.Add(variant);
             await unitOfWork.SaveChangesAsync(ct);
 
             return Result.Success(variant.Id);
@@ -38,7 +34,8 @@ internal sealed class CreateVariantAttributeCommandHanlder(
         catch (Exception ex)
         {
             logger.LogError(ex, "Error Ocurred while adding new variant attribute definition");
-            return Error.Unexpected("Error Ocurred while adding new variant attribute definition");
+
+            return VariantAttributeErrors.CreateCommandException;
         }
     }
 }

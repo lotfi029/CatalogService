@@ -1,0 +1,3 @@
+﻿namespace CatalogService.Application.DTOs.VariantAttributes;
+
+public sealed record CreateVariantAttributeBulkRequest(IEnumerable<CreateVariantAttributeRequest> Variants);

@@ -8,7 +8,5 @@ public sealed record VariantAttributeResponse(
     string Name,
     string Datatype,
     AllowedValuesJson? AllowedValues,
-    bool AffectsInventory,
-    bool AffectsPricing,
-    short DisplayOrder
+    bool AffectsInventory
     );

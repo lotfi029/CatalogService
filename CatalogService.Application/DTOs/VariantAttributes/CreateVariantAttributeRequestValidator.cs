@@ -26,10 +26,6 @@ public sealed class CreateVariantAttributeRequestValidator : AbstractValidator<C
             .NotNull()
             .WithMessage("'{PropertyName}' is required.");
 
-        RuleFor(v => v.DisplayOrder)
-            .NotEmpty()
-            .GreaterThan((short)0);
-
         RuleFor(v => v)
             .Custom((request, context) =>
             {
@@ -49,6 +45,25 @@ public sealed class CreateVariantAttributeRequestValidator : AbstractValidator<C
                 {
                     context.AddFailure(nameof(request.AllowedValues),
                         "'AllowedValues' can only be provided when the datatype is 'select'.");
+                }
+            });
+
+        RuleFor(v => v)
+            .Custom((request, context) =>
+            {
+                bool isSelect =
+                    string.Equals(request.Datatype, "select", StringComparison.OrdinalIgnoreCase);
+
+                if (isSelect && request.AllowedValues is not null)
+                {
+                    var values = request.AllowedValues.Values;
+                    if (values.Count != values.Distinct().Count())
+                        context.AddFailure(nameof(request.AllowedValues),
+                            "'AllowedValues' cannot be duplicated");
+
+                    if (values.Count >= 50)
+                        context.AddFailure(nameof(request.AllowedValues),
+                            "'AllowedValues' cannot be more than 50");
                 }
             });
     }

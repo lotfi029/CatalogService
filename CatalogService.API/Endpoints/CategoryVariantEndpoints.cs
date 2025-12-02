@@ -1,4 +1,5 @@
-﻿using CatalogService.Application.DTOs.Categories;
+﻿using CatalogService.Application.DTOs.CategoryVariantAttributes;
+using CatalogService.Application.Features.Categories.Commands.AddBulkVariants;
 using CatalogService.Application.Features.Categories.Commands.AddVariant;
 using CatalogService.Application.Features.Categories.Commands.RemoveVariant;
 using CatalogService.Application.Features.Categories.Commands.UpdateVariant;
@@ -13,6 +14,11 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
             .MapToApiVersion(1);
 
         group.MapPost("/", AddVariantAttribute)
+            .Produces(statusCode: StatusCodes.Status204NoContent)
+            .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound); // add delete 
+        
+        group.MapPost("/bulk",  AddCategoryVariantBulk)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound); // add delete 
@@ -50,7 +56,23 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
             ? TypedResults.NoContent()
             : result.ToProblem();
     }
-    
+    private async Task<IResult> AddCategoryVariantBulk(
+        [FromRoute] Guid categoryId,
+        [FromBody] AddCategoryVariantBulkRequest request,
+        [FromServices] IValidator<AddCategoryVariantBulkRequest> validator,
+        [FromServices] ICommandHandler<AddCategoryVariantBulkCommand> handler,
+        CancellationToken ct)
+    {
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        var command = new AddCategoryVariantBulkCommand(Id: categoryId, Request: request);
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
     private async Task<IResult> UpdateVariantAttribute(
         [FromRoute] Guid categoryId,
         [FromRoute] Guid variantAttributeId,

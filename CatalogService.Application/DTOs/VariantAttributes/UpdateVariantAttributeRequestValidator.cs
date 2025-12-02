@@ -9,18 +9,28 @@ public sealed class UpdateVariantAttributeRequestValidator : AbstractValidator<U
             .MaximumLength(100)
             .WithMessage("The length of '{PropertyName}' must be less than or equal to {MaxLength} characters.");
 
-        RuleFor(v => v)
-            .Custom((request, context) =>
+        RuleFor(v => v.AllowedValues)
+            .Custom((AllowedValues, context) =>
             {
-                bool value = request.AllowedValues is not null &&
-                                 request.AllowedValues.Values.Count == 0;
-
-                if (value)
+                if (AllowedValues!.Values.Count == 0)
                 {
-                    context.AddFailure(nameof(request.AllowedValues),
-                        "'AllowedValues' must be have values");
+                    context.AddFailure(nameof(AllowedValues),
+                        "'AllowedValues' must be not empty");
                 }
+                else
+                {
+                    var values = AllowedValues.Values;
 
-            });
+                    if (values.Count != values.Distinct().Count())
+                    {
+                        context.AddFailure(nameof(AllowedValues),
+                            "'AllowedValues' cannot be duplicated");
+                        
+                        if (values.Count >= 50)
+                            context.AddFailure(nameof(AllowedValues),
+                                "'AllowedValues' cannot be more than 50");
+                    }
+                }
+            }).When(v => v.AllowedValues is not null);
     }
 }

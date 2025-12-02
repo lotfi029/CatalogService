@@ -20,7 +20,7 @@ internal sealed class UpdateCategoryVariantCommandHandler(
     {
         try
         {
-            var result = await categoryDomainService.UpdateCategoryVariantAsync(
+            var result = await categoryDomainService.UpdateCategoryVariantAttributeAsync(
                 command.Id,
                 command.VariantId,
                 command.DisplayOrder,

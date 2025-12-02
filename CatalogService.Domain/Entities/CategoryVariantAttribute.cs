@@ -44,7 +44,7 @@ public class CategoryVariantAttribute
         Guid variantAttributeId,
         bool isRequired,
         short displayOrder,
-        string? createdBy)
+        string? createdBy = null)
     {
 
         if (categoryId == Guid.Empty)

@@ -1,6 +1,5 @@
 ﻿using CatalogService.Application.DTOs.VariantAttributes;
 using CatalogService.Application.Features.VariantAttributes.Queries;
-using CatalogService.Domain.Errors;
 using Dapper;
 namespace CatalogService.Infrastructure.Persistence.Dapper.Queries;
 
@@ -18,15 +17,13 @@ public sealed class VariantAttributeQueries(
                 v.name as Name,
                 v.data_type_name as Datatype,
                 v.allowed_values as AllowedValues,
-                v.affects_inventory as AffectsInventory,
-                v.affects_pricing as AffectsPricing,
-                v.display_order as DisplayOrder
+                v.affects_inventory as AffectsInventory
             FROM public.variant_attribute_definitions v
             WHERE v.id = @id
                 AND v.is_deleted = false
             """;
 
-        var result = await connection.QuerySingleOrDefaultAsync(
+        var result = await connection.QuerySingleOrDefaultAsync<VariantAttributeResponse>(
             new CommandDefinition(sql, new { id }, cancellationToken: ct));
 
         if (result is null)
@@ -46,9 +43,7 @@ public sealed class VariantAttributeQueries(
                 v.name as Name,
                 v.data_type_name as Datatype,
                 v.allowed_values as AllowedValues,
-                v.affects_inventory as AffectsInventory,
-                v.affects_pricing as AffectsPricing,
-                v.display_order as DisplayOrder
+                v.affects_inventory as AffectsInventory
             FROM public.variant_attribute_definitions v
             WHERE v.is_deleted = false
             """;

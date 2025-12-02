@@ -17,4 +17,14 @@ public sealed class VariantAttributeErrors
         Error.BadRequest(
             $"{_code}.{nameof(CodeAlreadyExist)}",
             $"Variant attribute with code: '{code}' already exist");
+
+    public static Error FailedToAddVariantAttribute(int cnt) =>
+        Error.BadRequest(
+            $"{_code}.{nameof(FailedToAddVariantAttribute)}",
+            $"An Error ocurred while adding: '{cnt}' variant attribute definition please try agin");
+    public static Error CreateCommandException
+        => Error.Unexpected("Error Ocurred while adding new variant attribute definition");
+    public static Error CreateBulkCommandException =>
+        Error.Unexpected("Error ocurred while adding bulk or variant attribute definition");
+
 }

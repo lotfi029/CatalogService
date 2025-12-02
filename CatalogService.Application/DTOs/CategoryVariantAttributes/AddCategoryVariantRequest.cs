@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Application.DTOs.Categories;
+﻿namespace CatalogService.Application.DTOs.CategoryVariantAttributes;
 
 public sealed record AddCategoryVariantRequest(
     Guid VariantId, 

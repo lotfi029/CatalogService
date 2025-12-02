@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Application.DTOs.Categories;
+﻿namespace CatalogService.Application.DTOs.CategoryVariantAttributes;
 
 public sealed class UpdateCategoryVariantRequestValidator : AbstractValidator<UpdateCategoryVariantRequest>
 {
@@ -11,6 +11,6 @@ public sealed class UpdateCategoryVariantRequestValidator : AbstractValidator<Up
             .WithMessage("'{PropertyName}' must be greater than 0");
 
         RuleFor(cv => cv.IsRequired)
-            .NotEmpty();
+            .NotNull();
     }
 }

@@ -1,6 +1,4 @@
-﻿using CatalogService.Domain.Errors;
-using CatalogService.Domain.IRepositories;
-using CatalogService.Domain.JsonProperties;
+﻿using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.DomainService.VariantAttributes;
 
@@ -11,8 +9,6 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
         string name,
         string datatype,
         bool affectsInventory,
-        bool affectsPricing,
-        short diplayOrder,
         AllowedValuesJson? allowedValues,
         CancellationToken ct = default)
     {
@@ -26,11 +22,25 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
             name: name,
             datatype: enumDataType,
             affectsInventory: affectsInventory,
-            affectsPricing: affectsPricing,
-            diplayOrder: diplayOrder,
             allowedValues: allowedValues);
 
-        return variantAttribute;
+        variantAttributeRepository.Add(variantAttribute);
 
+        return variantAttribute;
+    }
+    public async Task<Result> CreateBulkAsync(
+        IEnumerable<(string code, string name, string datatype, bool affectsInventory, AllowedValuesJson? allowedValues)> variantAttributes,
+        CancellationToken ct = default
+        )
+    {
+
+        foreach (var (code, name, datatype, affectsInventory, allowedValues) in variantAttributes)
+        {
+            var result = await CreateAsync(code, name, datatype, affectsInventory, allowedValues, ct);
+            
+            if (result.IsFailure) 
+                return result;
+        }
+        return Result.Success();
     }
 }

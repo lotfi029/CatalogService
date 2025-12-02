@@ -10,8 +10,6 @@ public class VariantAttributeDefinition : AuditableEntity
     public VariantDatatype Datatype { get; private set; } = default!;
    
     public bool AffectsInventory { get; private set; } = false;
-    public bool AffectsPricing { get; private set; } = false; // deleted
-    public short DisplayOrder { get; private set; } = 0; // deleted
 
     public AllowedValuesJson? AllowedValues { get; private set; }
 
@@ -25,8 +23,6 @@ public class VariantAttributeDefinition : AuditableEntity
         string name,
         VariantDatatype datatype,
         bool affectsInventory,
-        bool affectsPricing,
-        short displayOrder,
         AllowedValuesJson? allowedValues
         ) 
     {
@@ -34,8 +30,6 @@ public class VariantAttributeDefinition : AuditableEntity
         Name = name;
         Datatype = datatype;
         AffectsInventory = affectsInventory;
-        AffectsPricing = affectsPricing;
-        DisplayOrder = displayOrder;
         AllowedValues = allowedValues;
     }
 
@@ -44,14 +38,9 @@ public class VariantAttributeDefinition : AuditableEntity
         string name,
         VaraintAttributeDatatype datatype,
         bool affectsInventory,
-        bool affectsPricing,
-        short diplayOrder,
         AllowedValuesJson? allowedValues
         )
     {
-        if (datatype == VaraintAttributeDatatype.Select && allowedValues is null)
-            throw new InvalidOperationException("Must be add the select values");
-
         var validAllowedValues = VerifyAllowedValues(datatype, allowedValues);
 
         var variantAttribute =  new VariantAttributeDefinition(
@@ -59,8 +48,6 @@ public class VariantAttributeDefinition : AuditableEntity
             name: name,
             datatype: new VariantDatatype(datatype),
             affectsInventory: affectsInventory,
-            affectsPricing: affectsPricing,
-            displayOrder: diplayOrder,
             allowedValues: validAllowedValues);
 
         variantAttribute.AddDomainEvent(new VariantAttributeCreatedDomainEvent(Id: variantAttribute.Id));
@@ -68,7 +55,7 @@ public class VariantAttributeDefinition : AuditableEntity
         return variantAttribute;
     }
 
-    public void UpdateName(string name, AllowedValuesJson? allowedValues)
+    public void Update(string name, AllowedValuesJson? allowedValues)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
@@ -76,20 +63,27 @@ public class VariantAttributeDefinition : AuditableEntity
 
         Name = name;
 
-        AddDomainEvent(new VariantAttributeNameUpdatedDomainEvent(Id));
+        AddDomainEvent(new VariantAttributeUpdatedDomainEvent(Id));
     }
     private static AllowedValuesJson VerifyAllowedValues(VaraintAttributeDatatype datatype, AllowedValuesJson? allowedValues)
     {
-        if (datatype != VaraintAttributeDatatype.Select && allowedValues is not null)
-            throw new InvalidOperationException("'AllowedValues' valid only with select data type");
-
-        var validAllowedValues =
-            datatype == VaraintAttributeDatatype.Select &&
-            allowedValues is not null &&
-            allowedValues.Values.Count > 0;
-
-        if (!validAllowedValues)
-            throw new InvalidOperationException("'AllowedValues' can not be null or empty");
+        if (allowedValues is not null)
+        {
+            if (datatype != VaraintAttributeDatatype.Select)
+                throw new ArgumentException("Allowed Values valid only with select data type", nameof(allowedValues));
+            var values = allowedValues.Values;
+            if (values.Count == 0)
+                throw new ArgumentException("Allowed Values cannot be empty", nameof(allowedValues));
+            if (values.Count != values.Distinct().Count())
+                throw new ArgumentException("values cannot be duplicated", nameof(allowedValues));
+            if (values.Count >= 50)
+                throw new ArgumentException("Allowed Values cannot accept more than 50 values", nameof(allowedValues));
+        }
+        else
+        {
+            if (datatype == VaraintAttributeDatatype.Select)
+                throw new ArgumentException("allowed values Must be not empty with select datatype", nameof(allowedValues));
+        }
 
         return allowedValues!;
     }

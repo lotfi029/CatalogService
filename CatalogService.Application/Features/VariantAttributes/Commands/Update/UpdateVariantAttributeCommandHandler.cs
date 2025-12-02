@@ -15,7 +15,7 @@ internal sealed class UpdateVariantAttributeCommandHandler(
         try
         {
 
-            variantAttribute.UpdateName(command.Request.Name, command.Request.AllowedValues);
+            variantAttribute.Update(command.Request.Name, command.Request.AllowedValues);
             variantRepository.Update(variantAttribute);
             await unitOfWork.SaveChangesAsync(ct);
             return Result.Success();

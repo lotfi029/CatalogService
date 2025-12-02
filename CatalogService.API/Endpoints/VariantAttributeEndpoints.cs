@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using CatalogService.Application.DTOs.VariantAttributes;
 using CatalogService.Application.Features.VariantAttributes.Commands.Create;
+using CatalogService.Application.Features.VariantAttributes.Commands.CreateBulk;
 using CatalogService.Application.Features.VariantAttributes.Commands.Delete;
 using CatalogService.Application.Features.VariantAttributes.Commands.Update;
 using CatalogService.Application.Features.VariantAttributes.Queries.GetAll;
@@ -18,6 +19,13 @@ internal sealed class VariantAttributeEndpoints : IEndpoint
 
         group.MapPost("", Create)
             .Produces<Guid>()
+            .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
+            .ProducesProblem(statusCode: StatusCodes.Status409Conflict)
+            .MapToApiVersion(_apiVersion);
+        
+        group.MapPost("/bulk", CreateBulk)
+            .Produces(statusCode: StatusCodes.Status201Created)
+            .ProducesProblem(statusCode: StatusCodes.Status409Conflict)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
             .MapToApiVersion(_apiVersion);
         
@@ -66,6 +74,23 @@ internal sealed class VariantAttributeEndpoints : IEndpoint
                 routeName: nameof(GetById),
                 routeValues: new {id = result.Value, version = _apiVersion},
                 value: result.Value)
+            : result.ToProblem();
+    }
+    private async Task<IResult> CreateBulk(
+        [FromBody] CreateVariantAttributeBulkRequest request,
+        [FromServices] IValidator<CreateVariantAttributeBulkRequest> validator,
+        [FromServices] ICommandHandler<CreateVariantAttributeBulkCommand> handler,
+        CancellationToken ct
+        )
+    {
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        var command = new CreateVariantAttributeBulkCommand(request);
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Created()
             : result.ToProblem();
     }
     private async Task<IResult> Update(

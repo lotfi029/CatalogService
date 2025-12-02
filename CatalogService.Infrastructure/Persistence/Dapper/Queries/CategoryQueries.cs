@@ -92,7 +92,6 @@ public sealed class CategoryQueries(
 
             response = await connection.QueryAsync<CategoryResponse>(
                 new CommandDefinition(sql, new { id = parentId}, cancellationToken: ct));
-
         }
         else
         {

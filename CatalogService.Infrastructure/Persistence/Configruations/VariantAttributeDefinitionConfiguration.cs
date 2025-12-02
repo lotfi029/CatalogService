@@ -41,14 +41,6 @@ internal sealed class VariantAttributeDefinitionConfiguration : BaseEntityConfig
         builder.Property(vtd => vtd.AffectsInventory)
             .HasColumnName("affects_inventory")
             .HasDefaultValue(false);
-        builder.Property(vtd => vtd.AffectsPricing)
-            .HasColumnName("affects_pricing")
-            .HasDefaultValue(false);
-
-
-        builder.Property(vtd => vtd.DisplayOrder)
-            .HasColumnName("display_order")
-            .IsRequired();
 
         builder.Property(vtd => vtd.AllowedValues)
             .HasColumnName("allowed_values")
