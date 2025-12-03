@@ -1,6 +1,8 @@
 ﻿using CatalogService.Application.DTOs.Categories;
+using CatalogService.Application.DTOs.CategoryVariantAttributes;
 using CatalogService.Application.Features.Categories.Queries;
 using CatalogService.Application.Features.Categories.Queries.GetBySlug;
+using System.Data;
 
 namespace Application.UnitTests.Features.Categories.Queries;
 

@@ -1,5 +1,6 @@
-﻿namespace CatalogService.Application.DTOs.Categories;
+﻿using CatalogService.Application.DTOs.CategoryVariantAttributes;
 
+namespace CatalogService.Application.DTOs.Categories;
 public record CategoryDetailedResponse(
     Guid Id,
     string Name,
@@ -7,5 +8,11 @@ public record CategoryDetailedResponse(
     Guid? ParentId,
     short Level,
     string? Description,
-    string? Path
-    );
+    string? Path,
+    List<CategoryVariantForCategoryResponse>? Variants = null
+    )
+{
+    private CategoryDetailedResponse()
+        : this(Guid.Empty, string.Empty, string.Empty, null, 0, null, null){}
+    
+};

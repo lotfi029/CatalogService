@@ -17,19 +17,21 @@ public sealed class CategoryVariantAttributeErrors
         => Error.NotFound(
             $"{_code}.{nameof(NotFound)}",
             $"'VariantAttribute' with id '{variantId}' not found for the category: '{id}'");
-
-    public static Error AddCategoryVariantBulk
-        => Error.FromException(
-            $"{_code}.{nameof(AddCategoryVariantBulk)}",
-            $"Unexpected Error ocurred while adding bulk variant attribute to category");
-
-    public static Error AddCategoryVariant
-        => Error.FromException(
-            $"{_code}.{nameof(AddCategoryVariant)}",
-            $"Unexpected Error ocurred while adding variant attribute to category");
-
     public static Error FaildToAddVariantsToCategory(int number) =>
         Error.BadRequest(
             $"{_code}.{nameof(FaildToAddVariantsToCategory)}",
             $"Error Ocurred while adding: '{number}' of variants to category");
+
+    public static Error AddCategoryVariantBulk
+        => Error.Unexpected($"Error ocurred while adding bulk variant attribute to category");
+
+    public static Error AddCategoryVariantAttribute
+        => Error.Unexpected($"Error ocurred while adding variant attribute to category");
+
+    public static Error GetCategoryVariantAttribute
+        => Error.Unexpected("Error ocurred while retrieve category variant attribute");
+    
+    public static Error GetAllCategoryVariantAttribute
+        => Error.Unexpected("Error ocurred while retrieve category variant attributes");
+
 }

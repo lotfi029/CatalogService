@@ -1,6 +1,6 @@
 ﻿using CatalogService.Domain.DomainService.Categories;
 
-namespace CatalogService.Application.Features.Categories.Commands.UpdateVariant;
+namespace CatalogService.Application.Features.CategoryVariants.Commands.UpdateVariant;
 
 public sealed record UpdateCategoryVariantCommand(
     Guid Id,

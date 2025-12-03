@@ -1,5 +1,4 @@
 ﻿using CatalogService.Application.DTOs.Categories;
-using CatalogService.Application.Features.Categories.Commands.AddVariant;
 using CatalogService.Application.Features.Categories.Commands.Create;
 using CatalogService.Application.Features.Categories.Commands.Delete;
 using CatalogService.Application.Features.Categories.Commands.Move;

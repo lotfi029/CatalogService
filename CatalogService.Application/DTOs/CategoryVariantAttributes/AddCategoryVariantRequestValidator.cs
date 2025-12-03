@@ -8,9 +8,8 @@ public sealed class AddCategoryVariantRequestValidator : AbstractValidator<AddCa
             .NotEmpty();
 
         RuleFor(cv => cv.DisplayOrder)
-            .NotEmpty()
-            .GreaterThan((short)0)
-            .WithMessage("'{PropertyName}' must be greater than 0");
+            .NotNull()
+            .GreaterThan((short)0);
 
         RuleFor(cv => cv.IsRequired)
             .NotNull();

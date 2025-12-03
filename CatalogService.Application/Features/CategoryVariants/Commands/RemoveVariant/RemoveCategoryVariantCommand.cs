@@ -1,6 +1,6 @@
 ﻿using CatalogService.Domain.DomainService.Categories;
 
-namespace CatalogService.Application.Features.Categories.Commands.RemoveVariant;
+namespace CatalogService.Application.Features.CategoryVariants.Commands.RemoveVariant;
 
 public sealed record RemoveCategoryVariantCommand(
     Guid Id,

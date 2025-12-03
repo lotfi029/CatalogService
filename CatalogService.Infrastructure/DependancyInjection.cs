@@ -1,4 +1,5 @@
 ﻿using CatalogService.Application.Features.Categories.Queries;
+using CatalogService.Application.Features.CategoryVariants.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
 using CatalogService.Infrastructure.Persistence;
 using CatalogService.Infrastructure.Persistence.Dapper;
@@ -46,6 +47,7 @@ public static class DependancyInjection
         
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<ICategoryQueries, CategoryQueries>();
+        services.AddScoped<ICategoryVariantAttributeQueries, CategoryVariantAttributeQueries>();
         services.AddScoped<IVariantAttributeQueries, VariantAttributeQueries>();
 
         DapperConfiguration.Configure();

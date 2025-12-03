@@ -1,8 +1,10 @@
 ﻿using CatalogService.Application.DTOs.CategoryVariantAttributes;
-using CatalogService.Application.Features.Categories.Commands.AddBulkVariants;
-using CatalogService.Application.Features.Categories.Commands.AddVariant;
-using CatalogService.Application.Features.Categories.Commands.RemoveVariant;
-using CatalogService.Application.Features.Categories.Commands.UpdateVariant;
+using CatalogService.Application.Features.CategoryVariants.Commands.AddBulkVariants;
+using CatalogService.Application.Features.CategoryVariants.Commands.AddVariant;
+using CatalogService.Application.Features.CategoryVariants.Commands.RemoveVariant;
+using CatalogService.Application.Features.CategoryVariants.Commands.UpdateVariant;
+using CatalogService.Application.Features.CategoryVariants.Queries.Get;
+using CatalogService.Application.Features.CategoryVariants.Queries.GetAll;
 
 namespace CatalogService.API.Endpoints;
 
@@ -32,6 +34,16 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound);
+
+        group.MapGet("/{variantAttributeId:guid}", Get)
+            .Produces<CategoryVariantAttributeDetailedResponse>(statusCode: StatusCodes.Status200OK)
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .ProducesProblem(statusCode: StatusCodes.Status400BadRequest);
+
+        group.MapGet("/", GetAll)
+            .Produces<IEnumerable<CategoryVariantAttributeDetailedResponse>>(statusCode: StatusCodes.Status200OK)
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .ProducesProblem(statusCode: StatusCodes.Status400BadRequest);
     }
 
     private async Task<IResult> AddVariantAttribute(
@@ -110,6 +122,35 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
 
         return result.IsSuccess
             ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+
+    private async Task<IResult> Get(
+        [FromRoute] Guid categoryId,
+        [FromRoute] Guid variantAttributeId,
+        [FromServices] IQueryHandler<GetCategoryVariantAttributeCommand, CategoryVariantAttributeDetailedResponse> handler,
+        CancellationToken ct)
+    {
+        var command = new GetCategoryVariantAttributeCommand(categoryId, variantAttributeId);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
+    }
+    
+    private async Task<IResult> GetAll(
+        [FromRoute] Guid categoryId,
+        [FromServices] IQueryHandler<GetAllCategoryVariantAttributesQuery, IEnumerable<CategoryVariantAttributeDetailedResponse>> handler,
+        CancellationToken ct)
+    {
+        var command = new GetAllCategoryVariantAttributesQuery(categoryId);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
             : result.ToProblem();
     }
 }

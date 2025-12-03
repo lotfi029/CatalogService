@@ -12,7 +12,7 @@ internal sealed class GetCategoryByIdQueryHandler(
             return CategoryErrors.InvalidId;
         try
         {
-            return await queries.GetByIdAsync(query.Id, ct);
+            return await queries.GetDetailedCategoryResponse(query.Id, ct);
         }
         catch (Exception ex)
         {

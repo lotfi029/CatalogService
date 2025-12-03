@@ -8,25 +8,29 @@ public sealed class AddCategoryVariantBulkRequestValidator : AbstractValidator<A
             .SetValidator(new AddCategoryVariantRequestValidator());
 
         RuleFor(v => v.Variants)
-            .Custom((variant, context) =>
+            .Custom((Variants, context) =>
             {
-                var variantIds = variant.Select(v => v.VariantId);
-                var displayOrders = variant.Select(d => d.DisplayOrder);
+                var variantIds = Variants.Select(v => v.VariantId);
+                
+                var displayOrders = Variants.Select(d => d.DisplayOrder);
+                
                 var validDisplayOrder =
                     displayOrders.Count() == displayOrders.Distinct().Count() &&
                     displayOrders.Min() == 1 && displayOrders.Max() == displayOrders.Count();
 
+
                 if (variantIds.Count() != variantIds.Distinct().Count())
-                    context.AddFailure(nameof(variantIds),
+                    context.AddFailure("VariantId",
                         "'Variants' you cannot add duplicate variant id");
 
-                if (variantIds.Count() >= 50)
-                    context.AddFailure(nameof(variantIds),
+                if (Variants.Count >= 50)
+                    context.AddFailure("Variants",
                         "'Variants' the number of added variant must be less than or equal 50 variant");
 
                 if (!validDisplayOrder)
-                    context.AddFailure(nameof(variantIds),
-                        "'Variants' the display order for all variant must be ordered and non duplicated");
+                    context.AddFailure("DisplayOrder",
+                        "'Variants' the display order for all variant must be ordered and unique");
+
             }).When(v => v.Variants is not null);
     }
 }

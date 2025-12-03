@@ -1,7 +1,7 @@
 ﻿using CatalogService.Application.DTOs.CategoryVariantAttributes;
 using CatalogService.Domain.DomainService.Categories;
 
-namespace CatalogService.Application.Features.Categories.Commands.AddBulkVariants;
+namespace CatalogService.Application.Features.CategoryVariants.Commands.AddBulkVariants;
 
 public sealed record AddCategoryVariantBulkCommand(
     Guid Id,

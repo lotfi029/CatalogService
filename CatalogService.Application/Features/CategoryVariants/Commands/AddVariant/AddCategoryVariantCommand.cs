@@ -1,6 +1,6 @@
 ﻿using CatalogService.Domain.DomainService.Categories;
 
-namespace CatalogService.Application.Features.Categories.Commands.AddVariant;
+namespace CatalogService.Application.Features.CategoryVariants.Commands.AddVariant;
 
 public sealed record AddCategoryVariantCommand(Guid Id, Guid VariantId, short DisplayOrder, bool IsRequired) : ICommand;
 
@@ -34,7 +34,7 @@ public sealed class AddCategoryVariantCommandHandler(
                 "Error occurred while adding variant attribute {VariantAttributeId} to category {CategoryId}",
                 command.VariantId, command.Id);
 
-            return CategoryVariantAttributeErrors.AddCategoryVariant;
+            return CategoryVariantAttributeErrors.AddCategoryVariantAttribute;
         }
     }
 }
