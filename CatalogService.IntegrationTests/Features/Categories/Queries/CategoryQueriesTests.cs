@@ -53,7 +53,7 @@ public class CategoryQueriesTests(IntegrationTestWebAppFactory factory) : BaseIn
         AppDbContext.Categories.Add(category);
         await AppDbContext.SaveChangesAsync();
 
-        category.Delete();
+        category.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var result = await _queries.GetByIdAsync(category.Id);
@@ -177,7 +177,7 @@ public class CategoryQueriesTests(IntegrationTestWebAppFactory factory) : BaseIn
         AppDbContext.Categories.Add(category);
         await AppDbContext.SaveChangesAsync();
 
-        category.Delete();
+        category.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var result = await _queries.GetBySlugAsync("electronics");
@@ -320,7 +320,7 @@ public class CategoryQueriesTests(IntegrationTestWebAppFactory factory) : BaseIn
         AppDbContext.Categories.AddRange(activeCategory, deletedCategory);
         await AppDbContext.SaveChangesAsync();
 
-        deletedCategory.Delete();
+        deletedCategory.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var result = await _queries.GetTreeAsync(null);
@@ -442,7 +442,7 @@ public class CategoryQueriesTests(IntegrationTestWebAppFactory factory) : BaseIn
         AppDbContext.Categories.AddRange(parent, child);
         await AppDbContext.SaveChangesAsync();
 
-        parent.Delete();
+        parent.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var result = await _queries.GetTreeAsync(parent.Id);

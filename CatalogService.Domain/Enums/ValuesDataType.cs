@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.Enums;
 
-public enum VaraintAttributeDatatype
+public enum ValuesDataType
 {
     UnAssign = 0,
     Select,

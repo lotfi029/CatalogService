@@ -7,11 +7,11 @@ public class VariantAttributeDefinition : AuditableEntity
 {
     public string Code { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
-    public VariantDatatype Datatype { get; private set; } = default!;
+    public OptionsType Datatype { get; private set; } = default!;
    
     public bool AffectsInventory { get; private set; } = false;
 
-    public AllowedValuesJson? AllowedValues { get; private set; }
+    public ValuesJson? AllowedValues { get; private set; }
 
     private readonly List<CategoryVariantAttribute> _categories = [];
     public IReadOnlyCollection<CategoryVariantAttribute> CategoryVariantAttributes => _categories.AsReadOnly();
@@ -21,9 +21,9 @@ public class VariantAttributeDefinition : AuditableEntity
     private VariantAttributeDefinition(
         string code,
         string name,
-        VariantDatatype datatype,
+        OptionsType datatype,
         bool affectsInventory,
-        AllowedValuesJson? allowedValues
+        ValuesJson? allowedValues
         ) 
     {
         Code = code;
@@ -36,55 +36,52 @@ public class VariantAttributeDefinition : AuditableEntity
     public static VariantAttributeDefinition Create(
         string code,
         string name,
-        VaraintAttributeDatatype datatype,
+        OptionsType dataType,
         bool affectsInventory,
-        AllowedValuesJson? allowedValues
+        ValuesJson? allowedValues
         )
     {
-        var validAllowedValues = VerifyAllowedValues(datatype, allowedValues);
+        VerifyAllowedValues(dataType, allowedValues);
 
         var variantAttribute =  new VariantAttributeDefinition(
             code: code,
             name: name,
-            datatype: new VariantDatatype(datatype),
+            datatype: dataType,
             affectsInventory: affectsInventory,
-            allowedValues: validAllowedValues);
+            allowedValues: allowedValues);
 
         variantAttribute.AddDomainEvent(new VariantAttributeCreatedDomainEvent(Id: variantAttribute.Id));
 
         return variantAttribute;
     }
 
-    public void Update(string name, AllowedValuesJson? allowedValues)
+    public void Update(string name, ValuesJson? allowedValues)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        AllowedValues = VerifyAllowedValues(datatype: Datatype.Datatype, allowedValues: allowedValues);
-
+        VerifyAllowedValues(dataType: Datatype, allowedValues: allowedValues);
+        
+        AllowedValues = allowedValues;
         Name = name;
 
         AddDomainEvent(new VariantAttributeUpdatedDomainEvent(Id));
     }
-    private static AllowedValuesJson VerifyAllowedValues(VaraintAttributeDatatype datatype, AllowedValuesJson? allowedValues)
+    public Result Deleted()
+        => Deleted();
+    private static void VerifyAllowedValues(OptionsType dataType, ValuesJson? allowedValues)
     {
-        if (allowedValues is not null)
+        if (dataType.DataType == ValuesDataType.Select)
         {
-            if (datatype != VaraintAttributeDatatype.Select)
-                throw new ArgumentException("Allowed Values valid only with select data type", nameof(allowedValues));
-            var values = allowedValues.Values;
-            if (values.Count == 0)
-                throw new ArgumentException("Allowed Values cannot be empty", nameof(allowedValues));
-            if (values.Count != values.Distinct().Count())
-                throw new ArgumentException("values cannot be duplicated", nameof(allowedValues));
-            if (values.Count >= 50)
-                throw new ArgumentException("Allowed Values cannot accept more than 50 values", nameof(allowedValues));
+            if (allowedValues is null)
+                throw new ArgumentException("AllowedValues must be provided for Select type");
+
+            if (allowedValues.Values.Count == 0)
+                throw new ArgumentException("AllowedValues cannot be empty");
         }
         else
         {
-            if (datatype == VaraintAttributeDatatype.Select)
-                throw new ArgumentException("allowed values Must be not empty with select datatype", nameof(allowedValues));
+            if (allowedValues is not null)
+                throw new ArgumentException("AllowedValues are only allowed for Select type");
         }
-
-        return allowedValues!;
     }
 }

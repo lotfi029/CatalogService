@@ -81,7 +81,7 @@ public class GetCategoryTreeQueryHandlerTests(IntegrationTestWebAppFactory facto
         AppDbContext.Categories.AddRange(activeCategory, deletedCategory);
         await AppDbContext.SaveChangesAsync();
 
-        deletedCategory.Delete();
+        deletedCategory.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var query = new GetCategoryTreeQuery(null);

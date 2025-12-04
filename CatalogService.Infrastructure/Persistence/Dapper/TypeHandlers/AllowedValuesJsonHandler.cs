@@ -6,9 +6,9 @@ using System.Text.Json;
 
 namespace CatalogService.Infrastructure.Persistence.Dapper.TypeHandlers;
 
-public sealed class AllowedValuesJsonHandler : SqlMapper.TypeHandler<AllowedValuesJson>
+public sealed class AllowedValuesJsonHandler : SqlMapper.TypeHandler<ValuesJson>
 {
-    public override AllowedValuesJson? Parse(object value)
+    public override ValuesJson? Parse(object value)
     {
         if (value is null or DBNull)
             return null;
@@ -17,10 +17,10 @@ public sealed class AllowedValuesJsonHandler : SqlMapper.TypeHandler<AllowedValu
         
         return string.IsNullOrWhiteSpace(json)
             ? null
-            : JsonSerializer.Deserialize<AllowedValuesJson>(json);
+            : JsonSerializer.Deserialize<ValuesJson>(json);
     }
 
-    public override void SetValue(IDbDataParameter parameter, AllowedValuesJson? value)
+    public override void SetValue(IDbDataParameter parameter, ValuesJson? value)
     {
         parameter.Value = value is not null
             ? JsonSerializer.Serialize(value)

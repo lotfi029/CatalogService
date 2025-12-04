@@ -1,0 +1,160 @@
+﻿using CatalogService.Application.DTOs.Attributes;
+using CatalogService.Application.Features.Attributes.Command.Activate;
+using CatalogService.Application.Features.Attributes.Command.Create;
+using CatalogService.Application.Features.Attributes.Command.Deactivate;
+using CatalogService.Application.Features.Attributes.Command.Delete;
+using CatalogService.Application.Features.Attributes.Command.UpdateDetails;
+using CatalogService.Application.Features.Attributes.Command.UpdateOptions;
+
+namespace CatalogService.API.Endpoints;
+
+public class AttributeEndpoints : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/attributes")
+            .MapToApiVersion(1);
+
+        group.MapPost("/", Create)
+            .Produces<Guid>(statusCode: StatusCodes.Status201Created)
+            .ProducesProblem(statusCode: StatusCodes.Status409Conflict)
+            .ProducesProblem(statusCode: StatusCodes.Status400BadRequest);
+        
+        group.MapPost("/bulk", CreateBulk);
+        
+        group.MapPut("/{id:guid}/details", UpdateDetails)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPut("/{id:guid}/options", UpdateOptions)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{id:guid}", Delete)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPatch("/{id:guid}/activate", Activate)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPatch("/{id:guid}/deactivate", Deactivate)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+        
+        group.MapGet("", GetAll);
+        group.MapGet("/{id:guid}/", Get).WithName(nameof(Get));
+        group.MapGet("/code/{code:alpha}", GetByCode);
+        group.MapGet("/type/{type:alpha}", GetByType);
+    }
+
+    private async Task<IResult> Create(
+        [FromBody] CreateAttributeRequest request,
+        [FromServices] IValidator<CreateAttributeRequest> validator,
+        [FromServices] ICommandHandler<CreateAttributeCommand, Guid> handler,
+        CancellationToken ct) 
+    {
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        var command = new CreateAttributeCommand(
+            Name: request.Name,
+            Code: request.Code,
+            OptionType: request.OptionsType,
+            IsFilterable: request.IsFilterable,
+            IsSearchable: request.IsSearchable,
+            Options: request.Options);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Created()
+            : result.ToProblem();
+    }
+    private Task<IResult> CreateBulk() { throw new NotImplementedException(); }
+    private async Task<IResult> UpdateDetails(
+        [FromRoute]Guid id,
+        [FromBody] UpdateAttributeDetailsRequest request,
+        [FromServices] IValidator<UpdateAttributeDetailsRequest> validator,
+        [FromServices] ICommandHandler<UpdateAttributeDetailsCommand> handler,
+        CancellationToken ct) 
+    {
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        var command = new UpdateAttributeDetailsCommand(
+            id,
+            request.Name,
+            IsFilterable: request.IsFilterable,
+            IsSearchable: request.IsSearchable);
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    private async Task<IResult> UpdateOptions(
+        [FromRoute] Guid id,
+        [FromBody] UpdateAttributeOptionRequest request,
+        [FromServices] IValidator<UpdateAttributeOptionRequest> validator,
+        [FromServices] ICommandHandler<UpdateAttributeOptionsCommand> handler,
+        CancellationToken ct) 
+    {
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        var command = new UpdateAttributeOptionsCommand(
+            id, request.Option);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    private async Task<IResult> Delete(
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<DeleteAttributeCommand> handler,
+        CancellationToken ct)
+    {
+        var command = new DeleteAttributeCommand(id);
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    private async Task<IResult> Activate(
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<ActivateAttributeCommand> handler,
+        CancellationToken ct) 
+    {
+        var command = new ActivateAttributeCommand(id);
+        
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+
+    }
+    private async Task<IResult> Deactivate(
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<DeactivateAttributeCommand> handler,
+        CancellationToken ct)
+    {
+        var command = new DeactivateAttributeCommand(id);
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    
+    private Task<IResult> GetAll() { throw new NotImplementedException(); }
+    private Task<IResult> Get([FromRoute] Guid id) { throw new NotImplementedException(); }
+    private Task<IResult> GetByCode([FromRoute] string code) { throw new NotImplementedException(); }
+    private Task<IResult> GetByType([FromRoute] string type) { throw new NotImplementedException(); }
+}

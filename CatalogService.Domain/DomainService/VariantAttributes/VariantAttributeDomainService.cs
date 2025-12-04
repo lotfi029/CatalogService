@@ -9,18 +9,19 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
         string name,
         string datatype,
         bool affectsInventory,
-        AllowedValuesJson? allowedValues,
+        ValuesJson? allowedValues,
         CancellationToken ct = default)
     {
         if (await variantAttributeRepository.ExistsAsync(e => e.Code == code, ct))
             return VariantAttributeErrors.CodeAlreadyExist(code);
-        if (!Enum.TryParse<VaraintAttributeDatatype>(datatype, ignoreCase: true, out var enumDataType))
+        
+        if (!Enum.TryParse<ValuesDataType>(datatype, ignoreCase: true, out var enumDataType))
             throw new ArgumentException("Must specify the datatype of the variant attribute definition");
 
         var variantAttribute = VariantAttributeDefinition.Create(
             code: code,
             name: name,
-            datatype: enumDataType,
+            dataType: new(enumDataType),
             affectsInventory: affectsInventory,
             allowedValues: allowedValues);
 
@@ -29,7 +30,7 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
         return variantAttribute;
     }
     public async Task<Result> CreateBulkAsync(
-        IEnumerable<(string code, string name, string datatype, bool affectsInventory, AllowedValuesJson? allowedValues)> variantAttributes,
+        IEnumerable<(string code, string name, string datatype, bool affectsInventory, ValuesJson? allowedValues)> variantAttributes,
         CancellationToken ct = default
         )
     {

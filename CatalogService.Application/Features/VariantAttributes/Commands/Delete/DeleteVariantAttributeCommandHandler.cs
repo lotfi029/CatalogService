@@ -14,7 +14,7 @@ internal sealed class DeleteVariantAttributeCommandHandler(
 
         try
         {
-            variantAttribute.Delete();
+            variantAttribute.Deleted();
             variantRepository.Update(variantAttribute);
             await unitOfWork.SaveChangesAsync(ct);
             return Result.Success();

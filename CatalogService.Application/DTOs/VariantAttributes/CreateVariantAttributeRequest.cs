@@ -7,5 +7,5 @@ public sealed record CreateVariantAttributeRequest(
     string Name,
     string Datatype,
     bool AffectedInventory,
-    AllowedValuesJson? AllowedValues
+    ValuesJson? AllowedValues
     );

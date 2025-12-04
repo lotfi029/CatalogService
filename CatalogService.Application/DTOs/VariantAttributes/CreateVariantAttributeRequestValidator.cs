@@ -19,7 +19,7 @@ public sealed class CreateVariantAttributeRequestValidator : AbstractValidator<C
             .NotEmpty()
             .MaximumLength(10)
                 .WithMessage("The length of '{PropertyName}' must be less than or equal to {MaxLength} characters.")
-            .IsEnumName(typeof(VaraintAttributeDatatype), caseSensitive: false)
+            .IsEnumName(typeof(ValuesDataType), caseSensitive: false)
                 .WithMessage("'{PropertyValue}' is not a valid '{PropertyName}'. Allowed values are: select, text, boolean.");
 
         RuleFor(e => e.AffectedInventory)

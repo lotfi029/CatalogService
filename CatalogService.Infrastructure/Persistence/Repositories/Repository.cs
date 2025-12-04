@@ -1,4 +1,4 @@
-﻿using CatalogService.Domain.IRepositories;
+﻿using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
@@ -90,6 +90,17 @@ public class Repository<T> : IRepository<T>
         ArgumentNullException.ThrowIfNull(expression);
         return await _dbSet.AsNoTracking()
             .FirstOrDefaultAsync(expression, ct);
+    }
+    public async Task<int> ExcuteUpdateAsync(
+        Expression<Func<T, bool>> predicate,
+        Action<UpdateSettersBuilder<T>> setPropertyCalls,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentNullException.ThrowIfNull(setPropertyCalls);
+
+        return await _dbSet.Where(predicate)
+            .ExecuteUpdateAsync(setPropertyCalls, ct);
     }
     protected IQueryable<T> Query() => _dbSet.AsQueryable();
 }

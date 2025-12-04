@@ -7,6 +7,6 @@ public sealed record VariantAttributeResponse(
     string Code,
     string Name,
     string Datatype,
-    AllowedValuesJson? AllowedValues,
+    ValuesJson? AllowedValues,
     bool AffectsInventory
     );

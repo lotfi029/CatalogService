@@ -8,7 +8,7 @@ public record CategoryVariantAttributeDetailedResponse (
     string Name,
     string Code,
     string Datatype,
-    AllowedValuesJson? AllowedValues,
+    ValuesJson? AllowedValues,
     bool AffectedInventory,
     short DisplayOrder,
     bool IsRequired,

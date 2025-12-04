@@ -4,5 +4,5 @@ namespace CatalogService.Application.DTOs.VariantAttributes;
 
 public sealed record UpdateVariantAttributeRequest(
     string Name,
-    AllowedValuesJson? AllowedValues
+    ValuesJson? AllowedValues
     );

@@ -16,4 +16,5 @@ public interface IRepository<T> where T : Entity
     Task<T?> FindAsync(Expression<Func<T, bool>> expression, CancellationToken ct = default);
     Task<bool> ExistsAsync(Guid id, CancellationToken ct = default);
     Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default);
+    Task<int> ExcuteUpdateAsync(Expression<Func<T, bool>> predicate, Action<UpdateSettersBuilder<T>> action, CancellationToken ct = default);
 }

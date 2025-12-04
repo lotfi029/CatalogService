@@ -51,7 +51,7 @@ public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory facto
         AppDbContext.Categories.Add(category);
         await AppDbContext.SaveChangesAsync();
 
-        category.Delete();
+        category.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var query = new GetCategoryByIdQuery(category.Id);

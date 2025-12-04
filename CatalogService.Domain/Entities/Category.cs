@@ -96,6 +96,8 @@ public class Category : AuditableEntity
 
         AddDomainEvent(new CategoryDetailsUpdatedDomainEvent(Id));
     }
+    public void Deleted()
+        => Delete();
     public void AddChild(Category child)
         => _children.Add(child);
     public void AddVariantAttribute(Guid variantId, bool isRequired, short displayOrder)

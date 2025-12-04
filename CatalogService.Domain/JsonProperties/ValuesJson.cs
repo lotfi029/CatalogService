@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.JsonProperties;
 
-public record AllowedValuesJson
+public record ValuesJson
 {
     public List<string> Values { get; set; } = [];
 }

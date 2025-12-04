@@ -1,9 +1,4 @@
-﻿using CatalogService.Domain.Entities;
-using CatalogService.Domain.IRepositories;
-using CatalogService.Infrastructure.Persistence.Repositories;
-using CatalogService.IntegrationTests.Infrastructure;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
+﻿using CatalogService.Infrastructure.Persistence.Repositories;
 namespace CatalogService.IntegrationTests.Repositories;
 public class CategoryRepositoryIntegrationTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTests(factory)
 {
@@ -168,7 +163,7 @@ public class CategoryRepositoryIntegrationTests(IntegrationTestWebAppFactory fac
         AppDbContext.Categories.AddRange(root, level1, level2);
         await AppDbContext.SaveChangesAsync();
 
-        level1.Delete();
+        level1.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var parents = await repository.GetAllParentAsync(level2.Id);
@@ -234,7 +229,7 @@ public class CategoryRepositoryIntegrationTests(IntegrationTestWebAppFactory fac
         AppDbContext.Categories.AddRange(root, child1, child2);
         await AppDbContext.SaveChangesAsync();
 
-        child1.Delete();
+        child1.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var children = await repository.GetChildrenAsync(root.Id);
@@ -648,7 +643,7 @@ public class CategoryRepositoryTests(IntegrationTestWebAppFactory factory) : Bas
         AppDbContext.Categories.AddRange(root, level1, level2);
         await AppDbContext.SaveChangesAsync();
 
-        level1.Delete();
+        level1.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var parents = await _repository.GetAllParentAsync(level2.Id);
@@ -741,7 +736,7 @@ public class CategoryRepositoryTests(IntegrationTestWebAppFactory factory) : Bas
         AppDbContext.Categories.AddRange(root, child1, child2);
         await AppDbContext.SaveChangesAsync();
 
-        child1.Delete();
+        child1.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var children = await _repository.GetChildrenAsync(root.Id);

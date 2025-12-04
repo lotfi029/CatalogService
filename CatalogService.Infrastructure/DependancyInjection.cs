@@ -31,6 +31,8 @@ public static class DependancyInjection
             options.UseNpgsql(dataSource);
         });
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IAttributeRepository, AttributeRepository>();
+
         services.AddScoped<IVariantAttributeRepository, VariantAttributeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

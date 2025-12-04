@@ -35,7 +35,7 @@ public abstract class AuditableEntity : Entity, IAuditable
         LastUpdatedBy = updatedBy;
     }
 
-    public virtual void Delete()
+    protected virtual void Delete()
     {
         if (IsDeleted)
             return;
@@ -45,20 +45,18 @@ public abstract class AuditableEntity : Entity, IAuditable
         Deactive();
 
     }
-    public virtual void Active()
+    protected virtual void Active()
     {
         if (IsActive)
             return;
 
         IsActive = true;
-        // TODO: set domain object
     }
-    public virtual void Deactive()
+    protected virtual void Deactive()
     {
         if (!IsActive)
             return;
 
         IsActive = false;
-        // TODO: set domain object
     }
 }

@@ -92,13 +92,9 @@ namespace CatalogService.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
-                    b.Property<Dictionary<string, object>>("Options")
+                    b.Property<string>("Options")
                         .HasColumnType("jsonb")
-                        .HasColumnName("options");
-
-                    b.Property<short>("Type")
-                        .HasColumnType("smallint")
-                        .HasColumnName("type");
+                        .HasColumnName("allowed_values");
 
                     b.HasKey("Id");
 
@@ -110,20 +106,12 @@ namespace CatalogService.Infrastructure.Migrations
                         .HasDatabaseName("idx_attributes_is_active");
 
                     b.HasIndex("IsFilterable")
-                        .HasDatabaseName("idx_attributes_is_filterable")
-                        .HasFilter("is_filterable = true");
+                        .HasDatabaseName("idx_attributes_is_filterable");
 
                     b.HasIndex("IsSearchable")
-                        .HasDatabaseName("idx_attributes_is_searchable")
-                        .HasFilter("is_searchable = true");
+                        .HasDatabaseName("idx_attributes_is_searchable");
 
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_attributes_type");
-
-                    b.ToTable("attributes", null, t =>
-                        {
-                            t.HasCheckConstraint("chk_attributes_type", "type > 0 AND type <= 6");
-                        });
+                    b.ToTable("attributes", (string)null);
                 });
 
             modelBuilder.Entity("CatalogService.Domain.Entities.Category", b =>
@@ -591,6 +579,35 @@ namespace CatalogService.Infrastructure.Migrations
                     b.ToTable("variant_attribute_definitions", (string)null);
                 });
 
+            modelBuilder.Entity("CatalogService.Domain.Entities.Attribute", b =>
+                {
+                    b.OwnsOne("CatalogService.Domain.ValueObjects.OptionsType", "OptionsType", b1 =>
+                        {
+                            b1.Property<Guid>("AttributeId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<short>("DataType")
+                                .HasColumnType("smallint")
+                                .HasColumnName("options_type");
+
+                            b1.Property<string>("DataTypeName")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("character varying(10)")
+                                .HasColumnName("options_type_name");
+
+                            b1.HasKey("AttributeId");
+
+                            b1.ToTable("attributes");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AttributeId");
+                        });
+
+                    b.Navigation("OptionsType")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CatalogService.Domain.Entities.Category", b =>
                 {
                     b.HasOne("CatalogService.Domain.Entities.Category", "Parent")
@@ -729,16 +746,16 @@ namespace CatalogService.Infrastructure.Migrations
 
             modelBuilder.Entity("CatalogService.Domain.Entities.VariantAttributeDefinition", b =>
                 {
-                    b.OwnsOne("CatalogService.Domain.ValueObjects.VariantDatatype", "Datatype", b1 =>
+                    b.OwnsOne("CatalogService.Domain.ValueObjects.OptionsType", "Datatype", b1 =>
                         {
                             b1.Property<Guid>("VariantAttributeDefinitionId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<short>("Datatype")
+                            b1.Property<short>("DataType")
                                 .HasColumnType("smallint")
                                 .HasColumnName("data_type");
 
-                            b1.Property<string>("DatatypeName")
+                            b1.Property<string>("DataTypeName")
                                 .IsRequired()
                                 .HasMaxLength(10)
                                 .HasColumnType("character varying(10)")

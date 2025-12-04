@@ -66,7 +66,7 @@ public class GetCategoryBySlugQueryHandlerTests(IntegrationTestWebAppFactory fac
         AppDbContext.Categories.Add(category);
         await AppDbContext.SaveChangesAsync();
 
-        category.Delete();
+        category.Deleted();
         await AppDbContext.SaveChangesAsync();
 
         var query = new GetCategoryBySlugQuery("electronics");

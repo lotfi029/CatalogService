@@ -26,12 +26,12 @@ internal sealed class VariantAttributeDefinitionConfiguration : BaseEntityConfig
 
         builder.OwnsOne(vtd => vtd.Datatype, dataType =>
         {
-            dataType.Property(d => d.Datatype)
+            dataType.Property(d => d.DataType)
                 .HasColumnName("data_type")
                 .HasConversion<short>()
                 .IsRequired();
 
-            dataType.Property(d => d.DatatypeName)
+            dataType.Property(d => d.DataTypeName)
                 .HasColumnName("data_type_name")
                 .HasMaxLength(10)
                 .IsRequired();
@@ -47,7 +47,7 @@ internal sealed class VariantAttributeDefinitionConfiguration : BaseEntityConfig
             .HasColumnType("jsonb")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
-                v => JsonSerializer.Deserialize<AllowedValuesJson>(v))
+                v => JsonSerializer.Deserialize<ValuesJson>(v))
             .IsRequired(false);
 
         builder.HasIndex(e => e.IsActive)

@@ -4,22 +4,22 @@ using System.Data;
 
 namespace CatalogService.Infrastructure.Persistence.Dapper.TypeHandlers;
 
-public sealed class VariantDatatypeHandler : SqlMapper.TypeHandler<VariantDatatype>
+public sealed class VariantDatatypeHandler : SqlMapper.TypeHandler<OptionsType>
 {
-    public override VariantDatatype? Parse(object value)
+    public override OptionsType? Parse(object value)
     {
         if (value is null or DBNull)
             return null!;
 
         var enumValue = value is short shortValues
-            ? (VaraintAttributeDatatype)shortValues
-            : (VaraintAttributeDatatype)Convert.ToInt16(value);
+            ? (ValuesDataType)shortValues
+            : (ValuesDataType)Convert.ToInt16(value);
 
-        return new VariantDatatype(enumValue);
+        return new OptionsType(enumValue);
     }
 
-    public override void SetValue(IDbDataParameter parameter, VariantDatatype? value)
+    public override void SetValue(IDbDataParameter parameter, OptionsType? value)
     {
-        parameter.Value = value?.Datatype ?? (object)DBNull.Value;
+        parameter.Value = value?.DataType ?? (object)DBNull.Value;
     }
 }
