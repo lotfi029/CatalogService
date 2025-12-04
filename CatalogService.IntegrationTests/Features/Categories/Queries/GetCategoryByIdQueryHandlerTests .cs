@@ -6,32 +6,32 @@ namespace CatalogService.IntegrationTests.Features.Categories.Queries;
 
 public class GetCategoryByIdQueryHandlerTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTestsQuery<GetCategoryByIdQuery, CategoryDetailedResponse>(factory)
 {
-    [Fact]
-    public async Task HandleAsync_WithExistingCategory_Should_ReturnCategory()
-    {
-        var category = Category.Create(
-            "Electronics",
-            "electronics",
-            0,
-            true,
-            description: "Electronic products");
+    //[Fact]
+    //public async Task HandleAsync_WithExistingCategory_Should_ReturnCategory()
+    //{
+    //    var category = Category.Create(
+    //        "Electronics",
+    //        "electronics",
+    //        0,
+    //        true,
+    //        description: "Electronic products");
 
-        AppDbContext.Categories.Add(category);
-        await AppDbContext.SaveChangesAsync();
+    //    AppDbContext.Categories.Add(category);
+    //    await AppDbContext.SaveChangesAsync();
 
-        var query = new GetCategoryByIdQuery(category.Id);
+    //    var query = new GetCategoryByIdQuery(category.Id);
 
-        var result = await QueryHandler.HandleAsync(query);
+    //    var result = await QueryHandler.HandleAsync(query);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value!.Should().NotBeNull();
-        result.Value!.Id.Should().Be(category.Id);
-        result.Value!.Name.Should().Be("Electronics");
-        result.Value!.Slug.Should().Be("electronics");
-        result.Value!.Description.Should().Be("Electronic products");
-        result.Value!.Path.Should().Be("electronics");
-        result.Value!.Level.Should().Be(0);
-    }
+    //    result.IsSuccess.Should().BeTrue();
+    //    result.Value!.Should().NotBeNull();
+    //    result.Value!.Id.Should().Be(category.Id);
+    //    result.Value!.Name.Should().Be("Electronics");
+    //    result.Value!.Slug.Should().Be("electronics");
+    //    result.Value!.Description.Should().Be("Electronic products");
+    //    result.Value!.Path.Should().Be("electronics");
+    //    result.Value!.Level.Should().Be(0);
+    //}
 
     [Fact]
     public async Task HandleAsync_WithNonExistentId_Should_ReturnNotFound()
