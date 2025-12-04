@@ -5,6 +5,10 @@ using CatalogService.Application.Features.Attributes.Command.Deactivate;
 using CatalogService.Application.Features.Attributes.Command.Delete;
 using CatalogService.Application.Features.Attributes.Command.UpdateDetails;
 using CatalogService.Application.Features.Attributes.Command.UpdateOptions;
+using CatalogService.Application.Features.Attributes.Queries.Get;
+using CatalogService.Application.Features.Attributes.Queries.GetAll;
+using CatalogService.Application.Features.Attributes.Queries.GetByCode;
+using CatalogService.Application.Features.Attributes.Queries.GetByType;
 
 namespace CatalogService.API.Endpoints;
 
@@ -44,10 +48,19 @@ public class AttributeEndpoints : IEndpoint
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
         
-        group.MapGet("", GetAll);
-        group.MapGet("/{id:guid}/", Get).WithName(nameof(Get));
-        group.MapGet("/code/{code:alpha}", GetByCode);
-        group.MapGet("/type/{type:alpha}", GetByType);
+        group.MapGet("", GetAll)
+            .Produces<AttributeResponse>(StatusCodes.Status200OK);
+
+        group.MapGet("/{id:guid}/", Get).WithName(nameof(Get))
+            .Produces<AttributeDetailedResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapGet("/code/{code:alpha}", GetByCode)
+            .Produces<AttributeDetailedResponse>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapGet("/type/{type:alpha}", GetByType)
+            .Produces<AttributeResponse>(StatusCodes.Status200OK);
     }
 
     private async Task<IResult> Create(
@@ -153,8 +166,51 @@ public class AttributeEndpoints : IEndpoint
             : result.ToProblem();
     }
     
-    private Task<IResult> GetAll() { throw new NotImplementedException(); }
-    private Task<IResult> Get([FromRoute] Guid id) { throw new NotImplementedException(); }
-    private Task<IResult> GetByCode([FromRoute] string code) { throw new NotImplementedException(); }
-    private Task<IResult> GetByType([FromRoute] string type) { throw new NotImplementedException(); }
+    private async Task<IResult> GetAll(
+        [FromServices] IQueryHandler<GetAllAttributeQuery, IEnumerable<AttributeResponse>> handler,
+        CancellationToken ct) 
+    { 
+        var query = new GetAllAttributeQuery();
+        var result = await handler.HandleAsync(query, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
+    }
+    private async Task<IResult> Get(
+        [FromRoute] Guid id,
+        [FromServices] IQueryHandler<GetAttributeByIdQuery, AttributeDetailedResponse> handler,
+        CancellationToken ct) 
+    { 
+        var query = new GetAttributeByIdQuery(id);
+        var result = await handler.HandleAsync(query, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
+    }
+    private async Task<IResult> GetByCode(
+        [FromRoute] string code,
+        [FromServices] IQueryHandler<GetAttributeByCodeQuery, AttributeDetailedResponse> handler,
+        CancellationToken ct)
+    {
+        var query = new GetAttributeByCodeQuery(code);
+        var result = await handler.HandleAsync(query, ct);
+        
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
+    }
+    private async Task<IResult> GetByType(
+        [FromRoute] string type,
+        [FromServices] IQueryHandler<GetAttributeByTypeQuery, IEnumerable<AttributeResponse>> handler,
+        CancellationToken ct) 
+    {
+        var query = new GetAttributeByTypeQuery(type);
+        var result = await handler.HandleAsync(query, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
+    }
 }

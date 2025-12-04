@@ -27,11 +27,6 @@ namespace CatalogService.Infrastructure.Migrations
                 table: "attributes");
 
             migrationBuilder.RenameColumn(
-                name: "options",
-                table: "attributes",
-                newName: "allowed_values");
-
-            migrationBuilder.RenameColumn(
                 name: "type",
                 table: "attributes",
                 newName: "options_type");
@@ -69,11 +64,6 @@ namespace CatalogService.Infrastructure.Migrations
             migrationBuilder.DropColumn(
                 name: "options_type_name",
                 table: "attributes");
-
-            migrationBuilder.RenameColumn(
-                name: "allowed_values",
-                table: "attributes",
-                newName: "options");
 
             migrationBuilder.RenameColumn(
                 name: "options_type",

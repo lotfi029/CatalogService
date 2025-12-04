@@ -50,7 +50,7 @@ internal sealed class AttributeConfiguration : BaseEntityConfiguration<Domain.En
             .HasDatabaseName("idx_attributes_is_searchable");
 
         builder.Property(vtd => vtd.Options)
-            .HasColumnName("allowed_values")
+            .HasColumnName("options")
             .HasColumnType("jsonb")
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),

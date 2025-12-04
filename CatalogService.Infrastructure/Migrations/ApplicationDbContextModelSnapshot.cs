@@ -94,7 +94,7 @@ namespace CatalogService.Infrastructure.Migrations
 
                     b.Property<string>("Options")
                         .HasColumnType("jsonb")
-                        .HasColumnName("allowed_values");
+                        .HasColumnName("options");
 
                     b.HasKey("Id");
 

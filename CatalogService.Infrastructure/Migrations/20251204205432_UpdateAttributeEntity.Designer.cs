@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CatalogService.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251204080537_UpdateAttributeEntity")]
+    [Migration("20251204205432_UpdateAttributeEntity")]
     partial class UpdateAttributeEntity
     {
         /// <inheritdoc />
@@ -97,7 +97,7 @@ namespace CatalogService.Infrastructure.Migrations
 
                     b.Property<string>("Options")
                         .HasColumnType("jsonb")
-                        .HasColumnName("allowed_values");
+                        .HasColumnName("options");
 
                     b.HasKey("Id");
 
