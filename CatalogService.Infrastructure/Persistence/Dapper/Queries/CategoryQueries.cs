@@ -121,6 +121,7 @@ public sealed class CategoryQueries(
             	c.slug as Slug,
             	c.parent_id as ParentId,
             	c.level as Level,
+                c.description as Description,
             	c.path as Path,
             	cva.variant_attribute_id as VariantAttributeId,
                 va.name as VariantAttributeName,

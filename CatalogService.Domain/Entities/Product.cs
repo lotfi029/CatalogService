@@ -1,4 +1,4 @@
-﻿using CatalogService.Domain.Abstractions;
+﻿using CatalogService.Domain.DomainEvents.Products;
 
 namespace CatalogService.Domain.Entities;
 
@@ -6,10 +6,8 @@ public class Product : AuditableEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; } = string.Empty;
-    public string VendorId { get; private set; } = string.Empty;
-    public Sku SKU { get; private set; } = default!;
+    public Guid VendorId { get; }
     public ProductStatus Status { get; private set; } = ProductStatus.Unspecified;
-    public Dictionary<string, object>? Metadata {  get; private set; }
 
 
     private readonly List<ProductVariant> _variants = [];
@@ -26,104 +24,135 @@ public class Product : AuditableEntity
     private Product(
         string name,
         string? description,
-        string vendorId,
-        Sku sku,
-        ProductStatus status,
-        Dictionary<string, object>? metadata = null
+        Guid vendorId,
+        ProductStatus status
         ) 
         : base() 
     {
         Name = name;
         Description = description;
         VendorId = vendorId;
-        SKU = sku;
         Status = status;
-        Metadata = metadata;
+
+        AddDomainEvent(new ProductCreatedDomainEvent(Id));
     }
-    public static Product Create(
+    public static Result<Product> Create(
         string name,
         string? description,
-        string vendorId,
-        Sku sku,
-        ProductStatus status,
-        Dictionary<string, object>? metadata = null
+        Guid vendorId
         )
     {
-        if (status == ProductStatus.Unspecified)
-            throw new ArgumentException("Product status cannot be unspecified.", nameof(status));
 
         return new Product(
             name,
             description,
             vendorId,
-            sku,
-            status,
-            metadata
+            ProductStatus.Draft
             );
         { };
     }
     
-    public void UpdateDetails(string name, string? description)
-    { 
+    public Result UpdateDetails(string name, string? description)
+    {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Product name cannot be null or empty.", nameof(name));
+            return DomainErrors.Null("Products.Name");
 
         Name = name;
 
         if (description is not null)
             Description = description;
-    }
-    public void AddCategory(ProductCategories category)
-    {
-        ArgumentNullException.ThrowIfNull(category);
 
-        if (_categories.Any(e => e.CategoryId == category.CategoryId))
-            throw new InvalidOperationException("Category already added to the product.");
+        AddDomainEvent(new ProductDetailsUpdatedDomainEvent(Id));
+        return Result.Success();
+    }
+    public Result AddCategory(ProductCategories category)
+    {
+        if (category is null)
+            return DomainErrors.Null("Products.Category");
 
         _categories.Add(category);
+        
+        return Result.Success();
     }
-    public void AddAttribute(ProductAttributes attribute)
+    public Result AddAttribute(ProductAttributes attribute)
     {
-
-        ArgumentNullException.ThrowIfNull(attribute);
-        if (_attributes.Any(e => e.AttributeId == attribute.AttributeId))
-            throw new InvalidOperationException("Attribute already added to the product.");
+        if (attribute is null)
+            return DomainErrors.Null("Products.Attribute");
 
         _attributes.Add(attribute);
+        return Result.Success();
     }
-    public void AddVariant(ProductVariant variant)
+    public Result AddVariant(ProductVariant variant)
     {
 
-        ArgumentNullException.ThrowIfNull(variant);
-        if (_variants.Any(e => e.Id == variant.Id))
-            throw new InvalidOperationException("Variant with the same SKU already exists for this product.");
-        
+        if (variant is null)
+            return DomainErrors.Null("Products.Varaint");
+
         _variants.Add(variant);
+        return Result.Success();
     }
     #region product status
-    public void ActiveProduct()
+    public Result Activate()
     {
-        if (Status == ProductStatus.Active)
-            throw new InvalidOperationException("Product is already active.");
-        
+        if (ProductStatus.Active == Status)
+            return DomainErrors.Products.ProductAlreadyInStatus(Status.ToString());
 
-        Status = ProductStatus.Active;
+        if (!CheckValidChange(ProductStatus.Active))
+            return DomainErrors.Products.InvalidStatusTransaction(Status.ToString(), ProductStatus.Active.ToString());
+
         Active();
+        Status = ProductStatus.Active;
+        AddDomainEvent(new ProductActivatedDomainEvent(Id));
+        return Result.Success();
     }
-    public void DeactiveProduct()
+    public Result Inactivate()
     {
-        if (Status == ProductStatus.Inactive)
-            throw new InvalidOperationException("Product is already active.");
+        if (ProductStatus.Inactive == Status)
+            return DomainErrors.Products.ProductAlreadyInStatus(Status.ToString());
 
+        if (!CheckValidChange(ProductStatus.Inactive))
+            return DomainErrors.Products.InvalidStatusTransaction(Status.ToString(), ProductStatus.Active.ToString());
+
+        base.Deactive();
         Status = ProductStatus.Inactive;
-        Deactive();
+        AddDomainEvent(new ProductDeactivatedDomainEvent(Id));
+        return Result.Success();
     }
-    public void ArchiveProduct()
+    public Result Archive()
     {
-        if (Status == ProductStatus.Archived)
-            throw new InvalidOperationException("Product is already archived.");
-        
-        Status = ProductStatus.Archived;
+        if (ProductStatus.Archive == Status)
+            return DomainErrors.Products.ProductAlreadyInStatus(Status.ToString());
+
+        if (!CheckValidChange(ProductStatus.Archive))
+            return DomainErrors.Products.InvalidStatusTransaction(Status.ToString(), ProductStatus.Active.ToString());
+        base.Deactive();
+        Status = ProductStatus.Archive;
+        AddDomainEvent(new ProductArchivedDomainEvent(Id));
+        return Result.Success();
     }
+    public Result Draft()
+        => DomainErrors.Products.InvalidStatusTransaction(Status.ToString(),ProductStatus.Draft.ToString());
     #endregion
+
+    private bool CheckValidChange(ProductStatus newStatus)
+    {
+        return newStatus switch
+        {
+            ProductStatus.Draft => false,
+            ProductStatus.Active => Status is ProductStatus.Draft or ProductStatus.Inactive,
+            ProductStatus.Inactive => Status is ProductStatus.Draft or ProductStatus.Active,
+            ProductStatus.Archive => Status is ProductStatus.Active or ProductStatus.Draft or ProductStatus.Inactive,
+            _ => false
+        };
+    }
+    private static Result ValidateSku(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return DomainErrors.Null("Products.Sku");
+
+        if (value.Length != Sku.DefaultLength)
+            return DomainErrors.Products.InvalidSkuSize(Sku.DefaultLength);
+
+        return Result.Success();
+    }
 }

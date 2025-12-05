@@ -1,6 +1,7 @@
 ﻿using CatalogService.Application.Features.Attributes.Queries;
 using CatalogService.Application.Features.Categories.Queries;
 using CatalogService.Application.Features.CategoryVariants.Queries;
+using CatalogService.Application.Features.Products.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
 using CatalogService.Infrastructure.Persistence;
 using CatalogService.Infrastructure.Persistence.Dapper;
@@ -32,6 +33,7 @@ public static class DependancyInjection
             options.UseNpgsql(dataSource);
         });
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IAttributeRepository, AttributeRepository>();
 
         services.AddScoped<IVariantAttributeRepository, VariantAttributeRepository>();
@@ -50,6 +52,7 @@ public static class DependancyInjection
         
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<ICategoryQueries, CategoryQueries>();
+        services.AddScoped<IProductQueries, ProductQueries>();
         services.AddScoped<IAttributeQueries, AttributeQueries>();
         services.AddScoped<ICategoryVariantAttributeQueries, CategoryVariantAttributeQueries>();
         services.AddScoped<IVariantAttributeQueries, VariantAttributeQueries>();

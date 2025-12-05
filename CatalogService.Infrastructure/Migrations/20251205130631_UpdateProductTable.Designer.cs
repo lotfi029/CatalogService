@@ -3,6 +3,7 @@ using System;
 using CatalogService.Infrastructure.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CatalogService.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251205130631_UpdateProductTable")]
+    partial class UpdateProductTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,8 +306,10 @@ namespace CatalogService.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
-                    b.Property<Guid>("VendorId")
-                        .HasColumnType("uuid")
+                    b.Property<string>("VendorId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)")
                         .HasColumnName("vendor_id");
 
                     b.HasKey("Id");
@@ -324,6 +329,10 @@ namespace CatalogService.Infrastructure.Migrations
 
                     b.HasIndex("Status")
                         .HasDatabaseName("idx_products_status");
+
+                    b.HasIndex("VendorId")
+                        .IsUnique()
+                        .HasDatabaseName("idx_products_vendor_id");
 
                     b.ToTable("products", null, t =>
                         {

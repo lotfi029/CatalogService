@@ -5,5 +5,5 @@ public enum ProductStatus
     Draft,
     Active,
     Inactive,
-    Archived
+    Archive
 }

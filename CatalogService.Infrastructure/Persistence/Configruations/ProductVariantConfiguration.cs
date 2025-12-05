@@ -13,7 +13,7 @@ internal sealed class ProductVariantConfiguration : BaseEntityConfiguration<Prod
         builder.Property(pv => pv.SKU)
             .HasConversion(
                 sku => sku.Value,
-                value => Sku.Create(value)!
+                value => new Sku(value)!
             )
             .HasColumnName("sku")
             .HasMaxLength(100)
