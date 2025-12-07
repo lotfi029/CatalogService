@@ -1,12 +1,12 @@
-﻿using CatalogService.Domain.ValueObjects;
+﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
 
-namespace CatalogService.Infrastructure.Persistence.Configruations;
-
-internal sealed class ProductVariantConfiguration : BaseEntityConfiguration<ProductVariant>
+internal sealed class ProductVariantConfiguration : IEntityTypeConfiguration<ProductVariant>
 {
-    public override void Configure(EntityTypeBuilder<ProductVariant> builder)
+    public void Configure(EntityTypeBuilder<ProductVariant> builder)
     {
-        base.Configure(builder);
+        builder.HasKey(p => p.Id);
+        builder.Property(pv => pv.Id)
+            .HasColumnName("id");
 
         builder.ToTable("product_variants");
 
@@ -69,10 +69,6 @@ internal sealed class ProductVariantConfiguration : BaseEntityConfiguration<Prod
             .WithMany(p => p.ProductVariants)
             .HasForeignKey(pv => pv.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
-
-
-        builder.HasIndex(e => e.IsActive)
-            .HasDatabaseName("idx_product_variants_is_active");
 
         builder.ToTable(p => p.HasCheckConstraint(
             "chk_products_price",

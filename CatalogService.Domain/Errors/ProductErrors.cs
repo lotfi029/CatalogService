@@ -17,6 +17,12 @@ public class ProductErrors
             $"{_code}.{nameof(NotFound)}",
             $"product with id: '{id}' not found");
 
+    public static Error CategoriesNotFound
+        => Error.BadRequest(
+            $"{_code}.{nameof(CategoriesNotFound)}",
+            "you must assign the product to at least one category");
+    //public static Error MustAddCategoryVariants()
+
     public static Error CreateProduct
         => Error.Unexpected("Failed to create product");
     public static Error CreateBulkProduct
@@ -27,9 +33,6 @@ public class ProductErrors
         => Error.Unexpected("Failed to update status of the product");
     public static Error GetProductById
         => Error.Unexpected("Failed to retrieve product");
-    
     public static Error GetAllProduct
         => Error.Unexpected("Failed to retrieve products");
-
-
 }

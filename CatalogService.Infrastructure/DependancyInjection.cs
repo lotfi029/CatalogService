@@ -33,13 +33,16 @@ public static class DependancyInjection
             options.UseNpgsql(dataSource);
         });
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IAttributeRepository, AttributeRepository>();
+        services.AddScoped<ICategoryVariantAttributeRepository, CategoryVariantAttributeRepository>();
 
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+        services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+        
+        services.AddScoped<IAttributeRepository, AttributeRepository>();
         services.AddScoped<IVariantAttributeRepository, VariantAttributeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        services.AddScoped<ICategoryVariantAttributeRepository, CategoryVariantAttributeRepository>();
         
         services.AddHealthChecks()
             .AddNpgSql(name: "ApplicationDb", connectionString: connectionString!);

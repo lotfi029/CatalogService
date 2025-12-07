@@ -7,6 +7,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<CategoryVariantAttribute> CategoryVariantAttributes { get; set; }
+    public DbSet<ProductCategories> ProductCategories { get; set; }
     public DbSet<Domain.Entities.Attribute> Attributes {  get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

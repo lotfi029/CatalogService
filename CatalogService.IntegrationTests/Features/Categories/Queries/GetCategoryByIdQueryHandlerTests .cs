@@ -1,6 +1,5 @@
 ﻿using CatalogService.Application.DTOs.Categories;
 using CatalogService.Application.Features.Categories.Queries.GetById;
-using CatalogService.IntegrationTests.Infrastructure;
 
 namespace CatalogService.IntegrationTests.Features.Categories.Queries;
 

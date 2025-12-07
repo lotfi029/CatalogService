@@ -17,6 +17,10 @@ public sealed class CategoryVariantAttributeErrors
         => Error.NotFound(
             $"{_code}.{nameof(NotFound)}",
             $"'VariantAttribute' with id '{variantId}' not found for the category: '{id}'");
+    public static Error VariantNotFound(Guid categoryId)
+        => Error.NotFound(
+            $"{_code}.{nameof(VariantNotFound)}",
+            $"there is no variants to this category: '{categoryId}'");
     public static Error FaildToAddVariantsToCategory(int number) =>
         Error.BadRequest(
             $"{_code}.{nameof(FaildToAddVariantsToCategory)}",

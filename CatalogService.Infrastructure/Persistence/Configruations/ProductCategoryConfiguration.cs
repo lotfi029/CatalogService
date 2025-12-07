@@ -19,13 +19,9 @@ public sealed class ProductCategoryConfiguration : IEntityTypeConfiguration<Prod
         builder.Property(pc => pc.CreatedAt)
             .HasColumnName("created_at")
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-        
-        builder.Property(pc => pc.CreatedBy)
-            .HasColumnName("created_by")
-            .IsRequired(false);
 
         builder.HasOne(pc => pc.Product)
-            .WithMany(p => p.ProductCategories)
+            .WithMany(p => p.Categories)
             .HasForeignKey(pc => pc.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
         
