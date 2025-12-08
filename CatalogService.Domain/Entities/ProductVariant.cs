@@ -6,7 +6,7 @@ public sealed class ProductVariant
     public Guid ProductId { get; private set; }
     public Sku SKU { get; } = default!;
     public ProductVariantsOption VariantAttributes { get; private set; } = default!;
-    public CustomizationItmes? CustomizationOptions { get; private set; }
+    public ProductVariantsOption? CustomizationOptions { get; private set; }
 
     public Money Price { get; private set; } = new();
     public Money? CompareAtPrice { get; private set; } = new();
@@ -18,7 +18,7 @@ public sealed class ProductVariant
         Guid productId,
         Sku sku,
         ProductVariantsOption variantAttributes,
-        CustomizationItmes? customizationOptions,
+        ProductVariantsOption? customizationOptions,
         Money price,
         Money compareAtPrice 
         ) : base()
@@ -32,10 +32,10 @@ public sealed class ProductVariant
         CompareAtPrice = compareAtPrice;
     }
 
-    public static Result<ProductVariant> Create(
+    public static ProductVariant Create(
         Guid productId,
         ProductVariantsOption variantAttributes,
-        CustomizationItmes? customizationOptions,
+        ProductVariantsOption? customizationOptions,
         Money price,
         Money compareAtPrice 
         )

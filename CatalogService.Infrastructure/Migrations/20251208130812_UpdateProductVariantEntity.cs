@@ -51,6 +51,14 @@ namespace CatalogService.Infrastructure.Migrations
                 name: "created_by",
                 table: "product_categories");
 
+            migrationBuilder.AlterColumn<string>(
+                name: "customization_options",
+                table: "product_variants",
+                type: "jsonb",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "jsonb");
+
             migrationBuilder.AlterColumn<decimal>(
                 name: "compare_at_price",
                 table: "product_variants",
@@ -65,6 +73,16 @@ namespace CatalogService.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterColumn<string>(
+                name: "customization_options",
+                table: "product_variants",
+                type: "jsonb",
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "jsonb",
+                oldNullable: true);
+
             migrationBuilder.AlterColumn<decimal>(
                 name: "compare_at_price",
                 table: "product_variants",

@@ -7,21 +7,19 @@ public class VariantAttributeDefinition : AuditableEntity
 {
     public string Code { get; private set; } = string.Empty;
     public string Name { get; private set; } = string.Empty;
-    public OptionsType Datatype { get; private set; } = default!;
-   
+    public VariantsType Datatype { get; private set; } = default!;
     public bool AffectsInventory { get; private set; } = false;
 
     public ValuesJson? AllowedValues { get; private set; }
 
-    private readonly List<CategoryVariantAttribute> _categories = [];
-    public IReadOnlyCollection<CategoryVariantAttribute> CategoryVariantAttributes => _categories.AsReadOnly();
+    public ICollection<CategoryVariantAttribute> CategoryVariantAttributes { get; } = [];
 
 
     private VariantAttributeDefinition() { }
     private VariantAttributeDefinition(
         string code,
         string name,
-        OptionsType datatype,
+        VariantsType datatype,
         bool affectsInventory,
         ValuesJson? allowedValues
         ) 
@@ -36,7 +34,7 @@ public class VariantAttributeDefinition : AuditableEntity
     public static VariantAttributeDefinition Create(
         string code,
         string name,
-        OptionsType dataType,
+        VariantsType dataType,
         bool affectsInventory,
         ValuesJson? allowedValues
         )
@@ -68,9 +66,9 @@ public class VariantAttributeDefinition : AuditableEntity
     }
     public Result Deleted()
         => Deleted();
-    private static void VerifyAllowedValues(OptionsType dataType, ValuesJson? allowedValues)
+    private static void VerifyAllowedValues(VariantsType dataType, ValuesJson? allowedValues)
     {
-        if (dataType.DataType == ValuesDataType.Select)
+        if (dataType.DataType == VariantDataType.Select)
         {
             if (allowedValues is null)
                 throw new ArgumentException("AllowedValues must be provided for Select type");

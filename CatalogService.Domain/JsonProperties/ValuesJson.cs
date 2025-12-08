@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.JsonProperties;
 
-public record ValuesJson
+public sealed record ValuesJson
 {
-    public List<string> Values { get; set; } = [];
+    public HashSet<string> Values { get; set; } = [];
 }

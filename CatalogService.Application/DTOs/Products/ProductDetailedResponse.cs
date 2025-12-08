@@ -21,3 +21,11 @@ public sealed record ProductDetailedResponse(
         IsActive: true)
     { }
 }
+/*
+- categoryResponse 
+------ Id, Name, Slug, IsPrimary
+- variantResponse 
+------ Id, VariantAttribute, custome
+- attributeResponse
+------ Id, Code, Value, IsFilterable, IsSearchable
+*/

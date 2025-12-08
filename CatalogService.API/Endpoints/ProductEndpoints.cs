@@ -1,4 +1,5 @@
 ﻿using CatalogService.Application.DTOs.Products;
+using CatalogService.Application.Features.Products.Commands.Active;
 using CatalogService.Application.Features.Products.Commands.Create;
 using CatalogService.Application.Features.Products.Commands.CreateBulk;
 using CatalogService.Application.Features.Products.Commands.UpdateDetails;
@@ -28,9 +29,15 @@ public class ProductEndpoints : IEndpoint
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPatch("/{id:guid}", UpdateStatus)
-            .Produces<Guid>(StatusCodes.Status204NoContent)
+        //group.MapPatch("/{id:guid}", UpdateStatus)
+        //    .Produces(StatusCodes.Status204NoContent)
+        //    .ProducesProblem(StatusCodes.Status400BadRequest)
+        //    .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPatch("/{id:guid}/active", Active)
+            .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapGet("/{id:guid}", Get)
@@ -94,17 +101,13 @@ public class ProductEndpoints : IEndpoint
             ? TypedResults.NoContent()
             : result.ToProblem();
     }
-    private async Task<IResult> UpdateStatus(
+    private async Task<IResult> Active(
         [FromRoute] Guid id,
-        [FromBody] UpdateProductStatusRequest request,
-        [FromServices] IValidator<UpdateProductStatusRequest> validator,
-        [FromServices] ICommandHandler<UpdateProductStatusCommand> handler,
-        CancellationToken ct)
+        [FromServices] ICommandHandler<ActiveProductCommand> handler,
+        CancellationToken ct = default)
     {
-        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
-            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+        var command = new ActiveProductCommand(id);
 
-        var command = new UpdateProductStatusCommand(id, request.Status);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess

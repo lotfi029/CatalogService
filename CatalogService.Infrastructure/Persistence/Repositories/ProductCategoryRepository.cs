@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Repositories;
+﻿using System.Linq.Expressions;
+
+namespace CatalogService.Infrastructure.Persistence.Repositories;
 
 internal class ProductCategoryRepository(ApplicationDbContext context) : IProductCategoryRepository
 {
@@ -33,6 +35,11 @@ internal class ProductCategoryRepository(ApplicationDbContext context) : IProduc
     {
         return await context.ProductCategories
             .AnyAsync(pc => pc.ProductId == productId & pc.CategoryId == categoryId, ct);
+    }
+    public async Task<bool> ExistsAsync(Expression<Func<ProductCategories, bool>> predicate, CancellationToken ct = default)
+    {
+        return await context.ProductCategories
+            .AnyAsync(predicate: predicate, cancellationToken: ct);
     }
 
     public async Task<ProductCategories?> GetAsync(Guid productId, Guid categoryId, CancellationToken ct = default)

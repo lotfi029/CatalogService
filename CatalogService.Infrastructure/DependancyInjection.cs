@@ -38,6 +38,7 @@ public static class DependancyInjection
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+        services.AddScoped<IProductAttributeRepository, ProductAttributeRepository>();
         
         services.AddScoped<IAttributeRepository, AttributeRepository>();
         services.AddScoped<IVariantAttributeRepository, VariantAttributeRepository>();

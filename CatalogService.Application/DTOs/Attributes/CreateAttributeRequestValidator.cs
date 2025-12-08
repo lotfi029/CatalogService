@@ -20,7 +20,7 @@ public sealed class CreateAttributeRequestValidator : AbstractValidator<CreateAt
             .NotEmpty()
             .MaximumLength(10)
                 .WithMessage("The length of '{PropertyName}' must be less than or equal to {MaxLength} characters.")
-            .IsEnumName(typeof(ValuesDataType), caseSensitive: false)
+            .IsEnumName(typeof(VariantDataType), caseSensitive: false)
                 .WithMessage("'{PropertyValue}' is not a valid '{PropertyName}'. Allowed values are: select, text, boolean.");
 
         RuleFor(at => at.IsFilterable)

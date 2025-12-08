@@ -21,8 +21,19 @@ public class ProductErrors
         => Error.BadRequest(
             $"{_code}.{nameof(CategoriesNotFound)}",
             "you must assign the product to at least one category");
-    //public static Error MustAddCategoryVariants()
+    public static Error ProductAlreadyActive
+        => Error.Conflict(
+            $"{_code}.{nameof(ProductAlreadyActive)}",
+            "this product is already active");
+    public static Error InvlalidActivateProcess
+        => Error.Conflict(
+            $"{_code}.{nameof(InvlalidActivateProcess)}",
+            "to active the product you must be add at least one category, one variant, and one attribute");
 
+    public static Error ProductIsArchived
+        => Error.Conflict(
+            $"{_code}.{nameof(ProductIsArchived)}",
+            "this product is archived and cannot be active");
     public static Error CreateProduct
         => Error.Unexpected("Failed to create product");
     public static Error CreateBulkProduct
@@ -31,6 +42,8 @@ public class ProductErrors
         => Error.Unexpected("Failed to update details of the product");
     public static Error UpdateProductStatus
         => Error.Unexpected("Failed to update status of the product");
+    public static Error ActiveProduct
+        => Error.Unexpected("Failed to active product");
     public static Error GetProductById
         => Error.Unexpected("Failed to retrieve product");
     public static Error GetAllProduct

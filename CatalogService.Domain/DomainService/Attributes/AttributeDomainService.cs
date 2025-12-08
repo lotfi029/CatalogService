@@ -10,7 +10,7 @@ public sealed class AttributeDomainService(
         if (await attributeRepository.ExistsAsync(e => e.Code == code, ct))
             return AttributeErrors.DuplicatedCode(code);
         
-        if (!Enum.TryParse<ValuesDataType>(optionType, ignoreCase: true, out var enumOptionType))
+        if (!Enum.TryParse<VariantDataType>(optionType, ignoreCase: true, out var enumOptionType))
             return DomainErrors.Attributes.InvalidCastingEnum;
 
         var attribute = Entities.Attribute.Create(
@@ -34,7 +34,7 @@ public sealed class AttributeDomainService(
         if (await attributeRepository.FindByIdAsync(id, ct) is not { } attribute)
             return AttributeErrors.NotFound(id);
 
-        if (attribute.OptionsType.DataType != ValuesDataType.Select)
+        if (attribute.OptionsType.DataType != VariantDataType.Select)
             return AttributeErrors.InvalidUpdateOptions;
 
         //await attributeRepository.ExcuteUpdateAsync(

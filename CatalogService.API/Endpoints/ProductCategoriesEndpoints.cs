@@ -1,4 +1,5 @@
 ﻿using CatalogService.Application.DTOs.ProductCategories;
+using CatalogService.Application.Features.ProductCategories.Command.AddCategory;
 
 namespace CatalogService.API.Endpoints;
 
@@ -13,20 +14,28 @@ public class ProductCategoriesEndpoints : IEndpoint
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
-
-
     }
     public async Task<IResult> AddCategory(
         [FromRoute] Guid productId,
         [FromRoute] Guid categoryId,
         [FromBody] ProductCategoryRequest request,
         [FromServices] IValidator<ProductCategoryRequest> validator,
+        [FromServices] ICommandHandler<AddProductCategoryCommand> handler,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationErrors)
             return TypedResults.ValidationProblem(validationErrors.ToDictionary());
 
+        var command = new AddProductCategoryCommand(
+            ProductId: productId,
+            CategoryId: categoryId,
+            request.IsPrimary!.Value,
+            Request: request.CategoryVariants);
 
-        return TypedResults.NoContent();
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
     }
 }

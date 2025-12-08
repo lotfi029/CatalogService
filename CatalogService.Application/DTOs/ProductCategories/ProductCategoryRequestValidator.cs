@@ -17,8 +17,6 @@ public sealed class ProductCategoryRequestValidator : AbstractValidator<ProductC
             {
                 if (categoryVariants is null) return;
 
-                //context.AddFailure("CategoryVariant", "CategoryVariants must contain at least one item.");
-
                 if (categoryVariants.Count != categoryVariants.Distinct().Count())
                 {
                     context.AddFailure("CategoryVariants",
@@ -32,32 +30,6 @@ public sealed class ProductCategoryRequestValidator : AbstractValidator<ProductC
             }).When(pc => pc.CategoryVariants is not null && pc.CategoryVariants.Count > 0);
 
         RuleForEach(pc => pc.CategoryVariants)
-            .Custom((variantOption, context) =>
-            {
-                if (variantOption is null)
-                {
-                    context.AddFailure("CategoryVariants", "Variant item cannot be null.");
-                    return;
-                }
-
-                if (variantOption.Variants is null || variantOption.Variants.Count == 0)
-                {
-                    context.AddFailure("Variants",
-                        "Variants must not be null or empty.");
-                    return;
-                }
-
-                if (variantOption.Variants.Count != variantOption.Variants.Distinct().Count())
-                {
-                    context.AddFailure("Variants",
-                        "Variants must not contain duplicated values.");
-                }
-
-                if (variantOption.Variants.Count > 50)
-                {
-                    context.AddFailure("Variants",
-                        "Variants must not exceed 50 items.");
-                }
-            });
+            .SetValidator(new ProductVariantRequestValidator());
     }
 }

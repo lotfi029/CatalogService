@@ -1,4 +1,7 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
+﻿using CatalogService.Domain.JsonProperties;
+using System.Text.Json;
+
+namespace CatalogService.Infrastructure.Persistence.Configruations;
 
 internal sealed class ProductVariantConfiguration : IEntityTypeConfiguration<ProductVariant>
 {
@@ -53,12 +56,18 @@ internal sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Pro
         builder.Property(pv => pv.VariantAttributes)
             .HasColumnName("variant_attributes")
             .HasColumnType("jsonb")
+            .HasConversion(
+                pv => JsonSerializer.Serialize(pv, (JsonSerializerOptions)null!),
+                pv => JsonSerializer.Deserialize<ProductVariantsOption>(pv)!)
             .IsRequired();
-
+        
         builder.Property(pv => pv.CustomizationOptions)
             .HasColumnName("customization_options")
             .HasColumnType("jsonb")
-            .IsRequired();
+            .HasConversion(
+                pv => JsonSerializer.Serialize(pv, (JsonSerializerOptions)null!),
+                pv => JsonSerializer.Deserialize<ProductVariantsOption>(pv))
+            .IsRequired(false);
 
 
         builder.Property(pv => pv.ProductId)

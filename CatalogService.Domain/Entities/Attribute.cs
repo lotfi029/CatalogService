@@ -7,7 +7,7 @@ public class Attribute : AuditableEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string Code { get; } = string.Empty;
-    public OptionsType OptionsType { get; } = default!;
+    public VariantsType OptionsType { get; } = default!;
 
     public bool IsFilterable { get; private set; } = false;
     public bool IsSearchable { get; private set; } = false;
@@ -17,7 +17,7 @@ public class Attribute : AuditableEntity
     private Attribute(
         string name, 
         string code,
-        OptionsType type,
+        VariantsType type,
         bool isFilterable = false, 
         bool isSearchable = false,
         ValuesJson? options = null
@@ -36,7 +36,7 @@ public class Attribute : AuditableEntity
     public static Result<Attribute> Create(
         string name, 
         string code,
-        OptionsType optionType, 
+        VariantsType optionType, 
         bool isFilterable,
         bool isSearchable,
         ValuesJson? options
@@ -45,7 +45,7 @@ public class Attribute : AuditableEntity
         if (VerifyOptions(optionType, options) is { IsFailure: true } result)
             return result.Error;
 
-        if (optionType.DataType == ValuesDataType.UnAssign)
+        if (optionType.DataType == VariantDataType.UnAssign)
             return DomainErrors.Attributes.InvalidOptionType;
 
         return new Attribute(
@@ -108,10 +108,10 @@ public class Attribute : AuditableEntity
         AddDomainEvent(new AttributeDeletedDomainEvent(Id));
         return Result.Success();
     }
-    private static Result VerifyOptions(OptionsType datatype, ValuesJson? options)
+    private static Result VerifyOptions(VariantsType datatype, ValuesJson? options)
     {
 
-        if (datatype.DataType == ValuesDataType.Select)
+        if (datatype.DataType == VariantDataType.Select)
         {
             if (options is null)
                 return DomainErrors.Attributes.NullOptions;

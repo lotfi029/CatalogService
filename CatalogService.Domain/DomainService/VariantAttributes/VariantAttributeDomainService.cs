@@ -15,7 +15,7 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
         if (await variantAttributeRepository.ExistsAsync(e => e.Code == code, ct))
             return VariantAttributeErrors.CodeAlreadyExist(code);
         
-        if (!Enum.TryParse<ValuesDataType>(datatype, ignoreCase: true, out var enumDataType))
+        if (!Enum.TryParse<VariantDataType>(datatype, ignoreCase: true, out var enumDataType))
             throw new ArgumentException("Must specify the datatype of the variant attribute definition");
 
         var variantAttribute = VariantAttributeDefinition.Create(

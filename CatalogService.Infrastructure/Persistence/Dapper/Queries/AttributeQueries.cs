@@ -73,7 +73,7 @@ public sealed class AttributeQueries(
     {
         var connection = connectionFactory.CreateConnection();
 
-        if (!Enum.TryParse<ValuesDataType>(type, ignoreCase: true, out var enumOptionType))
+        if (!Enum.TryParse<VariantDataType>(type, ignoreCase: true, out var enumOptionType))
             return AttributeErrors.InvalidOptinsType;
 
         var sql = """

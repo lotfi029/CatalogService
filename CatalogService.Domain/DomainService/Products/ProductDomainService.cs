@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+﻿using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.DomainService.Products;
 
@@ -7,6 +7,7 @@ public sealed class ProductDomainService(
     ICategoryRepository categoryRepository,
     ICategoryVariantAttributeRepository categoryVariantRepository,
     IProductVariantRepository productVariantRepository,
+    IProductAttributeRepository productAttributeRepository,
     IProductCategoryRepository productCategoryRepository) : IProductDomainService
 {
     public Result<Guid> Create(
@@ -87,45 +88,114 @@ public sealed class ProductDomainService(
         productRepository.Update(product);
         return Result.Success();
     }
-    //public async Task<Result> ActiveAysnc(Guid id, CancellationToken ct = default)
-    //{
-    //    if (await productRepository.FindByIdAsync(id, ct) is not { } product)
-    //        return ProductErrors.NotFound(id);
+    public async Task<Result> ActivaAsync(Guid productId, CancellationToken ct = default)
+    {
+        if (await productRepository.FindByIdAsync(productId, ct) is not { } product)
+            return ProductErrors.NotFound(productId);
 
-    //    if (await productCategoryRepository.GetByProductIdAsync(id, ct) is not { } productCategories)
-    //        return ProductErrors.CategoriesNotFound;
+        switch(product.Status)
+        {
+            case ProductStatus.Active:
+                return ProductErrors.ProductAlreadyActive;
+            case ProductStatus.Archive:
+                return ProductErrors.ProductIsArchived;
+            case ProductStatus.Draft:
+                if (await productCategoryRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
+                    return ProductErrors.InvlalidActivateProcess;
+                if (await productVariantRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
+                    return ProductErrors.InvlalidActivateProcess;
+                if (await productAttributeRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
+                    return ProductErrors.InvlalidActivateProcess;
+                break;
+            default:
+                break;
+        }
 
-    //    var productVariants = await productVariantRepository.GetWithPredicateAsync(pv => pv.ProductId == id, ct);
-
-    //    foreach (var productCategory in productCategories)
-    //    {
-    //        var categoryVariants = await categoryVariantRepository.GetByCategoryIdAsync(productCategory.CategoryId, ct);
-            
-    //        if (categoryVariants is null || !categoryVariants.Any())
-    //            continue;
-
-    //    }
-            
-    //}
-    public async Task<Result> AddProductCategory(Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default)
+        product.Activate();
+        productRepository.Update(product);
+        return Result.Success();
+    }
+    public async Task<Result> AddProductCategory(
+        Guid productId, 
+        Guid categoryId, 
+        bool isPrimary, 
+        List<(decimal price, decimal? compareAtPrice, ProductVariantsOption variants)> productVariants, 
+        CancellationToken ct = default)
     {
         if (await productCategoryRepository.ExistsAsync(productId, categoryId, ct))
             return ProductCategoriesErrors.DuplicatedCategory(categoryId);
 
-        if (await productRepository.FindByIdAsync(productId, ct) is not { } product)
+        if (await productRepository.ExistsAsync(productId, ct) is false)
             return ProductErrors.NotFound(productId);
 
         if (await categoryRepository.ExistsAsync(categoryId, ct) is false)
             return CategoryErrors.NotFound(categoryId);
 
-        
-        var productCategory = ProductCategories.Create(
-            productId: productId,
-            categoryId: categoryId,
-            isPrimary: isPrimary);
+        var categoryVariants = await categoryVariantRepository
+            .GetCategoryVariantIncludeVariantsId(categoryId, ct) 
+            ?? [];
 
-        product.AddCategory(categoryId);
-        productCategoryRepository.Add(productCategory);
+        var variantsLookup = categoryVariants
+            .OrderBy(cv => cv.DisplayOrder) 
+            .ToDictionary(
+            keySelector: v => v.VariantAttribute.Code,
+            elementSelector: v => new
+            {
+                v.DisplayOrder,
+                v.VariantAttribute.Datatype.DataType,
+                v.VariantAttribute.AffectsInventory,
+                v.VariantAttribute.Code,
+                AllowedValues = v.VariantAttribute.AllowedValues?.Values ?? []
+            },
+            comparer: StringComparer.OrdinalIgnoreCase);
+
+        List<ProductVariant> addedProductVariant = [];
+
+        foreach (var (price, compareAtPrice, variants) in productVariants)
+        {
+            var inputVariants = variants.Variants;
+            var inputCodes = inputVariants.Select(e => e.Key);
+
+            if (!variantsLookup.Keys.All(inputCodes.Contains))
+            {
+                return ProductCategoriesErrors.InvalidIncludedVariants([.. variantsLookup.Keys]);
+            }
+            List<VariantAttributeItem> variantAttributeItems = [];
+            List<VariantAttributeItem> customizedOptions = [];
+            foreach (var (code, value) in variants.Variants)
+            {
+                if (variantsLookup.TryGetValue(code, out var requiredVarian))
+                {
+                    if (validateVariantValue((requiredVarian.AllowedValues, requiredVarian.DataType), code, value) is { IsFailure: true } valueValidationError)
+                        return valueValidationError.Error;
+
+                    if (requiredVarian.AffectsInventory)
+                    {
+                        variantAttributeItems.Add(new(requiredVarian.Code, value));
+                    }
+                    else
+                    {
+                        customizedOptions.Add(new(requiredVarian.Code, value));
+                    }
+                }
+                else
+                {
+                    customizedOptions.Add(new(code, value));
+                }
+            }
+            addedProductVariant.Add(ProductVariant.Create(
+                productId: productId,
+                variantAttributes: new(variantAttributeItems),
+                customizationOptions: new(customizedOptions),
+                price: new(price),
+                compareAtPrice: new(compareAtPrice)
+                ));
+        }
+
+        var finalizeAdditionResult = finalizeProductCategoryAddition(productId, categoryId, isPrimary, addedProductVariant);
+        if (finalizeAdditionResult.IsFailure)
+            return finalizeAdditionResult.Error;
+
 
         return Result.Success();
     }
@@ -157,15 +227,53 @@ public sealed class ProductDomainService(
 
         return Result.Success();
     }
+    private Result validateVariantValue(
+        (HashSet<string>? AllowedValues, VariantDataType Datatype) requiredVariant,
+        string code,
+        string value)
+    {
+        switch (requiredVariant.Datatype)
+        {
+            case VariantDataType.Select:
+                var allowedValues = requiredVariant.AllowedValues!;
 
-    //public async Task<Result> AddCategoryVariantsAsync(Guid productId, Guid categoryId, CancellationToken ct = default)
-    //{
-    //    if (!await productCategoryRepository.ExistsAsync(productId: productId, categoryId: categoryId, ct))
-    //        return ProductCategoriesErrors.NotFound;
+                if (!allowedValues.Contains(value, comparer: StringComparer.OrdinalIgnoreCase))
+                {
+                    return ProductVariantErrors.InvalidVariantValue(code, value, allowedValues);
+                }
+                break;
+            case VariantDataType.Boolean:
+                if (!bool.TryParse(code, out bool _))
+                {
+                    return ProductVariantErrors.InvalidBooleanValue(code, value);
+                }
+                break;
 
-    //    if (await categoryVariantRepository.GetByCategoryIdAsync(categoryId, ct) is not { } categoryVariants)
-    //        return CategoryVariantAttributeErrors.VariantNotFound(categoryId);
+            default:
+                break;
+        }
+        return Result.Success();
+    }
 
+    private Result finalizeProductCategoryAddition(
+        Guid productId,
+        Guid categoryId,
+        bool isPrimary,
+        List<ProductVariant> addedProductVariant)
+    {
+        var productCategory = ProductCategories.Create(
+            productId: productId,
+            categoryId: categoryId,
+            isPrimary: isPrimary);
 
-    //}
+        productCategoryRepository.Add(productCategory);
+
+        if (addedProductVariant.Count > 0)
+        {
+            productVariantRepository.AddRange([.. addedProductVariant]);
+        }
+
+        return Result.Success();
+    }
+
 }

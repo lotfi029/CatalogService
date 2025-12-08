@@ -1,4 +1,7 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Repositories;
+﻿using Microsoft.VisualBasic;
+using System.Linq.Expressions;
+
+namespace CatalogService.Infrastructure.Persistence.Repositories;
 
 internal sealed class ProductVariantRepository(ApplicationDbContext context) : IProductVariantRepository
 {
@@ -28,6 +31,16 @@ internal sealed class ProductVariantRepository(ApplicationDbContext context) : I
         _dbSet.RemoveRange(variants);
     }
 
+    public async Task<bool> ExistsAsync(Guid productId, Guid productVariantId, CancellationToken ct = default)
+    {
+        return await _dbSet
+            .AnyAsync(e => e.ProductId == productId && e.Id == productVariantId, cancellationToken: ct);
+    }
+    public async Task<bool> ExistsAsync(Expression<Func<ProductVariant, bool>> predicate, CancellationToken ct = default)
+    {
+        return await _dbSet
+            .AnyAsync(predicate, cancellationToken: ct);
+    }
     public async Task<IEnumerable<ProductVariant>> GetAllAsync(Guid productId, CancellationToken ct = default)
     {
         return await _dbSet.Where(e => e.ProductId == productId).ToListAsync(ct);

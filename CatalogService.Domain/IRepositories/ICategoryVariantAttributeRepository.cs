@@ -18,6 +18,9 @@ public interface ICategoryVariantAttributeRepository
         Guid categoryId,
         Guid variantAttributeId,
         CancellationToken ct = default);
+    Task<IEnumerable<CategoryVariantAttribute>> GetCategoryVariantIncludeVariantsId(
+        Guid categoryId,
+        CancellationToken ct = default);
     Task<int> RemoveAllByCategoryAsync(Guid categoryId, CancellationToken ct = default);
     Task<int> RemoveAllByVariantAttributeAsync(Guid variantAttributeId, CancellationToken ct = default);
 }

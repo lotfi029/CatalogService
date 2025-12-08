@@ -16,11 +16,11 @@ public class CategoryVariantAttribute
             field = value;
         } 
     }
-    public DateTime CreatedAt { get; private init; }
-    public string? CreatedBy { get; private init; }
+    public DateTime CreatedAt { get; }
+    public string? CreatedBy { get; }
 
-    public Category Category { get; private init; } = default!;
-    public VariantAttributeDefinition VariantAttribute { get; private init; } = default!;
+    public Category Category { get; } = default!;
+    public VariantAttributeDefinition VariantAttribute { get; } = default!;
 
     private CategoryVariantAttribute() { }
     private CategoryVariantAttribute(

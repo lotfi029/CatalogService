@@ -1,4 +1,6 @@
 ﻿
+using System.Linq.Expressions;
+
 namespace CatalogService.Domain.IRepositories;
 
 public interface IProductVariantRepository
@@ -12,4 +14,6 @@ public interface IProductVariantRepository
 
     Task<IEnumerable<ProductVariant>> GetAllAsync(Guid productId, CancellationToken ct = default);
     Task<ProductVariant?> GetById(Guid id, CancellationToken ct = default);
+    Task<bool> ExistsAsync(Expression<Func<ProductVariant, bool>> predicate, CancellationToken ct = default);
+    Task<bool> ExistsAsync(Guid productId, Guid productVariantId, CancellationToken ct = default);
 }
