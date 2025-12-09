@@ -2,6 +2,7 @@
 using CatalogService.Application.Features.Categories.Queries;
 using CatalogService.Application.Features.CategoryVariants.Queries;
 using CatalogService.Application.Features.Products.Queries;
+using CatalogService.Application.Features.ProductVariants.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
 using CatalogService.Infrastructure.Persistence;
 using CatalogService.Infrastructure.Persistence.Dapper;
@@ -57,6 +58,7 @@ public static class DependancyInjection
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<ICategoryQueries, CategoryQueries>();
         services.AddScoped<IProductQueries, ProductQueries>();
+        services.AddScoped<IProductVariantQueries, ProductVariantQueries>();
         services.AddScoped<IAttributeQueries, AttributeQueries>();
         services.AddScoped<ICategoryVariantAttributeQueries, CategoryVariantAttributeQueries>();
         services.AddScoped<IVariantAttributeQueries, VariantAttributeQueries>();

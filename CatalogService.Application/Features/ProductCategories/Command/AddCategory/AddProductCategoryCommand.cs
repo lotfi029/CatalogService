@@ -1,4 +1,4 @@
-﻿using CatalogService.Application.DTOs.ProductCategories;
+﻿using CatalogService.Application.DTOs.ProductVariants;
 using CatalogService.Domain.DomainService.Products;
 
 namespace CatalogService.Application.Features.ProductCategories.Command.AddCategory;

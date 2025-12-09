@@ -1,6 +1,6 @@
 ﻿using CatalogService.Domain.JsonProperties;
 
-namespace CatalogService.Application.DTOs.ProductCategories;
+namespace CatalogService.Application.DTOs.ProductVariants;
 
 public sealed record ProductVariantRequest(
     decimal Price,

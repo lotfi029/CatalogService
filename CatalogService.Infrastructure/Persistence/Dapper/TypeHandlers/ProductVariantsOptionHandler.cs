@@ -1,26 +1,24 @@
-﻿using CatalogService.Application.DTOs.CategoryVariantAttributes;
-using CatalogService.Domain.JsonProperties;
-using Dapper;
+﻿using CatalogService.Domain.JsonProperties;
 using System.Data;
 using System.Text.Json;
 
 namespace CatalogService.Infrastructure.Persistence.Dapper.TypeHandlers;
 
-public sealed class AllowedValuesJsonHandler : SqlMapper.TypeHandler<ValuesJson>
+public sealed class ProductVariantsOptionHandler : SqlMapper.TypeHandler<ProductVariantsOption>
 {
-    public override ValuesJson? Parse(object value)
+    public override ProductVariantsOption? Parse(object value)
     {
         if (value is null or DBNull)
             return null;
 
         var json = value.ToString();
-        
+
         return string.IsNullOrWhiteSpace(json)
             ? null
-            : JsonSerializer.Deserialize<ValuesJson>(json);
+            : JsonSerializer.Deserialize<ProductVariantsOption>(json);
     }
 
-    public override void SetValue(IDbDataParameter parameter, ValuesJson? value)
+    public override void SetValue(IDbDataParameter parameter, ProductVariantsOption? value)
     {
         parameter.Value = value is not null
             ? JsonSerializer.Serialize(value)

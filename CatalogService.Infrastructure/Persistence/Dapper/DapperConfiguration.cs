@@ -13,6 +13,7 @@ public static class DapperConfiguration
 
         //SqlMapper.AddTypeHandler(new VariantDatatypeHandler());
         SqlMapper.AddTypeHandler(new AllowedValuesJsonHandler());
+        SqlMapper.AddTypeHandler(new ProductVariantsOptionHandler());
 
         _isConfigured = true;
     }

@@ -30,7 +30,17 @@ internal sealed class ProductVariantRepository(ApplicationDbContext context) : I
         ArgumentNullException.ThrowIfNull(variants);
         _dbSet.RemoveRange(variants);
     }
+    public void Update(ProductVariant productVariant)
+    {
+        ArgumentNullException.ThrowIfNull(productVariant);
+        _dbSet.Update(productVariant);
+    }
 
+    public void UpdateRange(ProductVariant[] variants)
+    {
+        ArgumentNullException.ThrowIfNull(variants);
+        _dbSet.UpdateRange(variants);
+    }
     public async Task<bool> ExistsAsync(Guid productId, Guid productVariantId, CancellationToken ct = default)
     {
         return await _dbSet
@@ -50,16 +60,10 @@ internal sealed class ProductVariantRepository(ApplicationDbContext context) : I
     {
         return await _dbSet.FindAsync([id], cancellationToken: ct);
     }
-
-    public void Update(ProductVariant productVariant)
+    public async Task<int> ExecuteDeleteAsync(Expression<Func<ProductVariant, bool>> predicate, CancellationToken ct = default)
     {
-        ArgumentNullException.ThrowIfNull(productVariant);
-        _dbSet.Update(productVariant);
-    }
-
-    public void UpdateRange(ProductVariant[] variants)
-    {
-        ArgumentNullException.ThrowIfNull(variants);
-        _dbSet.UpdateRange(variants);
+        return await _dbSet
+            .Where(predicate)
+            .ExecuteDeleteAsync(ct);
     }
 }

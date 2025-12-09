@@ -115,6 +115,47 @@ public sealed class ProductDomainService(
         productRepository.Update(product);
         return Result.Success();
     }
+
+    public async Task<Result> UpdateProductVariantCustomizationOptionsAsync(Guid id,ProductVariantsOption customOption, CancellationToken ct = default)
+    {
+        if (await productVariantRepository.GetById(id: id, ct) is not { } productVariant)
+            return ProductVariantErrors.NotFound(id);
+
+        if (productVariant.UpdateCustomizationOptions(customOption) is { IsFailure: true } updatingError)
+            return updatingError.Error;
+
+        productVariantRepository.Update(productVariant);
+
+        return Result.Success();
+    }
+    public async Task<Result> UpdateProductVariantPriceAsync(Guid id, decimal price, decimal? compareAtPrice, string currency, CancellationToken ct = default)
+    {
+        if (await productVariantRepository.GetById(id: id, ct) is not { } productVariant)
+            return ProductVariantErrors.NotFound(id);
+
+        currency = currency.ToUpper();
+
+        if (productVariant.UpdatePrice(price, compareAtPrice, currency) is { IsFailure: true } updatingError)
+            return updatingError.Error;
+        
+        productVariantRepository.Update(productVariant);
+        return Result.Success();
+    }
+    public async Task<Result> DeleteProductVariantAsync(Guid id, CancellationToken ct = default)
+    {
+        var deletedRaws = await productVariantRepository.ExecuteDeleteAsync(x => x.Id == id, ct: ct);
+
+        return deletedRaws == 0
+            ? ProductVariantErrors.NotFound(id)
+            : Result.Success();
+    }
+    public async Task<Result> DeleteAllProductVariantAsync(Guid productId, CancellationToken ct = default)
+    {
+        var deletedRaws = await productVariantRepository.ExecuteDeleteAsync(x => x.ProductId == productId, ct: ct);
+
+        return Result.Success();
+    }
+    #region product category
     public async Task<Result> AddProductCategory(
         Guid productId, 
         Guid categoryId, 
@@ -275,5 +316,5 @@ public sealed class ProductDomainService(
 
         return Result.Success();
     }
-
+    #endregion
 }

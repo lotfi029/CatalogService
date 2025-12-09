@@ -1,4 +1,8 @@
-﻿namespace CatalogService.Application.DTOs.Products;
+﻿using CatalogService.Application.DTOs.ProductAttributes;
+using CatalogService.Application.DTOs.ProductCategories;
+using CatalogService.Application.DTOs.ProductVariants;
+
+namespace CatalogService.Application.DTOs.Products;
 
 public sealed record ProductDetailedResponse(
     Guid Id,
@@ -8,7 +12,10 @@ public sealed record ProductDetailedResponse(
     Guid VendorId,
     DateTime CreatedAt,
     DateTime? LastUpdateAt,
-    bool IsActive)
+    bool IsActive,
+    List<ProductCategoryResponse>? ProductCategories,
+    List<ProductVariantResponse>? ProductVariants,
+    List<ProductAttributeResponse>? ProductAttributes)
 {
     private ProductDetailedResponse() : this(
         Id: Guid.Empty,
@@ -18,7 +25,10 @@ public sealed record ProductDetailedResponse(
         VendorId: Guid.Empty,
         CreatedAt: default,
         LastUpdateAt: null,
-        IsActive: true)
+        IsActive: true,
+        null,
+        null,
+        null)
     { }
 }
 /*

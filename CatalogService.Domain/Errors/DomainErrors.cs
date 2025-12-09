@@ -62,6 +62,8 @@ public static class DomainErrors
 
     public static Error Null(string code) 
         => Error.BadRequest(code, "value cannot be empty or white space");
+    public static Error NullNumber(string code) 
+        => Error.BadRequest(code, "value cannot be less than or equal 0");
     
     public class Products
     {
@@ -89,6 +91,11 @@ public static class DomainErrors
             => Error.BadRequest(
                 $"{_code}.{nameof(ProductAlreadyInStatus)}",
                 $"Product Already in this status = {status}");
+    }
+    public class ProductVariants
+    {
+        private const string _code = "productVariants";
 
+        //public static Error 
     }
 }

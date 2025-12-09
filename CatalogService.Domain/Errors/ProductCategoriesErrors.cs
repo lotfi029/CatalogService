@@ -29,25 +29,3 @@ public class ProductCategoriesErrors
     public static Error AddProductCategory =>
         Error.Unexpected("Failed to add product category");
 }
-
-
-
-public class ProductVariantErrors
-{
-    private const string _code = "ProductVariants";
-    public static Error VariantNotFound(Guid categoryId, string variant)
-        => Error.NotFound(
-            $"{_code}.{VariantNotFound}",
-            $"the variant '{variant}' is not found in the category variant: {categoryId}");
-
-    public static Error InvalidVariantValue(string variant, string value, HashSet<string> allowedValues)
-        => Error.BadRequest(
-            $"{_code}.{nameof(InvalidVariantValue)}",
-            $"the allowed values: '{string.Join(", ", allowedValues)}' of the variant: '{variant}' doesnot have this value {value}");
-
-    public static Error InvalidBooleanValue(string variant, string value)
-        => Error.BadRequest(
-            $"{_code}.{nameof(InvalidBooleanValue)}",
-            $"The value: {variant} is not a valid boolean Please Enter a valid boolean value for variant '{variant}'");
-
-}

@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Application.DTOs.ProductCategories;
+﻿namespace CatalogService.Application.DTOs.ProductVariants;
 
 public sealed class ProductVariantRequestValidator : AbstractValidator<ProductVariantRequest>
 {
