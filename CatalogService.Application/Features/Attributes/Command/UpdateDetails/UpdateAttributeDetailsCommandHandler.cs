@@ -2,8 +2,8 @@
 
 namespace CatalogService.Application.Features.Attributes.Command.UpdateDetails;
 
-public sealed class UpdateAttributeDetailsCommandHanlder(
-    ILogger<UpdateAttributeDetailsCommandHanlder> logger,
+internal sealed class UpdateAttributeDetailsCommandHandler(
+    ILogger<UpdateAttributeDetailsCommandHandler> logger,
     IAttributeDomainService attributeService,
     IUnitOfWork unitOfWork) : ICommandHandler<UpdateAttributeDetailsCommand>
 {

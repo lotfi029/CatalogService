@@ -1,6 +1,8 @@
 ﻿using CatalogService.Application.Features.Attributes.Queries;
 using CatalogService.Application.Features.Categories.Queries;
 using CatalogService.Application.Features.CategoryVariants.Queries;
+using CatalogService.Application.Features.ProductAttributes.Queries;
+using CatalogService.Application.Features.ProductCategories.Queries;
 using CatalogService.Application.Features.Products.Queries;
 using CatalogService.Application.Features.ProductVariants.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
@@ -24,7 +26,7 @@ public static class DependancyInjection
 
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var connectionString = configuration.GetConnectionStringOrThrow();
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
         dataSourceBuilder.EnableDynamicJson();
         var dataSource = dataSourceBuilder.Build();
@@ -58,6 +60,8 @@ public static class DependancyInjection
         services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<ICategoryQueries, CategoryQueries>();
         services.AddScoped<IProductQueries, ProductQueries>();
+        services.AddScoped<IProductCategoryQueries, ProductCategoryQueries>();
+        services.AddScoped<IProductAttributeQueries, ProductAttributeQueries>();
         services.AddScoped<IProductVariantQueries, ProductVariantQueries>();
         services.AddScoped<IAttributeQueries, AttributeQueries>();
         services.AddScoped<ICategoryVariantAttributeQueries, CategoryVariantAttributeQueries>();

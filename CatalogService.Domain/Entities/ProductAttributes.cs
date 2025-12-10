@@ -1,11 +1,13 @@
-﻿namespace CatalogService.Domain.Entities;
+﻿using System.Security.Cryptography;
+
+namespace CatalogService.Domain.Entities;
 
 public sealed class ProductAttributes
 {
     public Guid ProductId { get; set; }
     public Guid AttributeId {  get; set; }
     public string Value { get; set; } = string.Empty; 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // delete
 
     public Product Product { get; set; } = default!;
     public Attribute Attribute { get; set; } = default!;
@@ -33,4 +35,13 @@ public sealed class ProductAttributes
             value
             );
     }
+    public Result UpdateValue(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return DomainErrors.Null("Value");
+
+        Value = value;
+        return Result.Success();
+    }
+
 }

@@ -63,7 +63,7 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
             .Where(cv => cv.VariantAttributeId == variantAttributeId)
             .ToListAsync(ct);
     }
-    public async Task<IEnumerable<CategoryVariantAttribute>> GetCategoryVariantIncludeVariantsId(Guid categoryId, CancellationToken ct = default)
+    public async Task<IEnumerable<CategoryVariantAttribute>> GetCategoryVariantsByCategoryIdId(Guid categoryId, CancellationToken ct = default)
     {
         return await _dbSet.Where(cv => cv.CategoryId == categoryId)
             .Include(cv => cv.VariantAttribute)

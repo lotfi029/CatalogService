@@ -1,5 +1,5 @@
 ﻿namespace CatalogService.API.Endpoints;
-internal interface IEndpoint
+public interface IEndpoint
 {
     void MapEndpoint(IEndpointRouteBuilder app);
 }

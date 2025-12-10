@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Query;
+﻿using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
@@ -80,6 +79,12 @@ public class Repository<T> : IRepository<T>
     {
         ArgumentNullException.ThrowIfNull(predicate);
         return await _dbSet.AnyAsync(predicate, ct);
+    }
+    public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        return await _dbSet.Where(predicate)
+            .ToListAsync(ct);
     }
 
     public async Task<T?> FindByIdAsync(Guid id, CancellationToken ct = default)

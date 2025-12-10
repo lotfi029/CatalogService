@@ -5,8 +5,8 @@ namespace CatalogService.Application.Features.VariantAttributes.Commands.Create;
 
 public sealed record CreateVariantAttributeCommand(CreateVariantAttributeRequest Request) : ICommand<Guid>;
 
-internal sealed class CreateVariantAttributeCommandHanlder(
-    ILogger<CreateVariantAttributeCommandHanlder> logger,
+internal sealed class CreateVariantAttributeCommandHandler(
+    ILogger<CreateVariantAttributeCommandHandler> logger,
     IVariantAttributeDomainService variantService,
     IUnitOfWork unitOfWork) : ICommandHandler<CreateVariantAttributeCommand, Guid>
 {

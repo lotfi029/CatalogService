@@ -1,4 +1,5 @@
-﻿using CatalogService.Application.DTOs.Attributes;
+﻿using CatalogService.API.EndpointNames;
+using CatalogService.Application.DTOs.Attributes;
 using CatalogService.Application.Features.Attributes.Command.Activate;
 using CatalogService.Application.Features.Attributes.Command.Create;
 using CatalogService.Application.Features.Attributes.Command.Deactivate;
@@ -12,17 +13,20 @@ using CatalogService.Application.Features.Attributes.Queries.GetByType;
 
 namespace CatalogService.API.Endpoints;
 
-public class AttributeEndpoints : IEndpoint
+internal sealed class AttributeEndpoints : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/attributes")
+            .WithTags(AttributeEndpointsNames.Tage)
+            .WithDisplayName("AttributeEndpoind")
             .MapToApiVersion(1);
 
         group.MapPost("/", Create)
             .Produces<Guid>(statusCode: StatusCodes.Status201Created)
             .ProducesProblem(statusCode: StatusCodes.Status409Conflict)
-            .ProducesProblem(statusCode: StatusCodes.Status400BadRequest);
+            .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
+            .WithDisplayName("Create New Attribute");
         
         group.MapPost("/bulk", CreateBulk);
         
@@ -51,9 +55,10 @@ public class AttributeEndpoints : IEndpoint
         group.MapGet("", GetAll)
             .Produces<AttributeResponse>(StatusCodes.Status200OK);
 
-        group.MapGet("/{id:guid}/", Get).WithName(nameof(Get))
+        group.MapGet("/{id:guid}/", Get)
             .Produces<AttributeDetailedResponse>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .WithName(AttributeEndpointsNames.GetAttributeById);
 
         group.MapGet("/code/{code:alpha}", GetByCode)
             .Produces<AttributeDetailedResponse>(StatusCodes.Status200OK)
@@ -83,7 +88,7 @@ public class AttributeEndpoints : IEndpoint
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
-            ? TypedResults.Created()
+            ? TypedResults.CreatedAtRoute(result.Value, AttributeEndpointsNames.GetAttributeById, new { id = result.Value })
             : result.ToProblem();
     }
     private Task<IResult> CreateBulk() { throw new NotImplementedException(); }

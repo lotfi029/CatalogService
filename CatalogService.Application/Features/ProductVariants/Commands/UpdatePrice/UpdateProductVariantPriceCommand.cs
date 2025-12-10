@@ -4,7 +4,7 @@ namespace CatalogService.Application.Features.ProductVariants.Commands.UpdatePri
 
 public sealed record UpdateProductVariantPriceCommand(Guid Id, decimal Price, decimal? CompareAtPrice, string Currency) : ICommand;
 
-public sealed class UpdateProductVariantPriceCommandHandler(
+internal sealed class UpdateProductVariantPriceCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
     ILogger<UpdateProductVariantPriceCommand> logger) : ICommandHandler<UpdateProductVariantPriceCommand>

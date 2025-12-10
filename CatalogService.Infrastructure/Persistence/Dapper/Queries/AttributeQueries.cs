@@ -2,8 +2,7 @@
 using CatalogService.Application.Features.Attributes.Queries;
 using CatalogService.Domain.Enums;
 namespace CatalogService.Infrastructure.Persistence.Dapper.Queries;
-
-public sealed class AttributeQueries(
+internal sealed class AttributeQueries(
     IDbConnectionFactory connectionFactory) : IAttributeQueries
 {
     public async Task<Result<AttributeDetailedResponse>> GetAsync(Guid id, CancellationToken ct = default)

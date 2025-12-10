@@ -1,6 +1,4 @@
-﻿using CatalogService.Domain.JsonProperties;
-
-namespace CatalogService.Domain.Errors;
+﻿namespace CatalogService.Domain.Errors;
 
 public class ProductCategoriesErrors
 {
@@ -28,4 +26,8 @@ public class ProductCategoriesErrors
 
     public static Error AddProductCategory =>
         Error.Unexpected("Failed to add product category");
+    public static Error UpdateProductCategory =>
+        Error.Unexpected("Failed to update product category");
+    public static Error GetProductCategory =>
+        Error.Unexpected("Failed to retrieve product category");
 }

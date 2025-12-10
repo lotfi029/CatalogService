@@ -11,7 +11,5 @@ public sealed record ProductCategoryResponse(
         CategoryName: string.Empty,
         CategorySlug: string.Empty,
         IsPrimary: false)
-    {
-        
-    }
+    { }
 }

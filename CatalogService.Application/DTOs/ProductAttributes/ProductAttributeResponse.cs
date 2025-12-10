@@ -1,7 +1,7 @@
 ﻿namespace CatalogService.Application.DTOs.ProductAttributes;
 
 public sealed record ProductAttributeResponse(
-    Guid AttributeId,
+    Guid Id,
     string AttributeName,
     string Code,
     bool IsFilterable,

@@ -5,7 +5,7 @@ namespace CatalogService.Application.Features.ProductVariants.Commands.UpdateCus
 
 public sealed record UpdateProductVariantCommand(Guid Id, ProductVariantsOption CustomOptions) : ICommand;
 
-public sealed class UpdateProductVariantCommandHandler(
+internal sealed class UpdateProductVariantCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
     ILogger<UpdateProductVariantCommandHandler> logger) : ICommandHandler<UpdateProductVariantCommand>

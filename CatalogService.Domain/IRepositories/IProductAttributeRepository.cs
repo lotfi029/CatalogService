@@ -11,8 +11,9 @@ public interface IProductAttributeRepository
     void Delete(ProductAttributes productAttributes);
     void DeleteRange(ProductAttributes[] products);
 
-    Task<IEnumerable<ProductAttributes>> GetAllAsync(Guid productId, CancellationToken ct = default);
-    Task<ProductAttributes?> GetById(Guid id, CancellationToken ct = default);
+    Task<IEnumerable<ProductAttributes>> GetAllByProductIdAsync(Guid productId, CancellationToken ct = default);
     Task<bool> ExistsAsync(Expression<Func<ProductAttributes, bool>> predicate, CancellationToken ct = default);
-    Task<bool> ExistsAsync(Guid productId, Guid productAttributesId, CancellationToken ct = default);
+    Task<bool> ExistsAsync(Guid productId, Guid attributeId, CancellationToken ct = default);
+    Task<ProductAttributes?> GetById(Guid productId, Guid attributeId, CancellationToken ct = default);
+    Task<int> ExecuteDeleteAsync(Expression<Func<ProductAttributes, bool>> predicate, CancellationToken ct = default);
 }

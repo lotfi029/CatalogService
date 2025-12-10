@@ -3,13 +3,12 @@ using CatalogService.Application.Features.Products.Commands.Active;
 using CatalogService.Application.Features.Products.Commands.Create;
 using CatalogService.Application.Features.Products.Commands.CreateBulk;
 using CatalogService.Application.Features.Products.Commands.UpdateDetails;
-using CatalogService.Application.Features.Products.Commands.UpdateStatus;
 using CatalogService.Application.Features.Products.Queries.Get;
 using CatalogService.Application.Features.Products.Queries.GetAll;
 
 namespace CatalogService.API.Endpoints;
 
-public class ProductEndpoints : IEndpoint
+internal sealed class ProductEndpoints : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
@@ -28,11 +27,6 @@ public class ProductEndpoints : IEndpoint
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
-
-        //group.MapPatch("/{id:guid}", UpdateStatus)
-        //    .Produces(StatusCodes.Status204NoContent)
-        //    .ProducesProblem(StatusCodes.Status400BadRequest)
-        //    .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapPatch("/{id:guid}/active", Active)
             .Produces(StatusCodes.Status204NoContent)

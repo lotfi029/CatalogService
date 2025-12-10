@@ -5,6 +5,7 @@ namespace CatalogService.Domain.DomainService.Products;
 public sealed class ProductDomainService(
     IProductRepository productRepository,
     ICategoryRepository categoryRepository,
+    IAttributeRepository attributeRepository,
     ICategoryVariantAttributeRepository categoryVariantRepository,
     IProductVariantRepository productVariantRepository,
     IProductAttributeRepository productAttributeRepository,
@@ -115,7 +116,7 @@ public sealed class ProductDomainService(
         productRepository.Update(product);
         return Result.Success();
     }
-
+    #region product variants
     public async Task<Result> UpdateProductVariantCustomizationOptionsAsync(Guid id,ProductVariantsOption customOption, CancellationToken ct = default)
     {
         if (await productVariantRepository.GetById(id: id, ct) is not { } productVariant)
@@ -155,6 +156,7 @@ public sealed class ProductDomainService(
 
         return Result.Success();
     }
+    #endregion
     #region product category
     public async Task<Result> AddProductCategory(
         Guid productId, 
@@ -173,7 +175,7 @@ public sealed class ProductDomainService(
             return CategoryErrors.NotFound(categoryId);
 
         var categoryVariants = await categoryVariantRepository
-            .GetCategoryVariantIncludeVariantsId(categoryId, ct) 
+            .GetCategoryVariantsByCategoryIdId(categoryId, ct) 
             ?? [];
 
         var variantsLookup = categoryVariants
@@ -240,7 +242,7 @@ public sealed class ProductDomainService(
 
         return Result.Success();
     }
-    public async Task<Result> UpdateProductCategory(Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default)
+    public async Task<Result> UpdateProductCategoryAsync(Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default)
     {
         if (await productCategoryRepository.GetAsync(productId, categoryId, ct) is not { } productCategory)
             return ProductCategoriesErrors.NotFound;
@@ -313,6 +315,122 @@ public sealed class ProductDomainService(
         {
             productVariantRepository.AddRange([.. addedProductVariant]);
         }
+
+        return Result.Success();
+    }
+    #endregion
+    #region product attribute 
+    public async Task<Result> AddAttributeAsync(Guid productId, Guid attributeId, string value, CancellationToken ct = default)
+    {
+        if (await productAttributeRepository.ExistsAsync(productId: productId, attributeId: attributeId, ct))
+            return ProductAttributeErrors.DuplicatedAttribute;
+        
+        if (!await productRepository.ExistsAsync(productId, ct))
+            return ProductErrors.NotFound(productId);
+
+        if (await attributeRepository.FindByIdAsync(attributeId, ct) is not { } attribute)
+            return AttributeErrors.NotFound(attributeId);
+
+        var map = new Dictionary<Entities.Attribute, string>
+        {
+            { attribute, value }
+        };
+
+        if (ValidAttributeValue(map) is { IsFailure: true } validationErrors)
+            return validationErrors.Error;
+        // TODO: domain events
+
+        var productAttribute = ProductAttributes.Create(
+            productId: productId,
+            attributeId: attributeId,
+            value: value);
+
+        productAttributeRepository.Add(productAttribute);
+        return Result.Success();
+    }
+    public async Task<Result> AddAttributeBulkAsync(Guid productId, IEnumerable<(Guid attributeId, string value)> values, CancellationToken ct = default)
+    {
+        if (!await productRepository.ExistsAsync(productId, ct))
+            return ProductErrors.NotFound(productId);
+
+        var attributeIds = values
+            .Select(e => e.attributeId)
+            .ToList();
+
+        if (!await productAttributeRepository.ExistsAsync(pa => attributeIds.Contains(pa.AttributeId) && pa.ProductId == productId, ct))
+            return ProductAttributeErrors.DuplicatedAttribute;
+
+        if (await attributeRepository.FindAllAsync(e => attributeIds.Contains(e.Id), ct) is not { } attributes)
+            return AttributeErrors.NotFound(Guid.Empty);
+
+        var map = attributes.Join(
+            values,
+            a => a.Id,
+            v => v.attributeId,
+            (a, v) => (a, v.value))
+            .ToDictionary(k => k.a, v => v.value);
+
+        if (ValidAttributeValue(map) is { IsFailure: true } validationErrors)
+            return validationErrors.Error;
+
+        var productAttributeList = values.Select(e => ProductAttributes.Create(
+            productId: productId,
+            attributeId: e.attributeId,
+            value: e.value
+            ));
+        
+        productAttributeRepository.AddRange([.. productAttributeList]);
+        // TODO: domain events
+
+        return Result.Success();
+    }
+    private static Result ValidAttributeValue(Dictionary<Entities.Attribute, string> attributes)
+    {
+        foreach(var i in attributes)
+        {
+            if (i.Key.OptionsType.DataType == VariantDataType.Select)
+            {
+                var options = i.Key.Options!.Values;
+                if (!options.Contains(i.Value, StringComparer.OrdinalIgnoreCase))
+                    return ProductAttributeErrors.InvalidAttributeValue(i.Key.Name, i.Value, options);
+            }
+            else if (i.Key.OptionsType.DataType == VariantDataType.Boolean)
+            {
+                if (!bool.TryParse(i.Value, out var _))
+                    return ProductAttributeErrors.InvalidBooleanValue(i.Key.Name, i.Value);
+            }
+        }
+        
+        return Result.Success();
+    }
+    public async Task<Result> UpdateAttributeValueAsync(Guid productId, Guid attributeId, string newValue, CancellationToken ct = default)
+    {
+        // TODO: domain event
+        var productAttribute = await productAttributeRepository.GetById(productId: productId, attributeId: attributeId, ct);
+        if (productAttribute is null)
+            return ProductAttributeErrors.NotFound(productId, attributeId);
+
+        if (productAttribute.UpdateValue(newValue) is { IsFailure: true } updatingError)
+            return updatingError.Error;
+
+        productAttributeRepository.Update(productAttribute);
+        return Result.Success();
+    }
+    public async Task<Result> DeleteAttributeAsync(Guid productId, Guid attributeId, CancellationToken ct = default)
+    {
+        // TODO: domain event
+        var deletedRaws = await productAttributeRepository
+            .ExecuteDeleteAsync(e => e.ProductId == productId && e.AttributeId == attributeId, ct);
+
+        return deletedRaws == 0
+            ? ProductAttributeErrors.NotFound(productId, attributeId)
+            : Result.Success();
+    }
+    public async Task<Result> DeleteAllAttributeAsync(Guid productId, CancellationToken ct = default)
+    {
+        // TODO: domain event
+        var deletedRaws = await productAttributeRepository
+            .ExecuteDeleteAsync(e => e.ProductId == productId, ct);
 
         return Result.Success();
     }

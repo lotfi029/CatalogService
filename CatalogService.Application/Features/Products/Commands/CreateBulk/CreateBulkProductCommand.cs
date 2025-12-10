@@ -5,7 +5,7 @@ namespace CatalogService.Application.Features.Products.Commands.CreateBulk;
 
 public sealed record CreateBulkProductCommand(Guid VendorId, CreateBulkProductsRequest Request) : ICommand;
 
-public sealed class CreateBulkProductCommandHandler(
+internal sealed class CreateBulkProductCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
     ILogger<CreateBulkProductCommandHandler> logger) : ICommandHandler<CreateBulkProductCommand>

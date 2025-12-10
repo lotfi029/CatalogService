@@ -65,6 +65,7 @@ public class Product : AuditableEntity
         AddDomainEvent(new ProductDetailsUpdatedDomainEvent(Id));
         return Result.Success();
     }
+    #region categories
     public Result AddCategory(Guid categoryId)
     {
         if (categoryId == Guid.Empty)
@@ -94,6 +95,8 @@ public class Product : AuditableEntity
         AddDomainEvent(new ProductCategoryRemovedDomainEvent(Id, categoryId));
         return Result.Success();
     }
+    #endregion
+    #region attributes
     public Result AddAttribute(ProductAttributes attribute)
     {
         if (attribute is null)
@@ -102,6 +105,7 @@ public class Product : AuditableEntity
         _attributes.Add(attribute);
         return Result.Success();
     }
+    #endregion
     public Result AddVariant(ProductVariant variant)
     {
 
@@ -164,15 +168,5 @@ public class Product : AuditableEntity
             ProductStatus.Archive => Status is ProductStatus.Active or ProductStatus.Draft or ProductStatus.Inactive,
             _ => false
         };
-    }
-    private static Result ValidateSku(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return DomainErrors.Null("Products.Sku");
-
-        if (value.Length != Sku.DefaultLength)
-            return DomainErrors.Products.InvalidSkuSize(Sku.DefaultLength);
-
-        return Result.Success();
     }
 }

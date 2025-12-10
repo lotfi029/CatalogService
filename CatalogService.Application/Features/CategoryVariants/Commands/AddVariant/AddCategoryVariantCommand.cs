@@ -4,7 +4,7 @@ namespace CatalogService.Application.Features.CategoryVariants.Commands.AddVaria
 
 public sealed record AddCategoryVariantCommand(Guid Id, Guid VariantId, short DisplayOrder, bool IsRequired) : ICommand;
 
-public sealed class AddCategoryVariantCommandHandler(
+internal sealed class AddCategoryVariantCommandHandler(
     ILogger<AddCategoryVariantCommandHandler> logger,
     ICategoryDomainService categoryDomainService,
     IUnitOfWork unitOfWork) : ICommandHandler<AddCategoryVariantCommand>

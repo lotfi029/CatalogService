@@ -1,6 +1,5 @@
 using Asp.Versioning.ApiExplorer;
 using CatalogService.API;
-using CatalogService.API.Extensions;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;

@@ -7,7 +7,7 @@ public sealed record AddCategoryVariantBulkCommand(
     Guid Id,
     AddCategoryVariantBulkRequest Request) : ICommand;
 
-public sealed class AddCategoryVariantBulkCommandHandler(
+internal sealed class AddCategoryVariantBulkCommandHandler(
     ILogger<AddCategoryVariantBulkCommandHandler> logger,
     ICategoryDomainService categoryDomainService,
     IUnitOfWork unitOfWork) : ICommandHandler<AddCategoryVariantBulkCommand>

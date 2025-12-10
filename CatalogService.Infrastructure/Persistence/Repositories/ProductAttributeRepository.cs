@@ -16,7 +16,17 @@ internal sealed class ProductAttributeRepository(ApplicationDbContext context) :
         ArgumentNullException.ThrowIfNull(products);
         _dbSet.AddRange(products);
     }
+    public void Update(ProductAttributes productAttributes)
+    {
+        ArgumentNullException.ThrowIfNull(productAttributes);
+        _dbSet.Update(productAttributes);
+    }
 
+    public void UpdateRange(ProductAttributes[] products)
+    {
+        ArgumentNullException.ThrowIfNull(products);
+        _dbSet.UpdateRange(products);
+    }
     public void Delete(ProductAttributes productAttributes)
     {
         ArgumentNullException.ThrowIfNull(productAttributes);
@@ -39,16 +49,16 @@ internal sealed class ProductAttributeRepository(ApplicationDbContext context) :
 
     public async Task<bool> ExistsAsync(
         Guid productId,
-        Guid productAttributesId,
+        Guid attributeId,
         CancellationToken ct = default)
     {
         return await _dbSet
             .AnyAsync(
-                e => e.ProductId == productId && e.AttributeId == productAttributesId,
+                e => e.ProductId == productId && e.AttributeId == attributeId,
                 cancellationToken: ct);
     }
 
-    public async Task<IEnumerable<ProductAttributes>> GetAllAsync(
+    public async Task<IEnumerable<ProductAttributes>> GetAllByProductIdAsync(
         Guid productId,
         CancellationToken ct = default)
     {
@@ -59,20 +69,12 @@ internal sealed class ProductAttributeRepository(ApplicationDbContext context) :
 
     public async Task<ProductAttributes?> GetById(
         Guid productId,
+        Guid attributeId,
         CancellationToken ct = default)
     {
-        return await _dbSet.FindAsync([productId], cancellationToken: ct);
+        return await _dbSet.FindAsync([productId, attributeId], cancellationToken: ct);
     }
-
-    public void Update(ProductAttributes productAttributes)
-    {
-        ArgumentNullException.ThrowIfNull(productAttributes);
-        _dbSet.Update(productAttributes);
-    }
-
-    public void UpdateRange(ProductAttributes[] products)
-    {
-        ArgumentNullException.ThrowIfNull(products);
-        _dbSet.UpdateRange(products);
-    }
+    public async Task<int> ExecuteDeleteAsync(Expression<Func<ProductAttributes, bool>> predicate, CancellationToken ct = default)
+        => await _dbSet.Where(predicate)
+            .ExecuteDeleteAsync(cancellationToken: ct);
 }

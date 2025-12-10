@@ -1,3 +1,3 @@
 ﻿namespace CatalogService.Domain;
 
-public class DomainAssemblyReference { }
+public sealed class DomainAssemblyReference { }
