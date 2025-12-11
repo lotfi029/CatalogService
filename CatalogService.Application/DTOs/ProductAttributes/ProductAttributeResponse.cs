@@ -1,20 +1,20 @@
 ﻿namespace CatalogService.Application.DTOs.ProductAttributes;
 
 public sealed record ProductAttributeResponse(
-    Guid Id,
+    Guid AttributeId,
     string AttributeName,
-    string Code,
+    string AttributeCode,
     bool IsFilterable,
     bool IsSearchable,
-    string Value
+    string AttributeValue
     )
 {
     private ProductAttributeResponse() : this(
-        Guid.Empty,
-        string.Empty,
-        string.Empty,
-        false,
-        false,
-        string.Empty)
+        AttributeId: Guid.Empty,
+        AttributeName: string.Empty,
+        AttributeCode: string.Empty,
+        IsFilterable: false,
+        IsSearchable: false,
+        AttributeValue: string.Empty)
     { }
 }

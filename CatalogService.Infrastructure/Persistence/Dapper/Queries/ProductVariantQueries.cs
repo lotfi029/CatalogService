@@ -11,7 +11,7 @@ internal sealed class ProductVariantQueries(
         var connection = dbConnectionFactory.CreateConnection();
         var sql = """
             SELECT 
-                pv.id as Id,
+                pv.id as ProductVariantId,
                 pv.sku as Sku,
                 pv.variant_attributes as VariantAttributes,
                 pv.customization_options as CustomizationOptions,
@@ -35,7 +35,7 @@ internal sealed class ProductVariantQueries(
         var connection = dbConnectionFactory.CreateConnection();
         var sql = """
             SELECT 
-                pv.id as Id,
+                pv.id as ProductVariantId,
                 pv.sku as Sku,
                 pv.variant_attributes as VariantAttributes,
                 pv.customization_options as CustomizationOptions,
@@ -59,7 +59,7 @@ internal sealed class ProductVariantQueries(
         var connection = dbConnectionFactory.CreateConnection();
         var sql = """
             SELECT 
-                pv.id as Id,
+                pv.id as ProductVariantId,
                 pv.sku as Sku,
                 pv.variant_attributes as VariantAttributes,
                 pv.customization_options as CustomizationOptions,

@@ -11,10 +11,10 @@ internal sealed class ProductAttributeQueries(
 
         var sql = """
             SELECT 
-                a.id as Id,
-                a.name as Name,
-                a.Code as Code,
-                pa.value as Value,
+                a.id as AttributeId,
+                a.name as AttributeName,
+                a.Code as AttributeCode,
+                pa.value as AttributeValue,
                 a.is_filterable as IsFilterable,
                 a.is_searchable as IsSearchable
             FROM public.attributes a 
@@ -42,10 +42,10 @@ internal sealed class ProductAttributeQueries(
 
         var sql = """
             SELECT 
-                a.id as Id,
-                a.name as Name,
-                a.Code as Code,
-                pa.value as Value,
+                a.id as AttributeId,
+                a.name as AttributeName,
+                a.Code as AttributeCode,
+                pa.value as AttributeValue,
                 a.is_filterable as IsFilterable,
                 a.is_searchable as IsSearchable
             FROM public.attributes a 

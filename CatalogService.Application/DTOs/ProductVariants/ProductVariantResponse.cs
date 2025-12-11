@@ -3,7 +3,7 @@
 namespace CatalogService.Application.DTOs.ProductVariants;
 
 public sealed record ProductVariantResponse(
-    Guid Id,
+    Guid ProductVariantId,
     string Sku,
     ProductVariantsOption VariantAttributes,
     ProductVariantsOption? CustomizationOptions,

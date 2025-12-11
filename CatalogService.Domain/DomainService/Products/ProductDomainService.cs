@@ -58,33 +58,10 @@ public sealed class ProductDomainService(
         if (await productRepository.FindByIdAsync(id, ct) is not { } product)
             return ProductErrors.NotFound(id);
 
+        if (product.Status == ProductStatus.Archive)
+            return ProductErrors.ProductIsArchived;
+
         product.UpdateDetails(name: name, description: description);
-
-        productRepository.Update(product);
-        return Result.Success();
-    }
-    public async Task<Result> UpdateProductStatus(
-        Guid id,
-        string status,
-        CancellationToken ct = default)
-    {
-        if (await productRepository.FindByIdAsync(id, ct) is not { } product)
-            return ProductErrors.NotFound(id);
-
-        if (!Enum.TryParse<ProductStatus>(status, ignoreCase: true, out var productStatus))
-            return ProductErrors.InvalidProductStatus(status);
-
-        var statusResult = productStatus switch
-        {
-            ProductStatus.Active => product.Activate(),
-            ProductStatus.Archive => product.Archive(),
-            ProductStatus.Inactive => product.Inactivate(),
-            ProductStatus.Draft => product.Draft(),
-            _ => ProductErrors.InvalidProductStatus(status)
-        };
-
-        if (statusResult.IsFailure)
-            return statusResult;
 
         productRepository.Update(product);
         return Result.Success();
@@ -99,13 +76,13 @@ public sealed class ProductDomainService(
             case ProductStatus.Active:
                 return ProductErrors.ProductAlreadyActive;
             case ProductStatus.Archive:
-                return ProductErrors.ProductIsArchived;
+                return ProductErrors.ProductAlreadyArchived;
             case ProductStatus.Draft:
-                if (await productCategoryRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
+                if (!await productCategoryRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
                     return ProductErrors.InvlalidActivateProcess;
-                if (await productVariantRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
+                if (!await productVariantRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
                     return ProductErrors.InvlalidActivateProcess;
-                if (await productAttributeRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
+                if (!await productAttributeRepository.ExistsAsync(pc => pc.ProductId == productId, ct: ct))
                     return ProductErrors.InvlalidActivateProcess;
                 break;
             default:
@@ -113,6 +90,18 @@ public sealed class ProductDomainService(
         }
 
         product.Activate();
+        productRepository.Update(product);
+        return Result.Success();
+    }
+    public async Task<Result> ArchiveAsync(Guid productId, CancellationToken ct = default)
+    {
+        if (await productRepository.FindByIdAsync(productId, ct) is not { } product)
+            return ProductErrors.NotFound(productId);
+
+        if (product.Status == ProductStatus.Archive)
+            return ProductErrors.ProductAlreadyArchived;
+
+        product.Archive();
         productRepository.Update(product);
         return Result.Success();
     }

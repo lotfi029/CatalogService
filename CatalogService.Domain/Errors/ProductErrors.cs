@@ -30,10 +30,15 @@ public class ProductErrors
             $"{_code}.{nameof(InvlalidActivateProcess)}",
             "to active the product you must be add at least one category, one variant, and one attribute");
 
+    public static Error ProductAlreadyArchived
+        => Error.Conflict(
+            $"{_code}.{nameof(ProductAlreadyArchived)}",
+            "this product is archived and cannot be active");
+
     public static Error ProductIsArchived
         => Error.Conflict(
             $"{_code}.{nameof(ProductIsArchived)}",
-            "this product is archived and cannot be active");
+            "this product is archived and cannot be do any operation on it");
     public static Error CreateProduct
         => Error.Unexpected("Failed to create product");
     public static Error CreateBulkProduct
@@ -44,6 +49,8 @@ public class ProductErrors
         => Error.Unexpected("Failed to update status of the product");
     public static Error ActiveProduct
         => Error.Unexpected("Failed to active product");
+    public static Error ArchiveProduct
+        => Error.Unexpected("Failed to archive product");
     public static Error GetProductById
         => Error.Unexpected("Failed to retrieve product");
     public static Error GetAllProduct

@@ -1,5 +1,6 @@
 ﻿using CatalogService.Application.DTOs.Products;
 using CatalogService.Application.Features.Products.Commands.Active;
+using CatalogService.Application.Features.Products.Commands.Archive;
 using CatalogService.Application.Features.Products.Commands.Create;
 using CatalogService.Application.Features.Products.Commands.CreateBulk;
 using CatalogService.Application.Features.Products.Commands.UpdateDetails;
@@ -29,6 +30,11 @@ internal sealed class ProductEndpoints : IEndpoint
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapPatch("/{id:guid}/active", Active)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+        group.MapPatch("/{id:guid}/archive", Archive)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict)
@@ -101,6 +107,19 @@ internal sealed class ProductEndpoints : IEndpoint
         CancellationToken ct = default)
     {
         var command = new ActiveProductCommand(id);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    private async Task<IResult> Archive(
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<ArchiveProductCommand> handler,
+        CancellationToken ct = default)
+    {
+        var command = new ArchiveProductCommand(id);
 
         var result = await handler.HandleAsync(command, ct);
 
