@@ -387,9 +387,9 @@ dotnet test /p:CollectCoverage=true /p:CoverageReportFormat=opencover
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Authors
+## 👥 Author
 
-- mohamed lotfi - Initial work - [@yourusername](https://github.com/lotfi029)
+- mohamed lotfi - Initial work - [@github](https://github.com/lotfi029) - [@linkedin](https://www.linkedin.com/in/mohamedlotf/)
 
 ## 🙏 Acknowledgments
 
