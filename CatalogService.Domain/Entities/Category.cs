@@ -40,7 +40,7 @@ public class Category : AuditableEntity
             Deactive();
     }
 
-    public static Category Create(
+    public static Result<Category> Create(
         string name,
         string slug,
         short level,
@@ -49,12 +49,14 @@ public class Category : AuditableEntity
         string? description = null,
         string? parentPath = null)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            return DomainErrors.Categories.NameIsRequired;
 
-        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
-        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(slug)); // make it domain exception
+        if (string.IsNullOrWhiteSpace(slug))
+            return DomainErrors.Categories.SlugIsRequired;
 
         if (level < 0)
-            throw new ArgumentException("level can't be negative value", nameof(level));
+            return DomainErrors.Categories.LevelIsRequired;
 
         var category = new Category(
             name,
@@ -76,45 +78,42 @@ public class Category : AuditableEntity
 
         return slug;
     }
-    public void MoveCategory(Guid? parentId, string? parentPath, short parentLevel)
+    public Result MoveCategory(Guid? parentId, string? parentPath, short parentLevel)
     {
         if (parentLevel < 0)
-            throw new ArgumentException("Category.MoveCategory the prevLevel can't be negative", nameof(parentLevel));
+            return DomainErrors.Categories.LevelIsRequired;
 
         ParentId = parentId.HasValue ? parentId : ParentId;
         Path = CreatePath(parentPath, Slug);
         Level = (short)(parentLevel + 1);
 
         AddDomainEvent(new CategoryMovedDomainEvent(Id));
+        return Result.Success();
     }
-    public void UpdateDetails(string name, string? description)
+    public Result UpdateDetails(string name, string? description)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        if (string.IsNullOrWhiteSpace(name))
+            return DomainErrors.Categories.NameIsRequired;
+
         Name = name;
         if (description is not null)
             Description = description;
 
         AddDomainEvent(new CategoryDetailsUpdatedDomainEvent(Id));
+        return Result.Success();
     }
-    public void Deleted()
-        => Delete();
+    public Result DeleteCategory()
+    {
+        if (IsDeleted == true)
+        {
+            return DomainErrors.Categories.AlreadyDeleted;
+        }
+
+        base.Delete();
+        AddDomainEvent(new CategoryDeletedDomainEvent(Id));
+        return Result.Success();
+    }
     public void AddChild(Category child)
         => _children.Add(child);
-    public void AddVariantAttribute(Guid variantId, bool isRequired, short displayOrder)
-    {
-        if (variantId == Guid.Empty)
-            throw new ArgumentException("'variantId' cannot be empty", nameof(variantId));
-
-        var variantAttribute = CategoryVariantAttribute.Create(
-            categoryId: Id,
-            variantAttributeId: variantId,
-            isRequired: isRequired,
-            displayOrder: displayOrder,
-            createdBy: CreatedBy);
-
-        _variantAttributes.Add(variantAttribute);
-
-        AddDomainEvent(new VariantAttributeAddedToCategoryDomainEvent(Id, variantId));
-    }
 }
 

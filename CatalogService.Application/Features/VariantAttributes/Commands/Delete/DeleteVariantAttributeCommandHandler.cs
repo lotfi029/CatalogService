@@ -9,7 +9,7 @@ internal sealed class DeleteVariantAttributeCommandHandler(
     {
         if (command.Id == Guid.Empty)
             return VariantAttributeErrors.InvalidId;
-        if (await variantRepository.FindByIdAsync(command.Id, ct) is not { } variantAttribute)
+        if (await variantRepository.FindAsync(command.Id, null, ct) is not { } variantAttribute)
             return VariantAttributeErrors.NotFound(command.Id);
 
         try

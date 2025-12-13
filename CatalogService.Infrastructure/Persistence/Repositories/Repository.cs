@@ -50,52 +50,17 @@ public class Repository<T> : IRepository<T>
         ArgumentNullException.ThrowIfNull(entities);
         _dbSet.RemoveRange(entities);
     }
-
+    public void Attach(T entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+        _dbSet.Attach(entity);
+    }
     public async Task<int> ExecuteDeleteAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(predicate);
 
         return await _dbSet.Where(predicate)
             .ExecuteDeleteAsync(ct);
-    }
-
-    //public async Task<int> ExecuteUpdateAsync(
-    //    Expression<Func<T, bool>> predicate, 
-    //    Action<UpdateSettersBuilder<T>> setPropertyCalls, 
-    //    CancellationToken ct = default) 
-    //{
-    //    ArgumentNullException.ThrowIfNull(predicate);
-
-    //    return await _dbSet.Where(predicate)
-    //        .ExecuteUpdateAsync(setPropertyCalls, ct);
-
-    //}
-    #endregion
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken ct = default)
-    {
-        return await _dbSet.AnyAsync(e => e.Id == id, ct);
-    }
-    public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(predicate);
-        return await _dbSet.AnyAsync(predicate, ct);
-    }
-    public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(predicate);
-        return await _dbSet.Where(predicate)
-            .ToListAsync(ct);
-    }
-
-    public async Task<T?> FindByIdAsync(Guid id, CancellationToken ct = default)
-    {
-        return await _dbSet.FindAsync([id], ct);
-    }
-    public async Task<T?> FindAsync(Expression<Func<T, bool>> expression, CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(expression);
-        return await _dbSet.AsNoTracking()
-            .FirstOrDefaultAsync(expression, ct);
     }
     public async Task<int> ExcuteUpdateAsync(
         Expression<Func<T, bool>> predicate,
@@ -107,6 +72,49 @@ public class Repository<T> : IRepository<T>
 
         return await _dbSet.Where(predicate)
             .ExecuteUpdateAsync(setPropertyCalls, ct);
+    }
+    #endregion
+    public async Task<bool> ExistsAsync(Guid id, string[]? queryFilter = null, CancellationToken ct = default)
+    {
+        if (queryFilter is null || queryFilter.Length == 0)
+        {
+            return await _dbSet.AnyAsync(t => t.Id == id, ct);
+        }
+        return await _dbSet.IgnoreQueryFilters(queryFilter).AnyAsync(t => t.Id == id, ct);
+    }
+    public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate, string[]? queryFilter = null, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        if (queryFilter is null || queryFilter.Length == 0)
+        {
+            return await _dbSet.AnyAsync(predicate, ct);
+        }
+        return await _dbSet.IgnoreQueryFilters(queryFilter).AnyAsync(predicate, ct);
+    }
+    public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        return await _dbSet.Where(predicate)
+            .ToListAsync(ct);
+    }
+    public async Task<T?> FindAsync(Guid id, string[]? ignoreQueryFilters, CancellationToken ct = default)
+    {
+        if (ignoreQueryFilters is null || ignoreQueryFilters.Length == 0)
+        {
+            return await _dbSet.FindAsync([id], ct);
+        }
+        else
+        {
+            return await _dbSet
+                .IgnoreQueryFilters()
+                .SingleOrDefaultAsync(e => e.Id == id, ct);
+        }
+    }
+    public async Task<T?> FindAsync(Expression<Func<T, bool>> expression, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+        return await _dbSet.AsNoTracking()
+            .FirstOrDefaultAsync(expression, ct);
     }
     public async Task<IEnumerable<T>> GetWithPredicateAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
     {

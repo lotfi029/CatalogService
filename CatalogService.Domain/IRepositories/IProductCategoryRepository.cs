@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
 
 namespace CatalogService.Domain.IRepositories;
 
@@ -24,4 +25,5 @@ public interface IProductCategoryRepository
     Task<int> RemoveAllByCategoryAsync(Guid categoryId, CancellationToken ct = default);
     Task<int> UpdatePrimaryAsync(Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default);
     Task<bool> ExistsAsync(Expression<Func<ProductCategories, bool>> predicate, CancellationToken ct = default);
+    Task<int> ExecuteUpdateAsync(Expression<Func<ProductCategories, bool>> predicate, Action<UpdateSettersBuilder<ProductCategories>> action, CancellationToken ct = default);
 }

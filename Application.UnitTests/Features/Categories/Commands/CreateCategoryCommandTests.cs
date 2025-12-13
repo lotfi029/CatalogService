@@ -28,7 +28,7 @@ public class CreateCategoryCommandHandlerTests
             slug: "electronics",
             level: 0,
             isActive: true,
-            description: "Electronic products");
+            description: "Electronic products").Value!;
     }
 
     [Fact]
@@ -291,7 +291,7 @@ public class CreateCategoryCommandHandlerTests
             level: 1,
             parentId: parentId,
             isActive: true,
-            description: "Laptop computers");
+            description: "Laptop computers").Value!;
 
         var command = new CreateCategoryCommand(
             Name: childCat.Name,
@@ -351,7 +351,7 @@ public class CreateCategoryCommandHandlerTests
             slug: "deprecated",
             level: 0,
             isActive: false,
-            description: "Deprecated category");
+            description: "Deprecated category").Value!;
 
         var command = new CreateCategoryCommand(
             Name: inactiveCat.Name,

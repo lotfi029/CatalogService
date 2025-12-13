@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
 
 namespace CatalogService.Domain.IRepositories;
 
@@ -16,4 +17,5 @@ public interface IProductAttributeRepository
     Task<bool> ExistsAsync(Guid productId, Guid attributeId, CancellationToken ct = default);
     Task<ProductAttributes?> GetById(Guid productId, Guid attributeId, CancellationToken ct = default);
     Task<int> ExecuteDeleteAsync(Expression<Func<ProductAttributes, bool>> predicate, CancellationToken ct = default);
+    Task<int> ExecuteUpdateAsync(Expression<Func<ProductAttributes, bool>> predicate, Action<UpdateSettersBuilder<ProductAttributes>> action, CancellationToken ct = default);
 }

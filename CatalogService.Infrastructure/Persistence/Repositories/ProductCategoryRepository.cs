@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
 
@@ -31,6 +32,17 @@ internal class ProductCategoryRepository(ApplicationDbContext context) : IProduc
         ArgumentNullException.ThrowIfNull(productCategory);
         context.Update(productCategory);
     }
+    public async Task<int> ExecuteUpdateAsync(
+        Expression<Func<ProductCategories, bool>> predicate,
+        Action<UpdateSettersBuilder<ProductCategories>> action,
+        CancellationToken ct = default
+        )
+    {
+        return await context.ProductCategories
+            .Where(predicate)
+            .ExecuteUpdateAsync(action, ct);
+    }
+
     public async Task<bool> ExistsAsync(Guid productId, Guid categoryId, CancellationToken ct = default)
     {
         return await context.ProductCategories

@@ -21,7 +21,7 @@ public class Attribute : AuditableEntity
         bool isFilterable = false, 
         bool isSearchable = false,
         ValuesJson? options = null
-        )
+        ) : base()
     {
         Name = name;
         Code = code;
@@ -32,7 +32,11 @@ public class Attribute : AuditableEntity
 
         AddDomainEvent(new AttributeCreatedDomainEvent(Id));
     }
-
+    private Attribute(
+        Guid id
+        ) : base(id)
+    {
+    }
     public static Result<Attribute> Create(
         string name, 
         string code,
@@ -56,6 +60,10 @@ public class Attribute : AuditableEntity
             isSearchable,
             options
             );
+    }
+    public static Result<Attribute> CreateProxy(Guid Id)
+    {
+        return Result.Success(new Attribute(id: Id));
     }
     public Result UpdateDetails(string name, bool isFilterable, bool isSearchable)
     {
@@ -108,6 +116,7 @@ public class Attribute : AuditableEntity
         AddDomainEvent(new AttributeDeletedDomainEvent(Id));
         return Result.Success();
     }
+
     private static Result VerifyOptions(VariantsType datatype, ValuesJson? options)
     {
 

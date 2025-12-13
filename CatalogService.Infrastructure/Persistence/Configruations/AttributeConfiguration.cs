@@ -1,4 +1,5 @@
 ﻿using CatalogService.Domain.JsonProperties;
+using System.Dynamic;
 using System.Text.Json;
 
 namespace CatalogService.Infrastructure.Persistence.Configruations;

@@ -6,6 +6,6 @@ internal sealed class ProductAttributeRequestValidator : AbstractValidator<Produ
     {
         RuleFor(e => e.Value)
             .NotEmpty()
-            .Length(5, 100);
+            .Length(3, 100);
     }
 }

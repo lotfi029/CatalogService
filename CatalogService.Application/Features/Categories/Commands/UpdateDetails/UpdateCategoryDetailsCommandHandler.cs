@@ -11,7 +11,7 @@ internal sealed class UpdateCategoryDetailsCommandHandler(
         if (command.Id == Guid.Empty)
             return CategoryErrors.InvalidId;
 
-        if (await categoryRepository.FindByIdAsync(command.Id, ct) is not { } category)
+        if (await categoryRepository.FindAsync(command.Id, null, ct) is not { } category)
             return CategoryErrors.NotFound(command.Id);
 
         try

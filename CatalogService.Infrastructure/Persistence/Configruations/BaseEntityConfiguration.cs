@@ -1,4 +1,5 @@
 ﻿using CatalogService.Domain.Abstractions;
+using CatalogService.Domain.Contants;
 
 namespace CatalogService.Infrastructure.Persistence.Configruations;
 
@@ -9,6 +10,9 @@ internal class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T 
         builder.HasKey(e => e.Id);
         builder.Property(e => e.Id)
             .HasColumnName("id");
+
+        builder
+            .HasQueryFilter(QueryFilterConsts.SoftDeleteFilter, e => !e.IsDeleted);
 
         builder.Property(e => e.CreatedAt)
             .HasColumnName("created_at")

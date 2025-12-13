@@ -18,7 +18,7 @@ public class CategoryVariantAttribute
     }
     public DateTime CreatedAt { get; }
     public string? CreatedBy { get; }
-
+    public bool IsDeleted { get; private set; }
     public Category Category { get; } = default!;
     public VariantAttributeDefinition VariantAttribute { get; } = default!;
 
@@ -36,10 +36,11 @@ public class CategoryVariantAttribute
         DisplayOrder = displayOrder;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
+        IsDeleted = false;
     }
     
 
-    public static CategoryVariantAttribute Create(
+    public static Result<CategoryVariantAttribute> Create(
         Guid categoryId,
         Guid variantAttributeId,
         bool isRequired,
@@ -48,12 +49,12 @@ public class CategoryVariantAttribute
     {
 
         if (categoryId == Guid.Empty)
-            throw new ArgumentException("'CategoryId' cannot be empty", nameof(categoryId));
+            return DomainErrors.Null(nameof(CategoryId));
         
         if (variantAttributeId == Guid.Empty)
-            throw new ArgumentException("'VariantAttributeId' cannot be empty", nameof(variantAttributeId));
+            return DomainErrors.Null(nameof(VariantAttributeId));
 
-        return new(
+        return new CategoryVariantAttribute(
             categoryId: categoryId,
             variantAttributeId: variantAttributeId,
             isRequired: isRequired,
@@ -64,6 +65,36 @@ public class CategoryVariantAttribute
     public void UpdateDisplayOrder(short displayOrder)
         => DisplayOrder = displayOrder;
 
-    public void MarkRequired() => IsRequired = true;
-    public void MarkOptional() => IsRequired = false;
+    public Result MarkRequired()
+    {
+        if (IsRequired)
+            return DomainErrors.CategoryVariantAttributes.AlreadyRequired;
+
+        IsRequired = true;
+        return Result.Success();
+    }
+    public Result MarkOptional()
+    {
+        if (IsRequired)
+            return DomainErrors.CategoryVariantAttributes.AlreadyNotRequired;
+
+        IsRequired = false;
+        return Result.Success();
+    }
+    public Result Delete()
+    {
+        if (IsDeleted)
+            return DomainErrors.CategoryVariantAttributes.AlreadyDeleted;
+
+        IsDeleted = true;
+        return Result.Success();
+    }
+    public Result Restore()
+    {
+        if (!IsDeleted)
+            return DomainErrors.CategoryVariantAttributes.AlraedyNotDeleted;
+
+        IsDeleted = false;
+        return Result.Success();
+    }
 }

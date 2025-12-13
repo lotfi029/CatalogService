@@ -19,9 +19,9 @@ public sealed class CreateCategoryRequestValidator : AbstractValidator<CreateCat
                     return true;
 
                 if (x.Length < 10)
-                    return true;
+                    return false;
 
-                return false;
+                return true;
             }).WithMessage("{PropertyName} Must be greater than or equal 10");
 
 

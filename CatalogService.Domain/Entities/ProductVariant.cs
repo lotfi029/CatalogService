@@ -1,5 +1,6 @@
-﻿using CatalogService.Domain.JsonProperties;
-using System.ComponentModel;
+﻿using CatalogService.Domain.Errors.EntitiesErrors;
+using CatalogService.Domain.JsonProperties;
+
 namespace CatalogService.Domain.Entities;
 public sealed class ProductVariant
 {
@@ -13,6 +14,7 @@ public sealed class ProductVariant
     public Money? CompareAtPrice { get; private set; } = new();
 
     public Product Product { get; private set; } = default!;
+    public bool IsDeleted { get; private set; }
 
     private ProductVariant() { }
     private ProductVariant(
@@ -31,6 +33,7 @@ public sealed class ProductVariant
         CustomizationOptions = customizationOptions;
         Price = price;
         CompareAtPrice = compareAtPrice;
+        IsDeleted = false;
     }
 
     public static ProductVariant Create(
@@ -78,6 +81,16 @@ public sealed class ProductVariant
         }
         Price = new(price, currency);
         // TODO: raise domain error
+        return Result.Success();
+    }
+    public Result Delete()
+    {
+        IsDeleted = true;
+        return Result.Success();
+    }
+    public Result Restore()
+    {
+        IsDeleted = false;
         return Result.Success();
     }
     private static Sku GenerateSku(Guid productId, ProductVariantsOption variantAttributes)

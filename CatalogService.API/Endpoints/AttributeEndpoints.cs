@@ -19,7 +19,6 @@ internal sealed class AttributeEndpoints : IEndpoint
     {
         var group = app.MapGroup("/attributes")
             .WithTags(AttributeEndpointsNames.Tage)
-            .WithDisplayName("AttributeEndpoind")
             .MapToApiVersion(1);
 
         group.MapPost("/", Create)

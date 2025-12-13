@@ -17,19 +17,16 @@ internal sealed class MoveCategoryToNewParentCommandHandler(
         if (command.Id == command.NewParentId)
             return CategoryErrors.CannotMoveToSelf;
 
-        if (await repository.FindByIdAsync(command.Id, ct) is not { } category)
+        if (await repository.FindAsync(command.Id, null, ct) is not { } category)
             return CategoryErrors.NotFound(command.Id);
 
         if (category.ParentId == command.NewParentId)
             return CategoryErrors.AlreadyHasThisParent;
 
-        if (await repository.FindByIdAsync(command.NewParentId, ct) is not { } parent)
-            return CategoryErrors.ParentNotFound(command.NewParentId);
-
         using var transaction = await unitOfWork.BeginTransactionAsync(ct);
         try
         {
-            var result = await categoryDomainService.MoveToNewParent(category.Id, parent, ct);
+            var result = await categoryDomainService.MoveToNewParent(category.Id, command.Id, ct);
 
             if (result.IsFailure)
             {

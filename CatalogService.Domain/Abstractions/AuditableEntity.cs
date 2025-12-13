@@ -17,19 +17,19 @@ public abstract class AuditableEntity : Entity, IAuditable
     protected AuditableEntity() : base() { }
     protected AuditableEntity(Guid id) : base(id) { }
 
-    public virtual void SetCreationAudit(string createdBy)
+    public void SetCreationAudit(string createdBy)
     {
         CreatedBy = createdBy;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public virtual void SetDeletionAudit(string deletedBy)
+    public void SetDeletionAudit(string deletedBy)
     {
         DeletedAt = DateTime.UtcNow;
         DeletedBy = deletedBy;
     }
 
-    public virtual void SetUpdateAudit(string updatedBy)
+    public void SetUpdateAudit(string updatedBy)
     {
         LastUpdatedAt = DateTime.UtcNow;
         LastUpdatedBy = updatedBy;
@@ -41,7 +41,6 @@ public abstract class AuditableEntity : Entity, IAuditable
             return;
 
         IsDeleted = true;
-        DeletedAt = DateTime.UtcNow;
         Deactive();
 
     }

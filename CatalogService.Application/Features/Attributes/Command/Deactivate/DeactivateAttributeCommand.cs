@@ -14,7 +14,7 @@ internal sealed class DeactivateAttributeCommandHandler(
 
         try
         {
-            if (await attributeRepository.FindByIdAsync(command.Id, ct) is not { } attribute)
+            if (await attributeRepository.FindAsync(command.Id, null, ct) is not { } attribute)
                 return AttributeErrors.NotFound(command.Id);
 
             if (attribute.Deactivate() is { IsFailure: true} error)

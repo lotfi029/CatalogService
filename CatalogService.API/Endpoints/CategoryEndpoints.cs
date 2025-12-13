@@ -1,4 +1,5 @@
-﻿using CatalogService.Application.DTOs.Categories;
+﻿using CatalogService.API.EndpointNames;
+using CatalogService.Application.DTOs.Categories;
 using CatalogService.Application.Features.Categories.Commands.Create;
 using CatalogService.Application.Features.Categories.Commands.Delete;
 using CatalogService.Application.Features.Categories.Commands.Move;
@@ -42,6 +43,7 @@ internal sealed class CategoryEndpoints : IEndpoint
         group.MapGet("/{id:guid}", GetById)
             .Produces<CategoryDetailedResponse>(statusCode: StatusCodes.Status200OK)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .WithName(CategoryEntpointsNames.GetCategoryById)
             .MapToApiVersion(1);
 
         group.MapGet("/slug/{slug:alpha}", GetBySlug)
@@ -77,7 +79,10 @@ internal sealed class CategoryEndpoints : IEndpoint
             ParentId: request.ParentId,
             Description: request.Description);
         var result = await handler.HandleAsync(command, ct);
-        return result.Match(TypedResults.Created, CustomResults.ToProblem);
+        
+        return result.IsSuccess
+            ? TypedResults.CreatedAtRoute(result.Value, CategoryEntpointsNames.GetCategoryById, new { id = result.Value})
+            : result.ToProblem();
     }
     private async Task<IResult> UpdateDetails(
         [FromRoute] Guid id,
@@ -113,7 +118,12 @@ internal sealed class CategoryEndpoints : IEndpoint
         CancellationToken ct
         )
     {
-        throw new NotImplementedException();
+        var command = new DeleteCategoryCommand(id, moveProductTo);
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
     }
     private async Task<IResult> GetTree(
         [FromQuery] Guid? parentId,

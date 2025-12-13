@@ -55,7 +55,7 @@ public sealed class ProductDomainService(
         string? description,
         CancellationToken ct = default)
     {
-        if (await productRepository.FindByIdAsync(id, ct) is not { } product)
+        if (await productRepository.FindAsync(id, null, ct) is not { } product)
             return ProductErrors.NotFound(id);
 
         if (product.Status == ProductStatus.Archive)
@@ -68,7 +68,7 @@ public sealed class ProductDomainService(
     }
     public async Task<Result> ActivaAsync(Guid productId, CancellationToken ct = default)
     {
-        if (await productRepository.FindByIdAsync(productId, ct) is not { } product)
+        if (await productRepository.FindAsync(productId, null, ct) is not { } product)
             return ProductErrors.NotFound(productId);
 
         switch(product.Status)
@@ -95,7 +95,7 @@ public sealed class ProductDomainService(
     }
     public async Task<Result> ArchiveAsync(Guid productId, CancellationToken ct = default)
     {
-        if (await productRepository.FindByIdAsync(productId, ct) is not { } product)
+        if (await productRepository.FindAsync(productId, null, ct) is not { } product)
             return ProductErrors.NotFound(productId);
 
         if (product.Status == ProductStatus.Archive)
@@ -157,10 +157,10 @@ public sealed class ProductDomainService(
         if (await productCategoryRepository.ExistsAsync(productId, categoryId, ct))
             return ProductCategoriesErrors.DuplicatedCategory(categoryId);
 
-        if (await productRepository.ExistsAsync(productId, ct) is false)
+        if (await productRepository.ExistsAsync(productId, ct: ct) is false)
             return ProductErrors.NotFound(productId);
 
-        if (await categoryRepository.ExistsAsync(categoryId, ct) is false)
+        if (await categoryRepository.ExistsAsync(categoryId, ct: ct) is false)
             return CategoryErrors.NotFound(categoryId);
 
         var categoryVariants = await categoryVariantRepository
@@ -236,7 +236,7 @@ public sealed class ProductDomainService(
         if (await productCategoryRepository.GetAsync(productId, categoryId, ct) is not { } productCategory)
             return ProductCategoriesErrors.NotFound;
 
-        if (await productRepository.FindByIdAsync(productId, ct) is not { } product)
+        if (await productRepository.FindAsync(productId, null, ct) is not { } product)
             return ProductErrors.NotFound(productId);
 
         if (product.UpdateCategory(productCategory, isPrimary) is { IsFailure: true } updateResult)
@@ -249,7 +249,7 @@ public sealed class ProductDomainService(
         if (await productCategoryRepository.GetAsync(productId, categoryId, ct) is not { } productCategory)
             return ProductCategoriesErrors.NotFound;
 
-        if (await productRepository.FindByIdAsync(productId, ct) is not { } product)
+        if (await productRepository.FindAsync(productId, null, ct) is not { } product)
             return ProductErrors.NotFound(productId);
 
         if (product.RemoveCategory(categoryId) is { IsFailure: true} removeResult)
@@ -298,7 +298,10 @@ public sealed class ProductDomainService(
             categoryId: categoryId,
             isPrimary: isPrimary);
 
-        productCategoryRepository.Add(productCategory);
+        if (productCategory.IsFailure)
+            return productCategory.Error;
+
+        productCategoryRepository.Add(productCategory.Value!);
 
         if (addedProductVariant.Count > 0)
         {
@@ -314,10 +317,10 @@ public sealed class ProductDomainService(
         if (await productAttributeRepository.ExistsAsync(productId: productId, attributeId: attributeId, ct))
             return ProductAttributeErrors.DuplicatedAttribute;
         
-        if (!await productRepository.ExistsAsync(productId, ct))
+        if (!await productRepository.ExistsAsync(productId, ct: ct))
             return ProductErrors.NotFound(productId);
 
-        if (await attributeRepository.FindByIdAsync(attributeId, ct) is not { } attribute)
+        if (await attributeRepository.FindAsync(attributeId, null, ct) is not { } attribute)
             return AttributeErrors.NotFound(attributeId);
 
         var map = new Dictionary<Entities.Attribute, string>
@@ -339,7 +342,7 @@ public sealed class ProductDomainService(
     }
     public async Task<Result> AddAttributeBulkAsync(Guid productId, IEnumerable<(Guid attributeId, string value)> values, CancellationToken ct = default)
     {
-        if (!await productRepository.ExistsAsync(productId, ct))
+        if (!await productRepository.ExistsAsync(productId, ct: ct))
             return ProductErrors.NotFound(productId);
 
         var attributeIds = values

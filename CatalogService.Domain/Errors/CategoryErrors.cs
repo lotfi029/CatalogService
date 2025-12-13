@@ -52,4 +52,17 @@ public sealed class CategoryErrors
         => Error.NotFound(
             $"{_code}.{nameof(SlugNotFound)}",
             $"Category with slug: '{slug}' does not exist");
+
+    public static Error DeleteFailHasProducts
+        => Error.Conflict(
+            $"{_code}.{nameof(DeleteFailHasProducts)}",
+            "Cannot delete category that has products assigned to it");
+
+    public static Error DeleteFailHasChildren
+        => Error.Conflict(
+            $"{_code}.{nameof(DeleteFailHasChildren)}",
+            "you need to move category to new parent because Cannot delete category that has child categories");
+
+    public static Error DeleteCategory
+        => Error.Unexpected("Failed to deleting category");
 }

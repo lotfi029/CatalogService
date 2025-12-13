@@ -1,4 +1,7 @@
-﻿namespace CatalogService.Domain.IRepositories;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
+
+namespace CatalogService.Domain.IRepositories;
 
 public interface ICategoryVariantAttributeRepository
 {
@@ -23,4 +26,5 @@ public interface ICategoryVariantAttributeRepository
         CancellationToken ct = default);
     Task<int> RemoveAllByCategoryAsync(Guid categoryId, CancellationToken ct = default);
     Task<int> RemoveAllByVariantAttributeAsync(Guid variantAttributeId, CancellationToken ct = default);
+    Task<int> ExecuteUpdateAsync(Expression<Func<CategoryVariantAttribute, bool>> predicate, Action<UpdateSettersBuilder<CategoryVariantAttribute>> action, CancellationToken ct = default);
 }

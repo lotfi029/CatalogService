@@ -22,7 +22,6 @@ internal sealed class ProductAttributeQueries(
             on a.id = pa.attribute_id
             where pa.attribute_id = @attributeId 
                 AND pa.product_id = @productId
-                AND a.is_active = true
                 AND a.is_deleted = false
             """;
 
@@ -52,8 +51,7 @@ internal sealed class ProductAttributeQueries(
             INNER JOIN public.product_attributes pa
             on a.id = pa.attribute_id
             where pa.product_id = @productId
-                AND a.is_active = true
-                AND a.is_deleted = false
+                AND pa.is_deleted = false
             """;
 
         var parameters = new { productId };

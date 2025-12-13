@@ -4,7 +4,7 @@ namespace CatalogService.Application.Features.Products.Commands.Archive;
 
 public sealed record ArchiveProductCommand(Guid Id) : ICommand;
 
-public sealed class ArchiveProductCommandHandler(
+internal sealed class ArchiveProductCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
     ILogger<ArchiveProductCommandHandler> logger) : ICommandHandler<ArchiveProductCommand>

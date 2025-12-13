@@ -14,6 +14,7 @@ public sealed class CreateCategoryDomainServiceTests
     private readonly Mock<ICategoryRepository> _mockRepository;
     private readonly Mock<ICategoryVariantAttributeRepository> _mokeCategoryVariantRepository;
     private readonly Mock<IVariantAttributeRepository> _mokeVariantAttributeRepository;
+    private readonly Mock<IProductCategoryRepository> _mokeProductCategoryRespository;
     private readonly CategoryDomainService _sut;
     const string _name = "Electronics";
     const string _slug = "electronics";
@@ -25,17 +26,18 @@ public sealed class CreateCategoryDomainServiceTests
         _mockRepository = new Mock<ICategoryRepository>();
         _mokeCategoryVariantRepository = new Mock<ICategoryVariantAttributeRepository>();
         _mokeVariantAttributeRepository = new Mock<IVariantAttributeRepository>();
-
+        _mokeProductCategoryRespository = new Mock<IProductCategoryRepository>();
         _sut = new CategoryDomainService(
-            _mockRepository.Object, 
-            _mokeVariantAttributeRepository.Object,
-            _mokeCategoryVariantRepository.Object);
+            repository: _mockRepository.Object, 
+            variantAttributeRepository: _mokeVariantAttributeRepository.Object,
+            categoryVariantRepository: _mokeCategoryVariantRepository.Object,
+            productCategoryRepository: _mokeProductCategoryRespository.Object);
     }
     [Fact]
     public async Task CreateCateogryAsync_Should_ReturnError_WhenSlugNotUnique()
     {
         _mockRepository.Setup(
-            x => x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
+            x => x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), queryFilter: It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         var result = await _sut.CreateCategoryAsync(
@@ -59,11 +61,11 @@ public sealed class CreateCategoryDomainServiceTests
     {
         _mockRepository
             .Setup(x => x.ExistsAsync(
-                It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))
+                It.IsAny<Expression<Func<Category, bool>>>(), null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         _mockRepository
-            .Setup(x => x.ExistsAsync(_parentId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.ExistsAsync(_parentId,null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         var result = await _sut.CreateCategoryAsync(
@@ -87,11 +89,11 @@ public sealed class CreateCategoryDomainServiceTests
     public async Task CreateCategoryAsync_WhenParentIdIsNull_Should_Success()
     {
         _mockRepository.Setup(x =>
-            x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>())
+            x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), null,It.IsAny<CancellationToken>())
         ).ReturnsAsync(false);
 
         _mockRepository.Verify(x =>
-            x.ExistsAsync(_parentId, It.IsAny<CancellationToken>()),
+            x.ExistsAsync(_parentId, null, It.IsAny<CancellationToken>()),
             Times.Never);
 
         var result = await _sut.CreateCategoryAsync(
@@ -114,17 +116,18 @@ public sealed class CreateCategoryDomainServiceTests
     [Fact]
     public async Task CreateCategoryAsync_WithValidParent_Should_SuccessWithCorrectLevel()
     {
-        var parent = Category.Create(_name, _slug, 1, _isActive, Guid.NewGuid(), _Description, null);
+        var parent = Category.Create(_name, _slug, 1, _isActive, Guid.NewGuid(), _Description, null).Value!;
+        
         var correctLevel = (short)(parent.Level + 1);
         _mockRepository.Setup(x =>
-            x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>())
+            x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), null, It.IsAny<CancellationToken>())
         ).ReturnsAsync(false);
 
         _mockRepository.Setup(x =>
-            x.ExistsAsync(_parentId, It.IsAny<CancellationToken>())
+            x.ExistsAsync(_parentId, null, It.IsAny<CancellationToken>())
             ).ReturnsAsync(true);
         _mockRepository.Setup(x =>
-            x.FindByIdAsync(_parentId, It.IsAny<CancellationToken>())
+            x.FindAsync(_parentId, null, It.IsAny<CancellationToken>())
             ).ReturnsAsync(parent);
 
         var result = await _sut.CreateCategoryAsync(

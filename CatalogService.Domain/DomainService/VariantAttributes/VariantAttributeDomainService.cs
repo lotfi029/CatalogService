@@ -1,4 +1,5 @@
-﻿using CatalogService.Domain.JsonProperties;
+﻿using CatalogService.Domain.Contants;
+using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.DomainService.VariantAttributes;
 
@@ -12,7 +13,7 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
         ValuesJson? allowedValues,
         CancellationToken ct = default)
     {
-        if (await variantAttributeRepository.ExistsAsync(e => e.Code == code, ct))
+        if (await variantAttributeRepository.ExistsAsync(e => e.Code == code, [QueryFilterConsts.SoftDeleteFilter], ct: ct))
             return VariantAttributeErrors.CodeAlreadyExist(code);
         
         if (!Enum.TryParse<VariantDataType>(datatype, ignoreCase: true, out var enumDataType))
@@ -24,8 +25,10 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
             dataType: new(enumDataType),
             affectsInventory: affectsInventory,
             allowedValues: allowedValues);
+        if (variantAttribute.IsFailure)
+            return variantAttribute.Error;
 
-        variantAttributeRepository.Add(variantAttribute);
+        variantAttributeRepository.Add(variantAttribute.Value!);
 
         return variantAttribute;
     }

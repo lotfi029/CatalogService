@@ -1,4 +1,7 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Repositories;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
+
+namespace CatalogService.Infrastructure.Persistence.Repositories;
 
 public sealed class CategoryVariantAttributeRepository(ApplicationDbContext context) : ICategoryVariantAttributeRepository
 {
@@ -32,7 +35,15 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
         ArgumentNullException.ThrowIfNull(categoryVariants);
         _dbSet.RemoveRange(categoryVariants);
     }
-
+    public async Task<int> ExecuteUpdateAsync(
+        Expression<Func<CategoryVariantAttribute, bool>> predicate,
+        Action<UpdateSettersBuilder<CategoryVariantAttribute>> action,
+        CancellationToken ct = default)
+    {
+        return await _dbSet
+            .Where(predicate)
+            .ExecuteUpdateAsync(action, ct);
+    }
     public async Task<bool> ExistsAsync(
         Guid categoryId,
         Guid variantAttributeId,
@@ -48,7 +59,6 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
         CancellationToken ct = default)
     {
         return await _dbSet
-            .AsNoTracking()
             .Where(cv => cv.CategoryId == categoryId)
             .OrderBy(cv => cv.DisplayOrder)
             .ToListAsync(ct);

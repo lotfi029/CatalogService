@@ -31,7 +31,7 @@ public class VariantAttributeDefinition : AuditableEntity
         AllowedValues = allowedValues;
     }
 
-    public static VariantAttributeDefinition Create(
+    public static Result<VariantAttributeDefinition> Create(
         string code,
         string name,
         VariantsType dataType,
@@ -39,7 +39,8 @@ public class VariantAttributeDefinition : AuditableEntity
         ValuesJson? allowedValues
         )
     {
-        VerifyAllowedValues(dataType, allowedValues);
+        if (VerifyAllowedValues(dataType, allowedValues) is { IsFailure: true } verificationError)
+            return verificationError.Error;
 
         var variantAttribute =  new VariantAttributeDefinition(
             code: code,
@@ -53,33 +54,41 @@ public class VariantAttributeDefinition : AuditableEntity
         return variantAttribute;
     }
 
-    public void Update(string name, ValuesJson? allowedValues)
+    public Result Update(string name, ValuesJson? allowedValues)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (string.IsNullOrWhiteSpace(name))
+            return DomainErrors.Null(nameof(Name));
 
-        VerifyAllowedValues(dataType: Datatype, allowedValues: allowedValues);
-        
+        if (VerifyAllowedValues(Datatype, allowedValues) is { IsFailure: true } verificationError)
+            return verificationError.Error;
+
         AllowedValues = allowedValues;
         Name = name;
 
         AddDomainEvent(new VariantAttributeUpdatedDomainEvent(Id));
+        return Result.Success();
     }
     public Result Deleted()
-        => Deleted();
-    private static void VerifyAllowedValues(VariantsType dataType, ValuesJson? allowedValues)
+    {
+        base.Delete();
+        AddDomainEvent(new VariantAttributeDeletedDomainEvent(Id));
+        return Result.Success();
+    }
+    private static Result VerifyAllowedValues(VariantsType dataType, ValuesJson? allowedValues)
     {
         if (dataType.DataType == VariantDataType.Select)
         {
             if (allowedValues is null)
-                throw new ArgumentException("AllowedValues must be provided for Select type");
+                return DomainErrors.VariantAttributeDefinition.RequiredAllowedValues;
 
             if (allowedValues.Values.Count == 0)
-                throw new ArgumentException("AllowedValues cannot be empty");
+                return DomainErrors.VariantAttributeDefinition.EmptyAllowedValues;
         }
         else
         {
             if (allowedValues is not null)
-                throw new ArgumentException("AllowedValues are only allowed for Select type");
+                return DomainErrors.VariantAttributeDefinition.NotApplicableAllowedValues;
         }
+        return Result.Success();
     }
 }

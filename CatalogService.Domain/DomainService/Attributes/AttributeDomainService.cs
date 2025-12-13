@@ -1,13 +1,15 @@
-﻿using CatalogService.Domain.JsonProperties;
+﻿using CatalogService.Domain.Contants;
+using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.DomainService.Attributes;
 
 public sealed class AttributeDomainService(
-    IAttributeRepository attributeRepository) : IAttributeDomainService
+    IAttributeRepository attributeRepository,
+    IProductAttributeRepository productAttributeRepository) : IAttributeDomainService
 {
     public async Task<Result<Guid>> CreateAsync(string name, string code, string optionType, bool isFilterable, bool isSearchable, ValuesJson? options, CancellationToken ct = default)
     {
-        if (await attributeRepository.ExistsAsync(e => e.Code == code, ct))
+        if (await attributeRepository.ExistsAsync(e => e.Code == code, [QueryFilterConsts.SoftDeleteFilter], ct))
             return AttributeErrors.DuplicatedCode(code);
         
         if (!Enum.TryParse<VariantDataType>(optionType, ignoreCase: true, out var enumOptionType))
@@ -28,10 +30,10 @@ public sealed class AttributeDomainService(
         attributeRepository.Add(attribute.Value!);
 
         return attribute.Value!.Id;
-    }// use excute update async
+    }
     public async Task<Result> UpdateOptionsAsync(Guid id, ValuesJson options, CancellationToken ct = default)
     {
-        if (await attributeRepository.FindByIdAsync(id, ct) is not { } attribute)
+        if (await attributeRepository.FindAsync(id, null, ct) is not { } attribute)
             return AttributeErrors.NotFound(id);
 
         if (attribute.OptionsType.DataType != VariantDataType.Select)
@@ -57,7 +59,7 @@ public sealed class AttributeDomainService(
         bool isSearchable,
         CancellationToken ct = default)
     {
-        if (await attributeRepository.FindByIdAsync(id, ct) is not { } attribute)
+        if (await attributeRepository.FindAsync(id, null, ct) is not { } attribute)
             return AttributeErrors.NotFound(id);
 
         attribute.UpdateDetails(
@@ -67,6 +69,25 @@ public sealed class AttributeDomainService(
 
         attributeRepository.Update(attribute);
 
+        return Result.Success();
+    }
+
+    public async Task<Result> DeleteAsync(Guid id, CancellationToken ct = default)
+    { 
+        if (await attributeRepository.FindAsync(id, null,  ct) is not { } attribute)
+            return AttributeErrors.NotFound(id);
+
+        if (attribute.Deleted() is { IsFailure: true } error)
+            return error;
+
+        await productAttributeRepository.ExecuteUpdateAsync(
+            predicate: pa => pa.AttributeId == id,
+            action: pa =>
+            {
+                pa.SetProperty(e => e.IsDeleted, true);
+            }, ct);
+
+        attributeRepository.Update(attribute);
         return Result.Success();
     }
 }

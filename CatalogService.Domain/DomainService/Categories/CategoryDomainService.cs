@@ -1,9 +1,12 @@
-﻿namespace CatalogService.Domain.DomainService.Categories;
+﻿using CatalogService.Domain.Contants;
+
+namespace CatalogService.Domain.DomainService.Categories;
 
 public sealed class CategoryDomainService(
     ICategoryRepository repository,
     IVariantAttributeRepository variantAttributeRepository,
-    ICategoryVariantAttributeRepository categoryVariantRepository) : ICategoryDomainService
+    ICategoryVariantAttributeRepository categoryVariantRepository,
+    IProductCategoryRepository productCategoryRepository) : ICategoryDomainService
 {
     #region category
     public async Task<Result<Category>> CreateCategoryAsync(
@@ -14,14 +17,14 @@ public sealed class CategoryDomainService(
         string? description = null,
         CancellationToken ct = default)
     {
-        if (await repository.ExistsAsync(e => e.Slug == slug, ct))
+        if (await repository.ExistsAsync(e => e.Slug == slug, [QueryFilterConsts.SoftDeleteFilter], ct))
             return CategoryErrors.SlugAlreadyExist(slug);
 
         short level = 0;
         var path = "";
         if (parentId.HasValue && parentId.Value != Guid.Empty)
         {
-            if (await repository.FindByIdAsync(parentId.Value, ct) is not { } parent)
+            if (await repository.FindAsync(parentId.Value, null, ct) is not { } parent)
                 return CategoryErrors.ParentNotFound(parentId.Value);
             
             path = parent.Path!;
@@ -35,23 +38,27 @@ public sealed class CategoryDomainService(
             isActive: isActive,
             level: level,
             parentId: parentId,
+            parentPath: path,
             description: description);
     }
 
     public async Task<Result<List<Category>>> MoveToNewParent(
         Guid id, 
-        Category parent, 
+        Guid parentId,
         CancellationToken ct = default)
     {
+        if (await repository.FindAsync(parentId, null, ct) is not { } parent)
+            return CategoryErrors.NotFound(parentId);
+
         var categoryTree = await repository.GetChildrenAsync(id, ct);
 
         if (categoryTree is null || categoryTree.Count == 0)
             return CategoryErrors.NotFound(id);
 
-        if (categoryTree.Exists(e => e.Id == parent.Id))
+        if (categoryTree.Exists(e => e.Id == parentId))
             return CategoryErrors.InvalidChildToMoving;
 
-        var rootCategory = categoryTree.Where(e => e.Id == id).FirstOrDefault()!;
+        var rootCategory = categoryTree.FirstOrDefault(e => e.Id == id)!;
         
         rootCategory.MoveCategory(parent.Id, parent.Path, parent.Level);
 
@@ -79,7 +86,43 @@ public sealed class CategoryDomainService(
         if (processed.Count != categoryTree.Count)
             return CategoryErrors.InconsistentTreeStructure;
 
+        repository.UpdateRange(categoryTree);
+
         return categoryTree;
+    }
+    public async Task<Result> DeleteAsync(Guid id, Guid? parentId = null, CancellationToken ct = default)
+    {
+        if (await repository.FindAsync(id, ct: ct) is not { } category)
+            return CategoryErrors.NotFound(id);
+
+        if (await productCategoryRepository.ExistsAsync(e => e.CategoryId == id, ct: ct))
+            return CategoryErrors.DeleteFailHasProducts;
+
+        if (await repository.FindAllAsync(c => c.ParentId == id, ct: ct) is { } children)
+        {
+            if (parentId is null)
+                return CategoryErrors.DeleteFailHasChildren;
+
+            foreach (var child in children)
+            {
+                if (await MoveToNewParent(child.Id, parentId.Value, ct) is { IsFailure: true } moveError)
+                    return moveError.Error;
+            }
+        }
+
+        await categoryVariantRepository.ExecuteUpdateAsync(
+            predicate: cv => cv.CategoryId == id,
+            action: cv =>
+            {
+                cv.SetProperty(e => e.IsDeleted, true);
+            }, ct);
+
+        if (category.DeleteCategory() is { IsFailure: true } deleteError)
+            return deleteError.Error;
+
+        repository.Update(category);
+
+        return Result.Success();
     }
     #endregion
     
@@ -90,14 +133,14 @@ public sealed class CategoryDomainService(
         bool isRequired,
         CancellationToken ct = default)
     {
-        if (!await repository.ExistsAsync(id, ct))
+        if (!await repository.ExistsAsync(id, ct: ct))
             return CategoryErrors.NotFound(id);
 
-        if (!await variantAttributeRepository.ExistsAsync(variantId, ct))
+        if (!await variantAttributeRepository.ExistsAsync(variantId, ct: ct))
             return VariantAttributeErrors.NotFound(variantId);
 
         if (await categoryVariantRepository.ExistsAsync(id, variantId, ct))
-            return CategoryVariantAttributeErrors.AlreadyExists(id, variantId);
+            return Errors.CategoryVariantAttributeErrors.AlreadyExists(id, variantId);
 
         var categoryVariant = CategoryVariantAttribute.Create(
             categoryId: id,
@@ -105,7 +148,10 @@ public sealed class CategoryDomainService(
             isRequired: isRequired,
             displayOrder: displayOrder);
 
-        categoryVariantRepository.Add(categoryVariant);
+        if (categoryVariant.IsFailure)
+            return categoryVariant.Error;
+
+        categoryVariantRepository.Add(categoryVariant.Value!);
 
         return Result.Success();
     }
@@ -114,26 +160,31 @@ public sealed class CategoryDomainService(
         IEnumerable<(Guid variantId, bool isRequired, short displayOrder)> variants,
         CancellationToken ct = default)
     {
-        if (!await repository.ExistsAsync(id, ct))
+        if (!await repository.ExistsAsync(id, ct: ct))
             return CategoryErrors.NotFound(id);
 
+        var categoryVariants = new List<CategoryVariantAttribute>();
         foreach (var variant in variants)
         {
-            if (!await variantAttributeRepository.ExistsAsync(variant.variantId, ct))
+            if (!await variantAttributeRepository.ExistsAsync(variant.variantId, ct: ct))
                 return VariantAttributeErrors.NotFound(variant.variantId);
 
             if (await categoryVariantRepository.ExistsAsync(id, variant.variantId, ct))
                 return CategoryVariantAttributeErrors.AlreadyExists(id, variant.variantId);
-        }
-        var categoryVariant = variants.Select(v =>
-            CategoryVariantAttribute.Create(
-                categoryId: id,
-                variantAttributeId: v.variantId,
-                isRequired: v.isRequired,
-                displayOrder: v.displayOrder)
-            );
 
-        categoryVariantRepository.AddRange(categoryVariant);
+            var currentVariant = CategoryVariantAttribute.Create(
+                categoryId: id,
+                variantAttributeId: variant.variantId,
+                isRequired: variant.isRequired,
+                displayOrder: variant.displayOrder);
+
+            if (currentVariant.IsFailure)
+                return currentVariant.Error;
+
+            categoryVariants.Add(currentVariant.Value!);
+        }
+
+        categoryVariantRepository.AddRange(categoryVariants);
 
         return Result.Success();
     }

@@ -1,9 +1,6 @@
-﻿using System.Reflection;
-using System.Xml.Serialization;
+﻿namespace CatalogService.Domain.Errors.EntitiesErrors;
 
-namespace CatalogService.Domain.Errors;
-
-public static class DomainErrors
+public static partial class DomainErrors
 {
     public class Attributes
     {
@@ -48,7 +45,7 @@ public static class DomainErrors
             => Error.BadRequest(
                 $"{_code}.{nameof(InvalidActiveOperation)}",
                 "this attribute is active already");
-        
+
         public static Error InvalidDeactiveOperation
             => Error.BadRequest(
                 $"{_code}.{nameof(InvalidDeactiveOperation)}",
@@ -58,44 +55,5 @@ public static class DomainErrors
             => Error.BadRequest(
                 $"{_code}.{nameof(NotFound)}",
                 "this attribute is not found");
-    }
-
-    public static Error Null(string code) 
-        => Error.BadRequest(code, "value cannot be empty or white space");
-    public static Error NullNumber(string code) 
-        => Error.BadRequest(code, "value cannot be less than or equal 0");
-    
-    public class Products
-    {
-        private const string _code = "products";
-        public static Error UnspecifiedStatus
-            => Error.BadRequest(
-                $"{_code}.{nameof(UnspecifiedStatus)}",
-                "Specify product status.");
-
-        public static Error InvalidSkuSize(int defaultSize)
-            => Error.BadRequest(
-                $"{_code}.{nameof(InvalidSkuSize)}",
-                $"Sku length must be exact {defaultSize}");
-
-        public static Error NotFound
-            => Error.NotFound(
-                $"{_code}.{nameof(NotFound)}",
-                "the specific product cannot be found");
-        public static Error InvalidStatusTransaction(string current, string newStatus)
-            => Error.BadRequest(
-                $"{_code}.{nameof(InvalidStatusTransaction)}",
-                $"Invalid status transaction {current} → {newStatus}");
-
-        public static Error ProductAlreadyInStatus(string status)
-            => Error.BadRequest(
-                $"{_code}.{nameof(ProductAlreadyInStatus)}",
-                $"Product Already in this status = {status}");
-    }
-    public class ProductVariants
-    {
-        private const string _code = "productVariants";
-
-        //public static Error 
     }
 }

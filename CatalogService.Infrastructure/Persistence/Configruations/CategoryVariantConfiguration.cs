@@ -1,10 +1,13 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
+﻿using CatalogService.Domain.Contants;
+
+namespace CatalogService.Infrastructure.Persistence.Configruations;
 
 internal sealed class CategoryVariantConfiguration : IEntityTypeConfiguration<CategoryVariantAttribute>
 {
     public void Configure(EntityTypeBuilder<CategoryVariantAttribute> builder)
     {
         builder.ToTable("category_variant_attributes");
+        
 
         builder.Property(cv => cv.CategoryId)
             .HasColumnName("category_id");
@@ -43,5 +46,15 @@ internal sealed class CategoryVariantConfiguration : IEntityTypeConfiguration<Ca
             .HasColumnName("created_by")
             .HasMaxLength(450)
             .IsRequired(false);
+
+        builder.Property(cva => cva.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(QueryFilterConsts.SoftDeleteFilter,
+            cva => !cva.Category.IsDeleted &&
+            !cva.IsDeleted &&
+            !cva.VariantAttribute.IsDeleted);
     }
 }

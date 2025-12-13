@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
+﻿using CatalogService.Domain.Contants;
+
+namespace CatalogService.Infrastructure.Persistence.Configruations;
 
 public sealed class ProductCategoryConfiguration : IEntityTypeConfiguration<ProductCategories>
 {
@@ -29,5 +31,15 @@ public sealed class ProductCategoryConfiguration : IEntityTypeConfiguration<Prod
             .WithMany()
             .HasForeignKey(pc => pc.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(pc => pc.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(QueryFilterConsts.SoftDeleteFilter,
+            pc => !pc.Category.IsDeleted &&
+            !pc.IsDeleted &&
+            !pc.Product.IsDeleted);
     }
 }

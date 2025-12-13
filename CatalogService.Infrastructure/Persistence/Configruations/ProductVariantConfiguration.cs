@@ -1,4 +1,5 @@
-﻿using CatalogService.Domain.JsonProperties;
+﻿using CatalogService.Domain.Contants;
+using CatalogService.Domain.JsonProperties;
 using System.Text.Json;
 
 namespace CatalogService.Infrastructure.Persistence.Configruations;
@@ -78,6 +79,15 @@ internal sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Pro
             .WithMany(p => p.ProductVariants)
             .HasForeignKey(pv => pv.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Property(pa => pa.IsDeleted)
+            .HasColumnName("is_deleted")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.HasQueryFilter(QueryFilterConsts.SoftDeleteFilter,
+            pa => !pa.IsDeleted &&
+            !pa.Product.IsDeleted);
 
         builder.ToTable(p => p.HasCheckConstraint(
             "chk_products_price",

@@ -1,4 +1,5 @@
 ﻿using CatalogService.Application.DTOs.CategoryVariantAttributes;
+using Mapster;
 
 namespace CatalogService.Application.Features.CategoryVariants.Queries.GetAll;
 
@@ -6,13 +7,18 @@ public sealed record GetAllCategoryVariantAttributesQuery(Guid CategoryId) : IQu
 
 public sealed class GetAllCategoryVariantAttributesQueryHandler(
     ILogger<GetAllCategoryVariantAttributesQueryHandler> logger,
-    ICategoryVariantAttributeQueries variantQueries) : IQueryHandler<GetAllCategoryVariantAttributesQuery, IEnumerable<CategoryVariantAttributeDetailedResponse>>
+    ICategoryVariantAttributeQueries variantQueries,
+    ICategoryVariantAttributeRepository variantRepository) : IQueryHandler<GetAllCategoryVariantAttributesQuery, IEnumerable<CategoryVariantAttributeDetailedResponse>>
 {
     public async Task<Result<IEnumerable<CategoryVariantAttributeDetailedResponse>>> HandleAsync(GetAllCategoryVariantAttributesQuery query, CancellationToken ct = default)
     {
         try
         {
-            return await variantQueries.GetByCategoryIdAsync(query.CategoryId, ct);
+            if (await variantRepository.GetByCategoryIdAsync(query.CategoryId, ct) is not { } categoryVariant)
+                return Result.Success(Enumerable.Empty<CategoryVariantAttributeDetailedResponse>());
+
+            var response = categoryVariant.Adapt<IEnumerable<CategoryVariantAttributeDetailedResponse>>();
+            return Result.Success(response);
         }
         catch (Exception ex)
         {

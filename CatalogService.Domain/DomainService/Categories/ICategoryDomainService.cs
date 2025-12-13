@@ -10,8 +10,8 @@ public interface ICategoryDomainService
         Guid? parentId = null,
         string? description = null, 
         CancellationToken ct = default);
-    Task<Result<List<Category>>> MoveToNewParent(Guid id, Category parent, CancellationToken ct = default);
-
+    Task<Result<List<Category>>> MoveToNewParent(Guid id, Guid parentId, CancellationToken ct = default);
+    Task<Result> DeleteAsync(Guid id, Guid? parentId = null, CancellationToken ct = default);
     Task<Result> AddVariantAttributeToCategoryAsync(Guid id, Guid variantId, short displayOrder, bool isRequired, CancellationToken ct = default);
     Task<Result> RemoveVariantAttributeFromCategoryAsync(Guid id, Guid variantId, CancellationToken ct = default);
     Task<Result> UpdateCategoryVariantAttributeAsync(Guid id, Guid variantId, short displayOrder, bool isRequired, CancellationToken ct = default);

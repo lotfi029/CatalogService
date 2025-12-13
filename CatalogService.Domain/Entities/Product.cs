@@ -1,4 +1,5 @@
 ﻿using CatalogService.Domain.DomainEvents.Products;
+using CatalogService.Domain.Errors.EntitiesErrors;
 
 namespace CatalogService.Domain.Entities;
 
@@ -156,7 +157,6 @@ public class Product : AuditableEntity
     }
     public Result Draft()
         => DomainErrors.Products.InvalidStatusTransaction(Status.ToString(),ProductStatus.Draft.ToString());
-    #endregion
 
     private bool CheckValidChange(ProductStatus newStatus)
     {
@@ -169,4 +169,5 @@ public class Product : AuditableEntity
             _ => false
         };
     }
+    #endregion
 }

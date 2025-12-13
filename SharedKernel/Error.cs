@@ -1,7 +1,17 @@
 ﻿namespace SharedKernel;
 
-public record Error(string Code, string Description, int? Status)
+public record Error
 {
+    private Error(string Code, string Description, int? Status)
+    {
+        this.Code = Code;
+        this.Description = Description;
+        this.Status = Status;
+    }
+
+    public string Code { get; }
+    public string Description { get; }
+    public int? Status { get; }
     public static Error None
         => new(string.Empty, string.Empty, null);
 

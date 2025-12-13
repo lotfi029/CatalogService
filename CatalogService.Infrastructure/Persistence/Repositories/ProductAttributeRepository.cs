@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
 
@@ -77,4 +78,16 @@ internal sealed class ProductAttributeRepository(ApplicationDbContext context) :
     public async Task<int> ExecuteDeleteAsync(Expression<Func<ProductAttributes, bool>> predicate, CancellationToken ct = default)
         => await _dbSet.Where(predicate)
             .ExecuteDeleteAsync(cancellationToken: ct);
+
+
+    public async Task<int> ExecuteUpdateAsync(
+        Expression<Func<ProductAttributes, bool>> predicate,
+        Action<UpdateSettersBuilder<ProductAttributes>> action,
+        CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentNullException.ThrowIfNull(action);
+        return await _dbSet.Where(predicate)
+                .ExecuteUpdateAsync(action, cancellationToken: ct);
+    }
 }

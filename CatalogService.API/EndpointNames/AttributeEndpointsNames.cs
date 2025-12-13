@@ -2,7 +2,7 @@
 
 public class AttributeEndpointsNames
 {
-    public static string Tage => nameof(Attribute);
+    public static string Tage => "Attributes";
 
     public static string CreateAttribute => nameof(CreateAttribute);
     public static string CreateAttributeBulk => nameof(CreateAttributeBulk);
