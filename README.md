@@ -389,7 +389,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- Your Name - Initial work - [@yourusername](https://github.com/yourusername)
+- mohamed lotfi - Initial work - [@yourusername](https://github.com/lotfi029)
 
 ## 🙏 Acknowledgments
 
@@ -400,7 +400,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email support@yourcompany.com or open an issue in the repository.
+For support, email mohamed.lotfi.dev@gmail.com or open an issue in the repository.
 
 ---
 
