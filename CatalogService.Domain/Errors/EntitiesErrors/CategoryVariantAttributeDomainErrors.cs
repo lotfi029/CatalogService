@@ -20,7 +20,7 @@ public static partial class DomainErrors
             => Error.BadRequest(
                 $"{_code}.{nameof(AlraedyNotDeleted)}",
                 "The variant attribute is already in list of categories");
-        
+
         public static Error AlreadyDeleted
             => Error.BadRequest(
                 $"{_code}.{nameof(AlreadyDeleted)}",

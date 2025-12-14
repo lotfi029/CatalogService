@@ -1,7 +1,7 @@
 ﻿namespace CatalogService.Domain.JsonProperties;
 
 public sealed record ProductVariantsOption(
-    List<VariantAttributeItem> Variants) 
+    List<VariantAttributeItem> Variants)
 {
     public bool Equals(ProductVariantsOption? other)
     {
@@ -12,7 +12,7 @@ public sealed record ProductVariantsOption(
     }
     public override int GetHashCode()
     {
-        return Variants.Aggregate(0, (hash, item) 
+        return Variants.Aggregate(0, (hash, item)
             => HashCode.Combine(hash, item.Key, item.Value));
     }
 }

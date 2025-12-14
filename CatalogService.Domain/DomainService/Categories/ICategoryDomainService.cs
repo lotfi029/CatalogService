@@ -4,11 +4,11 @@ namespace CatalogService.Domain.DomainService.Categories;
 public interface ICategoryDomainService
 {
     Task<Result<Category>> CreateCategoryAsync(
-        string name, 
-        string slug, 
-        bool isActive, 
+        string name,
+        string slug,
+        bool isActive,
         Guid? parentId = null,
-        string? description = null, 
+        string? description = null,
         CancellationToken ct = default);
     Task<Result<List<Category>>> MoveToNewParent(Guid id, Guid parentId, CancellationToken ct = default);
     Task<Result> DeleteAsync(Guid id, Guid? parentId = null, CancellationToken ct = default);

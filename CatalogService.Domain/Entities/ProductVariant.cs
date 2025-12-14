@@ -1,7 +1,7 @@
-﻿using CatalogService.Domain.Errors.EntitiesErrors;
-using CatalogService.Domain.JsonProperties;
+﻿using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.Entities;
+
 public sealed class ProductVariant
 {
     public Guid Id { get; }
@@ -23,7 +23,7 @@ public sealed class ProductVariant
         ProductVariantsOption variantAttributes,
         ProductVariantsOption? customizationOptions,
         Money price,
-        Money compareAtPrice 
+        Money compareAtPrice
         ) : base()
     {
         Id = Guid.CreateVersion7();
@@ -41,7 +41,7 @@ public sealed class ProductVariant
         ProductVariantsOption variantAttributes,
         ProductVariantsOption? customizationOptions,
         Money price,
-        Money compareAtPrice 
+        Money compareAtPrice
         )
     {
 
@@ -74,7 +74,7 @@ public sealed class ProductVariant
         }
         if (compareAtPrice is not null)
         {
-            if (compareAtPrice.Value < 0) 
+            if (compareAtPrice.Value < 0)
                 return DomainErrors.Null("CompareAtPrice");
 
             CompareAtPrice = new(compareAtPrice, currency);
@@ -96,7 +96,7 @@ public sealed class ProductVariant
     private static Sku GenerateSku(Guid productId, ProductVariantsOption variantAttributes)
     {
         var prefix = productId.ToString("N")[..8];
-        
+
         prefix = prefix.ToLower();
 
         if (variantAttributes?.Variants is null || variantAttributes.Variants.Count == 0)

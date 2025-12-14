@@ -1,12 +1,10 @@
-﻿using CatalogService.Domain.Errors.EntitiesErrors;
-
-namespace CatalogService.Domain.Entities;
+﻿namespace CatalogService.Domain.Entities;
 
 public sealed class ProductAttributes
 {
     public Guid ProductId { get; set; }
-    public Guid AttributeId {  get; set; }
-    public string Value { get; set; } = string.Empty; 
+    public Guid AttributeId { get; set; }
+    public string Value { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // delete
     public bool IsDeleted { get; set; } = false;
     public Product Product { get; set; } = default!;

@@ -1,6 +1,4 @@
-﻿using System.Security.Principal;
-
-namespace CatalogService.API.EndpointNames;
+﻿namespace CatalogService.API.EndpointNames;
 
 internal sealed class CategoryEntpointsNames
 {

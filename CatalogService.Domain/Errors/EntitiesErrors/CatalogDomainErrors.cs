@@ -2,8 +2,8 @@
 
 public static partial class DomainErrors
 {
-    public static Error Null(string code) 
+    public static Error Null(string code)
         => Error.BadRequest(code, "value cannot be empty or white space");
-    public static Error NullNumber(string code) 
+    public static Error NullNumber(string code)
         => Error.BadRequest(code, "value cannot be less than or equal 0");
 }

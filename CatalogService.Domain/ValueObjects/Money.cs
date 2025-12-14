@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.ValueObjects;
 
-public record Money 
+public record Money
 {
     public decimal Amount { get; set; } = 0.0m;
     public string CurrencyType { get; set; } = string.Empty;

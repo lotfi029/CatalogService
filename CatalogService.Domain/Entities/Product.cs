@@ -1,5 +1,4 @@
 ﻿using CatalogService.Domain.DomainEvents.Products;
-using CatalogService.Domain.Errors.EntitiesErrors;
 
 namespace CatalogService.Domain.Entities;
 
@@ -27,8 +26,8 @@ public class Product : AuditableEntity
         string? description,
         Guid vendorId,
         ProductStatus status
-        ) 
-        : base() 
+        )
+        : base()
     {
         Name = name;
         Description = description;
@@ -50,9 +49,10 @@ public class Product : AuditableEntity
             vendorId,
             ProductStatus.Draft
             );
-        { };
+        { }
+        ;
     }
-    
+
     public Result UpdateDetails(string name, string? description)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -156,7 +156,7 @@ public class Product : AuditableEntity
         return Result.Success();
     }
     public Result Draft()
-        => DomainErrors.Products.InvalidStatusTransaction(Status.ToString(),ProductStatus.Draft.ToString());
+        => DomainErrors.Products.InvalidStatusTransaction(Status.ToString(), ProductStatus.Draft.ToString());
 
     private bool CheckValidChange(ProductStatus newStatus)
     {

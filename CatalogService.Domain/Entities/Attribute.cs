@@ -15,10 +15,10 @@ public class Attribute : AuditableEntity
     public ValuesJson? Options { get; private set; }
     private Attribute() { }
     private Attribute(
-        string name, 
+        string name,
         string code,
         VariantsType type,
-        bool isFilterable = false, 
+        bool isFilterable = false,
         bool isSearchable = false,
         ValuesJson? options = null
         ) : base()
@@ -38,9 +38,9 @@ public class Attribute : AuditableEntity
     {
     }
     public static Result<Attribute> Create(
-        string name, 
+        string name,
         string code,
-        VariantsType optionType, 
+        VariantsType optionType,
         bool isFilterable,
         bool isSearchable,
         ValuesJson? options
@@ -70,7 +70,7 @@ public class Attribute : AuditableEntity
         if (string.IsNullOrWhiteSpace(name))
             return DomainErrors.Null(name);
 
-        
+
         Name = name;
         IsFilterable = isFilterable;
         IsSearchable = isSearchable;
@@ -81,7 +81,7 @@ public class Attribute : AuditableEntity
     }
     public Result UpdateOptions(ValuesJson options)
     {
-        if (VerifyOptions(OptionsType, options) is { IsFailure: true} result)
+        if (VerifyOptions(OptionsType, options) is { IsFailure: true } result)
             return result;
 
         Options = options;

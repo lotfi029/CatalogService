@@ -5,16 +5,16 @@ public class CategoryVariantAttribute
     public Guid CategoryId { get; private init; }
     public Guid VariantAttributeId { get; private init; }
     public bool IsRequired { get; private set; }
-    public short DisplayOrder 
-    { 
-        get; 
-        private set 
-        { 
-            if (value <= 0) 
-                throw new ArgumentOutOfRangeException(nameof(DisplayOrder), "'DisplayOrder' cannot be negative or equal to 0"); 
+    public short DisplayOrder
+    {
+        get;
+        private set
+        {
+            if (value <= 0)
+                throw new ArgumentOutOfRangeException(nameof(DisplayOrder), "'DisplayOrder' cannot be negative or equal to 0");
 
             field = value;
-        } 
+        }
     }
     public DateTime CreatedAt { get; }
     public string? CreatedBy { get; }
@@ -24,10 +24,10 @@ public class CategoryVariantAttribute
 
     private CategoryVariantAttribute() { }
     private CategoryVariantAttribute(
-        Guid categoryId, 
-        Guid variantAttributeId, 
-        short displayOrder, 
-        bool isRequired = false, 
+        Guid categoryId,
+        Guid variantAttributeId,
+        short displayOrder,
+        bool isRequired = false,
         string? createdBy = null)
     {
         CategoryId = categoryId;
@@ -38,7 +38,7 @@ public class CategoryVariantAttribute
         CreatedBy = createdBy;
         IsDeleted = false;
     }
-    
+
 
     public static Result<CategoryVariantAttribute> Create(
         Guid categoryId,
@@ -50,7 +50,7 @@ public class CategoryVariantAttribute
 
         if (categoryId == Guid.Empty)
             return DomainErrors.Null(nameof(CategoryId));
-        
+
         if (variantAttributeId == Guid.Empty)
             return DomainErrors.Null(nameof(VariantAttributeId));
 

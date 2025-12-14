@@ -13,7 +13,7 @@ public class ProductCategoriesErrors
             "product category not found");
 
     public static Error DuplicatedCategory(Guid categoryId)
-        => Error.Conflict( 
+        => Error.Conflict(
             $"{_code}.{DuplicatedCategory}",
             $"category with id: '{categoryId}' is exist already");
 
@@ -22,7 +22,7 @@ public class ProductCategoriesErrors
             $"{_code}.{nameof(InvalidIncludedVariants)}",
             $"You must at least include this variants {string.Join(", ", variants)} with your request");
 
-    
+
 
     public static Error AddProductCategory =>
         Error.Unexpected("Failed to add product category");

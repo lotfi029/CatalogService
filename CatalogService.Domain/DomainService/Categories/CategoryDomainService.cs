@@ -26,9 +26,9 @@ public sealed class CategoryDomainService(
         {
             if (await repository.FindAsync(parentId.Value, null, ct) is not { } parent)
                 return CategoryErrors.ParentNotFound(parentId.Value);
-            
+
             path = parent.Path!;
-            
+
             level = (short)(parent.Level + 1);
         }
 
@@ -43,7 +43,7 @@ public sealed class CategoryDomainService(
     }
 
     public async Task<Result<List<Category>>> MoveToNewParent(
-        Guid id, 
+        Guid id,
         Guid parentId,
         CancellationToken ct = default)
     {
@@ -59,12 +59,12 @@ public sealed class CategoryDomainService(
             return CategoryErrors.InvalidChildToMoving;
 
         var rootCategory = categoryTree.FirstOrDefault(e => e.Id == id)!;
-        
+
         rootCategory.MoveCategory(parent.Id, parent.Path, parent.Level);
 
         var queue = new Queue<Category>();
         queue.Enqueue(rootCategory);
-        
+
         var processed = new HashSet<Guid> { rootCategory.Id };
 
         while (queue.Count > 0)
@@ -125,9 +125,9 @@ public sealed class CategoryDomainService(
         return Result.Success();
     }
     #endregion
-    
+
     public async Task<Result> AddVariantAttributeToCategoryAsync(
-        Guid id, 
+        Guid id,
         Guid variantId,
         short displayOrder,
         bool isRequired,
@@ -189,8 +189,8 @@ public sealed class CategoryDomainService(
         return Result.Success();
     }
     public async Task<Result> UpdateCategoryVariantAttributeAsync(
-        Guid id, 
-        Guid variantId, 
+        Guid id,
+        Guid variantId,
         short displayOrder,
         bool isRequired,
         CancellationToken ct = default)
@@ -198,14 +198,14 @@ public sealed class CategoryDomainService(
         if (await categoryVariantRepository.GetAsync(id, variantId, ct) is not { } categoryVariant)
             return CategoryVariantAttributeErrors.NotFound(id, variantId);
 
-        
+
         categoryVariant.UpdateDisplayOrder(displayOrder);
-        
+
         if (isRequired)
             categoryVariant.MarkRequired();
         else
             categoryVariant.MarkOptional();
-        
+
         categoryVariantRepository.Update(categoryVariant);
 
         return Result.Success();

@@ -11,7 +11,7 @@ public sealed class AttributeDomainService(
     {
         if (await attributeRepository.ExistsAsync(e => e.Code == code, [QueryFilterConsts.SoftDeleteFilter], ct))
             return AttributeErrors.DuplicatedCode(code);
-        
+
         if (!Enum.TryParse<VariantDataType>(optionType, ignoreCase: true, out var enumOptionType))
             return DomainErrors.Attributes.InvalidCastingEnum;
 
@@ -73,8 +73,8 @@ public sealed class AttributeDomainService(
     }
 
     public async Task<Result> DeleteAsync(Guid id, CancellationToken ct = default)
-    { 
-        if (await attributeRepository.FindAsync(id, null,  ct) is not { } attribute)
+    {
+        if (await attributeRepository.FindAsync(id, null, ct) is not { } attribute)
             return AttributeErrors.NotFound(id);
 
         if (attribute.Deleted() is { IsFailure: true } error)

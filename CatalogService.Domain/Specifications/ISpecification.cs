@@ -5,6 +5,6 @@ public abstract class Specification<TEntity>
 {
     protected Specification()
     {
-        
+
     }
 }

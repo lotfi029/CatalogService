@@ -22,7 +22,7 @@ public sealed class CategoryErrors
         => Error.BadRequest(
             $"{_code}.{nameof(InvalidId)}",
             $"Please enter a valid id");
-    
+
     public static Error InvalidSlug
         => Error.BadRequest(
             $"{_code}.{nameof(InvalidSlug)}",

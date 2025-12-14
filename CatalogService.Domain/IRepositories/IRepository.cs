@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 
 namespace CatalogService.Domain.IRepositories;
+
 public interface IRepository<T> where T : Entity
 {
     Guid Add(T entity);

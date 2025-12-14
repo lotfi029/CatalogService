@@ -3,7 +3,7 @@
 public class ProductCategories
 {
     public Guid ProductId { get; }
-    public Guid CategoryId  { get; }
+    public Guid CategoryId { get; }
     public bool IsPrimary { get; private set; }
     public DateTime CreatedAt { get; }
     public Product Product { get; } = default!;

@@ -11,7 +11,7 @@ public class AttributeErrors
         => Error.BadRequest(
             $"{_code}.{nameof(InvalidCode)}",
             $"Please enter a valid code");
-    
+
     public static Error InvalidOptinsType
         => Error.BadRequest(
             $"{_code}.{nameof(InvalidOptinsType)}",
@@ -20,7 +20,7 @@ public class AttributeErrors
         => Error.NotFound(
             $"{_code}.{nameof(NotFound)}",
             $"Attribute with id: {id} cannot be found");
-    
+
     public static Error CodeNotFound(string code)
         => Error.NotFound(
             $"{_code}.{nameof(CodeNotFound)}",

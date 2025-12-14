@@ -8,14 +8,14 @@ public class Category : AuditableEntity
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public string Slug { get; private init; } = string.Empty;
-    public string? Path {  get; private set; } = string.Empty;
+    public string? Path { get; private set; } = string.Empty;
     public short Level { get; private set; } = 0;
     public Category? Parent { get; private init; }
 
     private readonly List<Category> _children = [];
     private readonly List<CategoryVariantAttribute> _variantAttributes = [];
     public IReadOnlyCollection<CategoryVariantAttribute> CategoryVariantAttributes => _variantAttributes.AsReadOnly();
-    public IReadOnlyCollection<Category> Children => _children.AsReadOnly(); 
+    public IReadOnlyCollection<Category> Children => _children.AsReadOnly();
     private Category() { }
     private Category(
         string name,

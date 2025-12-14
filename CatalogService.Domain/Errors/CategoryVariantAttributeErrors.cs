@@ -34,7 +34,7 @@ public sealed class CategoryVariantAttributeErrors
 
     public static Error GetCategoryVariantAttribute
         => Error.Unexpected("Error ocurred while retrieve category variant attribute");
-    
+
     public static Error GetAllCategoryVariantAttribute
         => Error.Unexpected("Error ocurred while retrieve category variant attributes");
 

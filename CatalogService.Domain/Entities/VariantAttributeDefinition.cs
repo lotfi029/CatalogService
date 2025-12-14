@@ -22,7 +22,7 @@ public class VariantAttributeDefinition : AuditableEntity
         VariantsType datatype,
         bool affectsInventory,
         ValuesJson? allowedValues
-        ) 
+        )
     {
         Code = code;
         Name = name;
@@ -42,7 +42,7 @@ public class VariantAttributeDefinition : AuditableEntity
         if (VerifyAllowedValues(dataType, allowedValues) is { IsFailure: true } verificationError)
             return verificationError.Error;
 
-        var variantAttribute =  new VariantAttributeDefinition(
+        var variantAttribute = new VariantAttributeDefinition(
             code: code,
             name: name,
             datatype: dataType,

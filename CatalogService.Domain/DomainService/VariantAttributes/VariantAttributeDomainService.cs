@@ -15,7 +15,7 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
     {
         if (await variantAttributeRepository.ExistsAsync(e => e.Code == code, [QueryFilterConsts.SoftDeleteFilter], ct: ct))
             return VariantAttributeErrors.CodeAlreadyExist(code);
-        
+
         if (!Enum.TryParse<VariantDataType>(datatype, ignoreCase: true, out var enumDataType))
             throw new ArgumentException("Must specify the datatype of the variant attribute definition");
 
@@ -41,8 +41,8 @@ public sealed class VariantAttributeDomainService(IVariantAttributeRepository va
         foreach (var (code, name, datatype, affectsInventory, allowedValues) in variantAttributes)
         {
             var result = await CreateAsync(code, name, datatype, affectsInventory, allowedValues, ct);
-            
-            if (result.IsFailure) 
+
+            if (result.IsFailure)
                 return result;
         }
         return Result.Success();
