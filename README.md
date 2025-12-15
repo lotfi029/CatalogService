@@ -393,7 +393,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Clean Architecture by Robert C. Martin
+- Clean Architecture by Robert C. Martin.
 - Domain-Driven Design by Eric Evans
 - CQRS pattern by Greg Young
 - The .NET Community
