@@ -1,6 +1,6 @@
 # Catalog Service
 
-A robust, scalable e-commerce catalog microservice built with .NET 10, implementing Domain-Driven Design (DDD) and Clean Architecture principles.
+A robust, scalable e-commerce catalog microservice built with .NET 10, implementing Domain-Driven Design (DDD) and Clean Architecture principles Integration with elasticsearch.
 
 ## 🏗️ Architecture
 
