@@ -1,0 +1,63 @@
+services:
+  catalogservice.api:
+    image: ${DOCKER_REGISTRY-}catalogserviceapi
+    container_name: catalogservice-api
+    build:
+      context: .
+      dockerfile: CatalogService.API/Dockerfile
+    networks:
+      - catalog_network
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=ecommerce_catalogservice_v01;username=postgres;password=String
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+    container_name: catalog-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - catalog_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.2
+    container_name: catalog-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - catalog_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6000/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  elasticsearch_data:
+    driver: local
+
+networks:
+  catalog_network:
+    driver: bridge

@@ -3,6 +3,7 @@ using CatalogService.API.Extensions;
 using CatalogService.Application;
 using CatalogService.Domain;
 using CatalogService.Infrastructure;
+using System.Timers;
 
 namespace CatalogService.API;
 
@@ -38,6 +39,7 @@ public static class DependancyInjection
             .AddDomain()
             .AddInfrastructure(configuration)
             .AddApplication();
+
 
         return services;
     }

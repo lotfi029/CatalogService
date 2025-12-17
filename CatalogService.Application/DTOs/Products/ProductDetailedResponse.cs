@@ -17,7 +17,7 @@ public sealed record ProductDetailedResponse(
     List<ProductVariantResponse>? ProductVariants,
     List<ProductAttributeResponse>? ProductAttributes)
 {
-    private ProductDetailedResponse() : this(
+    public ProductDetailedResponse() : this(
         Id: Guid.Empty,
         Name: string.Empty,
         Description: null,

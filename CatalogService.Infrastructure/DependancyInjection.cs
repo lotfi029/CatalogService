@@ -7,9 +7,11 @@ using CatalogService.Application.Features.Products.Queries;
 using CatalogService.Application.Features.ProductVariants.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
 using CatalogService.Infrastructure.Persistence;
+using CatalogService.Infrastructure.Persistence.ConnectionStrings;
 using CatalogService.Infrastructure.Persistence.Dapper;
 using CatalogService.Infrastructure.Persistence.Dapper.Queries;
 using CatalogService.Infrastructure.Persistence.Repositories;
+using CatalogService.Infrastructure.Search.ElasticSearch;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -69,6 +71,15 @@ public static class DependancyInjection
 
         DapperConfiguration.Configure();
 
+        services.AddElasticSearchSearvices(configuration);
+
+        return services;
+    }
+    private static IServiceCollection AddElasticSearchSearvices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<ElasticsearchOptions>()
+            .BindConfiguration(ElasticsearchOptions.SectionName)
+            .ValidateOnStart();
         return services;
     }
 }
