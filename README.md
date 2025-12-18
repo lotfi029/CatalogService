@@ -1,6 +1,6 @@
 # Catalog Service
 
-A robust, scalable e-commerce catalog microservice built with .NET 10, implementing Domain-Driven Design (DDD) and Clean Architecture principles.
+A robust, scalable e-commerce catalog microservice built with .NET 10, implementing Domain-Driven Design (DDD) and Clean Architecture principles Integration with elasticsearch.
 
 ## 🏗️ Architecture
 
@@ -393,7 +393,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Clean Architecture by Robert C. Martin
+- Clean Architecture by Robert C. Martin.
 - Domain-Driven Design by Eric Evans
 - CQRS pattern by Greg Young
 - The .NET Community
