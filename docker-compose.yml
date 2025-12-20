@@ -11,6 +11,7 @@ services:
       - "5000:8080"
       - "5001:8081"
     environment:
+      - ElasticSettings__Uri=http://elasticsearch:9200
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=ecommerce_catalogservice_v01;username=postgres;password=String
   elasticsearch:

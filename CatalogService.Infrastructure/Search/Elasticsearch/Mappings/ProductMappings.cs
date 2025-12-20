@@ -27,7 +27,7 @@ public sealed class ProductMappings
         { e => e.Description, new TextProperty() },
         { e => e.IsActive, new BooleanProperty() },
         { e => e.CreatedAt, new DateProperty() },
-        { e => e.LastUpdateAt, new DateProperty() },
+        { e => e.LastUpdatedAt, new DateProperty() },
         {
             e => e.ProductCategories, new NestedProperty
             {

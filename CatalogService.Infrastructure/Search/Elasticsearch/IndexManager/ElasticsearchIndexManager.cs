@@ -12,14 +12,14 @@ namespace CatalogService.Infrastructure.Search.Elasticsearch.IndexManager;
 
 public sealed class ElasticsearchIndexManager(
     ElasticsearchClient client,
-    IOptions<ElasticsearchOptions> options,
+    IOptions<ElasticsearchSettings> options,
     ILogger<ElasticsearchIndexManager> logger) : IElasticsearchIndexManager
 {
-    private readonly ElasticsearchOptions _options = options.Value;
+    private readonly ElasticsearchSettings _options = options.Value;
     
     public async Task<bool> CreateProductIndexAsync(CancellationToken ct = default)
     {
-        var indexName = $"{_options.DefaultIndex}-products";
+        var indexName = $"{_options.DefaultIndex}-{ElasticsearchIndexNames.ProductPostfixIndex}";
 
         if (await IndexExistsAsync(indexName, ct))
         {

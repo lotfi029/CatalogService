@@ -2,7 +2,7 @@
 
 namespace CatalogService.Infrastructure.Search.ElasticSearch;
 
-public sealed record ElasticsearchOptions
+public sealed record ElasticsearchSettings
 {
     public const string SectionName = "ElasticSettings";
     [Required]

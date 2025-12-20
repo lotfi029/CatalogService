@@ -16,7 +16,7 @@ public class Product : AuditableEntity
 
 
     public IReadOnlyCollection<ProductVariant> ProductVariants => _variants.AsReadOnly();
-    public IReadOnlyCollection<ProductAttributes> ProductAttributes => _attributes.AsReadOnly();
+    public IReadOnlyCollection<ProductAttributes> Attributes => _attributes.AsReadOnly();
     public IReadOnlyCollection<ProductCategories> Categories => _categories.AsReadOnly();
 
 

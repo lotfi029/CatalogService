@@ -1,35 +1,22 @@
 ﻿using CatalogService.Application.DTOs.Products;
+using CatalogService.Application.Interfaces;
+using CatalogService.Infrastructure.Search.ElasticSearch;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 
 namespace CatalogService.Infrastructure.Search.Elasticsearch.Services;
 
-public interface IProductSearchService
-{
-    Task<(List<ProductDetailedResponse> Products, long Total)> SearchProductsAsync(
-        string? searchTerm = null,
-        List<Guid>? categoryIds = null,
-        Dictionary<string, List<string>>? filters = null,
-        decimal? minPrice = null,
-        decimal? maxPrice = null,
-        string? status = null,
-        int from = 0,
-        int size = 20,
-        CancellationToken ct = default);  
-
-    Task<List<string>> GetSuggestionsAsync(string prefix, int size = 10, CancellationToken ct = default);
-
-    Task<Dictionary<string, List<(string Value, long Count)>>> GetFacetsAsync(
-        List<Guid>? categoryIds = null,
-        CancellationToken ct = default);
-}
 internal sealed class ProductSearchService(
     ElasticsearchClient client,
-    ILogger<ProductSearchService> logger) : IProductSearchService
+    IOptions<ElasticsearchSettings> settings,
+    ILogger<ProductSearchService> logger,
+    ILogger<ElasticsearchService<ProductDetailedResponse>> elasticsearchLogger) 
+    : ElasticsearchService<ProductDetailedResponse>(client, ElasticsearchIndexNames.ProductPostfixIndex, settings.Value.DefaultIndex, elasticsearchLogger), IProductSearchService
 {
-    private const string _indexName = "catalog.products";
+    private readonly string _indexName = $"{settings.Value.DefaultIndex}-{ElasticsearchIndexNames.ProductPostfixIndex}";
     public Task<Dictionary<string, List<(string Value, long Count)>>> GetFacetsAsync(List<Guid>? categoryIds = null, CancellationToken ct = default)
     {
         throw new NotImplementedException();
@@ -42,13 +29,13 @@ internal sealed class ProductSearchService(
 
     public async Task<(List<ProductDetailedResponse> Products, long Total)> SearchProductsAsync(
         string? searchTerm = null,
-        List<Guid>? categoryIds = null, 
-        Dictionary<string, List<string>>? filters = null, 
-        decimal? minPrice = null, 
-        decimal? maxPrice = null, 
-        string? status = null, 
-        int from = 0, 
-        int size = 20, 
+        List<Guid>? categoryIds = null,
+        Dictionary<string, List<string>>? filters = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string? status = null,
+        int from = 0,
+        int size = 20,
         CancellationToken ct = default)
     {
         try

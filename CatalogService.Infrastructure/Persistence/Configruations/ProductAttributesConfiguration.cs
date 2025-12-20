@@ -25,7 +25,7 @@ internal sealed class ProductAttributesConfiguration : IEntityTypeConfiguration<
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         builder.HasOne(pa => pa.Product)
-            .WithMany(p => p.ProductAttributes)
+            .WithMany(p => p.Attributes)
             .HasForeignKey(pa => pa.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 

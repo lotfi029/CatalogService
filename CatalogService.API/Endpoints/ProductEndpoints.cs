@@ -1,4 +1,5 @@
-﻿using CatalogService.Application.DTOs.Products;
+﻿using CatalogService.API.EndpointNames;
+using CatalogService.Application.DTOs.Products;
 using CatalogService.Application.Features.Products.Commands.Active;
 using CatalogService.Application.Features.Products.Commands.Archive;
 using CatalogService.Application.Features.Products.Commands.Create;
@@ -27,7 +28,8 @@ internal sealed class ProductEndpoints : IEndpoint
         group.MapPut("/{id:guid}", UpdateDetails)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .WithName(ProductEntpointsNames.GetProductById);
 
         group.MapPatch("/{id:guid}/active", Active)
             .Produces(StatusCodes.Status204NoContent)
@@ -65,7 +67,7 @@ internal sealed class ProductEndpoints : IEndpoint
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
-            ? TypedResults.Created()
+            ? TypedResults.CreatedAtRoute(result.Value, ProductEntpointsNames.GetProductById, new { id = result.Value })
             : result.ToProblem();
     }
     private async Task<IResult> CreateBulk(

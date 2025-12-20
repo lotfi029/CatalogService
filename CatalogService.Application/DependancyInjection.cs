@@ -1,4 +1,5 @@
-﻿using CatalogService.Application.DTOs.Categories;
+﻿using CatalogService.Application.Abstractions.Behaviors;
+using CatalogService.Application.DTOs.Categories;
 using FluentValidation;
 using Mapster;
 using MapsterMapper;
@@ -38,7 +39,15 @@ public static class DependancyInjection
                 .WithScopedLifetime()
         );
 
-        
+        services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandHandler<>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
+        services.Decorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
+
+
+        services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
+            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
 
         return services;
     }

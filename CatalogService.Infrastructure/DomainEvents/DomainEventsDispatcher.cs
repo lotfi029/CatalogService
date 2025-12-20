@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
 
 namespace CatalogService.Infrastructure.DomainEvents;
 
@@ -48,7 +47,7 @@ internal sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) :
                 domainEventType,
                 et => typeof(HandlerWrapper<>).MakeGenericType(et));
 
-            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler);
+            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler)!;
         }
     }
 
@@ -58,7 +57,7 @@ internal sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) :
 
         public override async Task Handle(IDomainEvent domainEvent, CancellationToken cancellationToken)
         {
-            await _handler.Handle((T)domainEvent, cancellationToken);
+            await _handler.HandleAsync((T)domainEvent, cancellationToken);
         }
     }
 }

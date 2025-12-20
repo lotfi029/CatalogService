@@ -1,8 +1,11 @@
 ﻿using CatalogService.Domain.Abstractions;
+using CatalogService.Infrastructure.DomainEvents;
 
 namespace CatalogService.Infrastructure.Persistence.Contexts;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    IDomainEventsDispatcher domainEventsDispatcher) : DbContext(options)
 {
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -16,7 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         base.OnModelCreating(modelBuilder);
     }
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         var entities = ChangeTracker.Entries<IAuditable>();
 
@@ -46,6 +49,23 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             }
         }
 
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        int result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        await PublicDomainEventsAsync(cancellationToken);
+        return result;
+    }
+    private async Task PublicDomainEventsAsync(CancellationToken ct = default)
+    {
+        var domainEvents = ChangeTracker
+            .Entries<Entity>()
+            .Select(e => e.Entity)
+            .SelectMany(entity =>
+            {
+                List<IDomainEvent> domainEvent = entity.DomainEvents.ToList();
+
+                entity.ClearDomainEvents();
+                return domainEvent;
+            }).ToList();
+
+        await domainEventsDispatcher.DispatchAsync(domainEvents, ct);
     }
 }
