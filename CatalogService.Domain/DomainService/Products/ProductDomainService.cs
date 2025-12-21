@@ -1,4 +1,5 @@
-﻿using CatalogService.Domain.JsonProperties;
+﻿using CatalogService.Domain.DomainEvents.Products;
+using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.DomainService.Products;
 
@@ -106,22 +107,23 @@ public sealed class ProductDomainService(
         return Result.Success();
     }
     #region product variants
-    public async Task<Result> UpdateProductVariantCustomizationOptionsAsync(Guid id, ProductVariantsOption customOption, CancellationToken ct = default)
+    public async Task<Result> UpdateProductVariantCustomizationOptionsAsync(Guid variantId, ProductVariantsOption customOption, CancellationToken ct = default)
     {
-        if (await productVariantRepository.GetById(id: id, ct) is not { } productVariant)
-            return ProductVariantErrors.NotFound(id);
+        if (await productVariantRepository.GetById(id: variantId, ct) is not { } productVariant)
+            return ProductVariantErrors.NotFound(variantId);
 
         if (productVariant.UpdateCustomizationOptions(customOption) is { IsFailure: true } updatingError)
             return updatingError.Error;
 
         productVariantRepository.Update(productVariant);
 
+        AddDomainEvents(productVariant.ProductId, new ProductVariantUpdatedDomainEvent(productVariant.ProductId, variantId));
         return Result.Success();
     }
-    public async Task<Result> UpdateProductVariantPriceAsync(Guid id, decimal price, decimal? compareAtPrice, string currency, CancellationToken ct = default)
+    public async Task<Result> UpdateProductVariantPriceAsync(Guid variantId, decimal price, decimal? compareAtPrice, string currency, CancellationToken ct = default)
     {
-        if (await productVariantRepository.GetById(id: id, ct) is not { } productVariant)
-            return ProductVariantErrors.NotFound(id);
+        if (await productVariantRepository.GetById(id: variantId, ct) is not { } productVariant)
+            return ProductVariantErrors.NotFound(variantId);
 
         currency = currency.ToUpper();
 
@@ -129,20 +131,22 @@ public sealed class ProductDomainService(
             return updatingError.Error;
 
         productVariantRepository.Update(productVariant);
+        AddDomainEvents(productVariant.ProductId, new ProductVariantUpdatedDomainEvent(productVariant.ProductId, variantId));
         return Result.Success();
     }
-    public async Task<Result> DeleteProductVariantAsync(Guid id, CancellationToken ct = default)
+    public async Task<Result> DeleteProductVariantAsync(Guid productId, Guid variantId, CancellationToken ct = default)
     {
-        var deletedRaws = await productVariantRepository.ExecuteDeleteAsync(x => x.Id == id, ct: ct);
+        var deletedRaws = await productVariantRepository.ExecuteDeleteAsync(x => x.Id == variantId, ct: ct);
 
+        AddDomainEvents(productId, new ProductVariantDeletedDomainEvent(productId,variantId));
         return deletedRaws == 0
-            ? ProductVariantErrors.NotFound(id)
+            ? ProductVariantErrors.NotFound(variantId)
             : Result.Success();
     }
     public async Task<Result> DeleteAllProductVariantAsync(Guid productId, CancellationToken ct = default)
     {
         var deletedRaws = await productVariantRepository.ExecuteDeleteAsync(x => x.ProductId == productId, ct: ct);
-
+        AddDomainEvents(productId, new ProductVariantDeletedAllDomainEvent(productId));
         return Result.Success();
     }
     #endregion
@@ -229,6 +233,7 @@ public sealed class ProductDomainService(
             return finalizeAdditionResult.Error;
 
 
+
         return Result.Success();
     }
     public async Task<Result> UpdateProductCategoryAsync(Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default)
@@ -236,11 +241,15 @@ public sealed class ProductDomainService(
         if (await productCategoryRepository.GetAsync(productId, categoryId, ct) is not { } productCategory)
             return ProductCategoriesErrors.NotFound;
 
-        if (await productRepository.FindAsync(productId, null, ct) is not { } product)
-            return ProductErrors.NotFound(productId);
+        await productCategoryRepository.ExecuteUpdateAsync(
+            predicate: pc => pc.CategoryId == categoryId && pc.ProductId == productId,
+            action: action =>
+            {
+                action.SetProperty(pc => pc.IsPrimary, isPrimary);
+            },
+            ct: ct);
 
-        if (product.UpdateCategory(productCategory, isPrimary) is { IsFailure: true } updateResult)
-            return updateResult.Error;
+        AddDomainEvents(productId, new ProductCategoryUpdatedDomainEvent(productId, categoryId));
 
         return Result.Success();
     }
@@ -249,14 +258,8 @@ public sealed class ProductDomainService(
         if (await productCategoryRepository.GetAsync(productId, categoryId, ct) is not { } productCategory)
             return ProductCategoriesErrors.NotFound;
 
-        if (await productRepository.FindAsync(productId, null, ct) is not { } product)
-            return ProductErrors.NotFound(productId);
-
-        if (product.RemoveCategory(categoryId) is { IsFailure: true } removeResult)
-            return removeResult.Error;
-
         productCategoryRepository.Remove(productCategory);
-
+        AddDomainEvents(productId, new ProductCategoryRemovedDomainEvent(productId, categoryId));
         return Result.Success();
     }
     private Result validateVariantValue(
@@ -308,6 +311,8 @@ public sealed class ProductDomainService(
             productVariantRepository.AddRange([.. addedProductVariant]);
         }
 
+        AddDomainEvents(productId, new ProductCategoryAddedDomainEvent(productId, categoryId));
+
         return Result.Success();
     }
     #endregion
@@ -330,14 +335,14 @@ public sealed class ProductDomainService(
 
         if (ValidAttributeValue(map) is { IsFailure: true } validationErrors)
             return validationErrors.Error;
-        // TODO: domain events
 
         var productAttribute = ProductAttributes.Create(
             productId: productId,
             attributeId: attributeId,
             value: value);
-
         productAttributeRepository.Add(productAttribute);
+
+        AddDomainEvents(productId, new ProductAttributeAddedDomainEvent(productId, attributeId));
         return Result.Success();
     }
     public async Task<Result> AddAttributeBulkAsync(Guid productId, IEnumerable<(Guid attributeId, string value)> values, CancellationToken ct = default)
@@ -372,7 +377,8 @@ public sealed class ProductDomainService(
             ));
 
         productAttributeRepository.AddRange([.. productAttributeList]);
-        // TODO: domain events
+
+        AddDomainEvents(productId, new ProductAttributeAddedBulkDomainEvent(productId));
 
         return Result.Success();
     }
@@ -397,34 +403,42 @@ public sealed class ProductDomainService(
     }
     public async Task<Result> UpdateAttributeValueAsync(Guid productId, Guid attributeId, string newValue, CancellationToken ct = default)
     {
-        // TODO: domain event
         var productAttribute = await productAttributeRepository.GetById(productId: productId, attributeId: attributeId, ct);
         if (productAttribute is null)
             return ProductAttributeErrors.NotFound(productId, attributeId);
 
         if (productAttribute.UpdateValue(newValue) is { IsFailure: true } updatingError)
             return updatingError.Error;
-
         productAttributeRepository.Update(productAttribute);
+
+        
+        AddDomainEvents(productId, new ProductAttributeUpdatedDomainEvent(productId, attributeId));
         return Result.Success();
     }
     public async Task<Result> DeleteAttributeAsync(Guid productId, Guid attributeId, CancellationToken ct = default)
     {
-        // TODO: domain event
         var deletedRaws = await productAttributeRepository
             .ExecuteDeleteAsync(e => e.ProductId == productId && e.AttributeId == attributeId, ct);
 
+        AddDomainEvents(productId, new ProductAttributeDeletedDomainEvent(productId, attributeId));
+        
         return deletedRaws == 0
             ? ProductAttributeErrors.NotFound(productId, attributeId)
             : Result.Success();
     }
     public async Task<Result> DeleteAllAttributeAsync(Guid productId, CancellationToken ct = default)
     {
-        // TODO: domain event
         var deletedRaws = await productAttributeRepository
             .ExecuteDeleteAsync(e => e.ProductId == productId, ct);
 
+        AddDomainEvents(productId, new ProductAttributeDeletedAllDomainEvent(productId));
         return Result.Success();
     }
     #endregion
+
+    private static void AddDomainEvents(Guid ProductId, IDomainEvent domainEvent)
+    {
+        var proxyProduct = Product.CreateProxy(ProductId);
+        proxyProduct.AddDomainEvent(domainEvent);
+    }
 }

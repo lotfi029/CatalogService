@@ -21,7 +21,7 @@ public abstract class Entity : IEquatable<Entity>
 
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    protected void AddDomainEvent(IDomainEvent domainEvent)
+    public void AddDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);
     }

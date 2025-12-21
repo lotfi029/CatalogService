@@ -10,7 +10,7 @@ internal class ElasticsearchService<TDocument>(
     ElasticsearchClient client,
     string indexName,
     string defaultIndex,
-    ILogger<ElasticsearchService<TDocument>> logger) : IElasticsearchService<TDocument>
+    ILogger logger) : IElasticsearchService<TDocument>
     where TDocument : class
 {
 

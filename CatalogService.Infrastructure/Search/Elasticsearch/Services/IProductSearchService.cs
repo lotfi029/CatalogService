@@ -12,9 +12,8 @@ namespace CatalogService.Infrastructure.Search.Elasticsearch.Services;
 internal sealed class ProductSearchService(
     ElasticsearchClient client,
     IOptions<ElasticsearchSettings> settings,
-    ILogger<ProductSearchService> logger,
-    ILogger<ElasticsearchService<ProductDetailedResponse>> elasticsearchLogger) 
-    : ElasticsearchService<ProductDetailedResponse>(client, ElasticsearchIndexNames.ProductPostfixIndex, settings.Value.DefaultIndex, elasticsearchLogger), IProductSearchService
+    ILogger<ProductSearchService> logger) 
+    : ElasticsearchService<ProductDetailedResponse>(client ?? default!, ElasticsearchIndexNames.ProductPostfixIndex, settings.Value.DefaultIndex, logger), IProductSearchService
 {
     private readonly string _indexName = $"{settings.Value.DefaultIndex}-{ElasticsearchIndexNames.ProductPostfixIndex}";
     public Task<Dictionary<string, List<(string Value, long Count)>>> GetFacetsAsync(List<Guid>? categoryIds = null, CancellationToken ct = default)

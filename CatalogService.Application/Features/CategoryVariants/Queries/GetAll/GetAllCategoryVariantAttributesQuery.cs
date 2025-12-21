@@ -7,17 +7,13 @@ public sealed record GetAllCategoryVariantAttributesQuery(Guid CategoryId) : IQu
 
 public sealed class GetAllCategoryVariantAttributesQueryHandler(
     ILogger<GetAllCategoryVariantAttributesQueryHandler> logger,
-    ICategoryVariantAttributeRepository variantRepository) : IQueryHandler<GetAllCategoryVariantAttributesQuery, IEnumerable<CategoryVariantAttributeDetailedResponse>>
+    ICategoryVariantAttributeQueries categoryVariantQueries) : IQueryHandler<GetAllCategoryVariantAttributesQuery, IEnumerable<CategoryVariantAttributeDetailedResponse>>
 {
     public async Task<Result<IEnumerable<CategoryVariantAttributeDetailedResponse>>> HandleAsync(GetAllCategoryVariantAttributesQuery query, CancellationToken ct = default)
     {
         try
         {
-            if (await variantRepository.GetByCategoryIdAsync(query.CategoryId, ct) is not { } categoryVariant)
-                return Result.Success(Enumerable.Empty<CategoryVariantAttributeDetailedResponse>());
-
-            var response = categoryVariant.Adapt<IEnumerable<CategoryVariantAttributeDetailedResponse>>();
-            return Result.Success(response);
+            return await categoryVariantQueries.GetByCategoryIdAsync(query.CategoryId, ct);
         }
         catch (Exception ex)
         {

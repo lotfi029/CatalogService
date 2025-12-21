@@ -21,6 +21,8 @@ public class Product : AuditableEntity
 
 
     private Product() { }
+    private Product(Guid id) 
+        : base(id) { }
     private Product(
         string name,
         string? description,
@@ -52,7 +54,10 @@ public class Product : AuditableEntity
         { }
         ;
     }
-
+    public static Product CreateProxy(Guid Id)
+    {
+        return new Product(Id);
+    }
     public Result UpdateDetails(string name, string? description)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -64,56 +69,6 @@ public class Product : AuditableEntity
             Description = description;
 
         AddDomainEvent(new ProductDetailsUpdatedDomainEvent(Id));
-        return Result.Success();
-    }
-    #region categories
-    public Result AddCategory(Guid categoryId)
-    {
-        if (categoryId == Guid.Empty)
-            return DomainErrors.Null("Products.Category");
-
-        AddDomainEvent(new ProductCategoryAddedDomainEvent(Id, categoryId));
-        return Result.Success();
-    }
-    public Result UpdateCategory(ProductCategories productCategory, bool isPrimary)
-    {
-        if (productCategory is null)
-            return DomainErrors.Null("Products.Category");
-
-        if (isPrimary)
-            productCategory.MarkAsPrimary();
-
-        productCategory.MarkAsUnPrimary();
-
-        AddDomainEvent(new ProductCategoryUpdatedDomainEvent(Id, productCategory.CategoryId, isPrimary));
-        return Result.Success();
-    }
-    public Result RemoveCategory(Guid categoryId)
-    {
-        if (categoryId == Guid.Empty)
-            return DomainErrors.Null("Products.Category");
-
-        AddDomainEvent(new ProductCategoryRemovedDomainEvent(Id, categoryId));
-        return Result.Success();
-    }
-    #endregion
-    #region attributes
-    public Result AddAttribute(ProductAttributes attribute)
-    {
-        if (attribute is null)
-            return DomainErrors.Null("Products.Attribute");
-
-        _attributes.Add(attribute);
-        return Result.Success();
-    }
-    #endregion
-    public Result AddVariant(ProductVariant variant)
-    {
-
-        if (variant is null)
-            return DomainErrors.Null("Products.Varaint");
-
-        _variants.Add(variant);
         return Result.Success();
     }
     #region product status

@@ -93,11 +93,12 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
     }
     private async Task<IResult> Delete(
         [FromRoute] Guid productVariantId,
+        [FromQuery] Guid productId,
         [FromServices] ICommandHandler<DeleteProductVariantCommand> handler,
         CancellationToken ct)
     {
 
-        var command = new DeleteProductVariantCommand(productVariantId);
+        var command = new DeleteProductVariantCommand(productId, productVariantId);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess

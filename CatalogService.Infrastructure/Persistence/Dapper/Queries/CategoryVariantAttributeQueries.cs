@@ -53,7 +53,6 @@ public sealed class CategoryVariantAttributeQueries(
                 cva.is_required as IsRequired,
                 cva.display_order as DisplayOrder,
                 cva.created_at as CreatedAt,
-                cva.created_by as CreatedBy,
                 va.code as Code,
                 va.name as Name,
                 va.data_type_name as Datatype,

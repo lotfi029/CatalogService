@@ -3,13 +3,14 @@ using CatalogService.Application.Interfaces;
 using CatalogService.Domain.DomainEvents.Products;
 
 namespace CatalogService.Application.Features.ProductAttributes.Events;
-internal sealed class ProductAttributeAddedDomainEventHandler(
+
+internal sealed class ProductAttributeAddedBulkDomainEventHandler(
     IProductSearchService productSearchService,
     IProductQueries productQueries,
-    ILogger<ProductAttributeAddedDomainEventHandler> logger)
+    ILogger<ProductAttributeAddedBulkDomainEventHandler> logger)
         : ProductAttributeDomainEventHandlerBase(productSearchService, productQueries, logger),
-      IDomainEventHandler<ProductAttributeAddedDomainEvent>
+      IDomainEventHandler<ProductAttributeAddedBulkDomainEvent>
 {
-    public async Task HandleAsync(ProductAttributeAddedDomainEvent domainEvent, CancellationToken ct)
+    public async Task HandleAsync(ProductAttributeAddedBulkDomainEvent domainEvent, CancellationToken ct)
         => await HandleAsync(domainEvent.Id, ct);
 }

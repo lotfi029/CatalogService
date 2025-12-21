@@ -30,8 +30,9 @@ public class GetCategoryBySlugQueryHandlerTests
             slug,
             null,
             1,
-            "Electronics and gadgets",
-            "electronics");
+            true,
+            "electronics",
+            slug);
 
         _mockQueries
             .Setup(x => x.GetBySlugAsync(slug, It.IsAny<CancellationToken>()))
@@ -108,7 +109,7 @@ public class GetCategoryBySlugQueryHandlerTests
         var slug = "electronics";
         var cts = new CancellationTokenSource();
         var category = new CategoryDetailedResponse(
-            Guid.NewGuid(), "Test", slug, null, 1, null, "test");
+            Guid.NewGuid(), "Test", slug, null, 1, true,null, "test");
 
         _mockQueries
             .Setup(x => x.GetBySlugAsync(slug, cts.Token))
@@ -134,6 +135,7 @@ public class GetCategoryBySlugQueryHandlerTests
             slug,
             parentId,
             2,
+            true,
             "Laptop computers",
             "electronics/laptops");
 
@@ -160,6 +162,7 @@ public class GetCategoryBySlugQueryHandlerTests
             slug,
             null,
             1,
+            true,
             "Electronic products",
             "electronics");
 
@@ -185,6 +188,7 @@ public class GetCategoryBySlugQueryHandlerTests
             slug,
             null,
             1,
+            true,
             null,
             "test");
 
@@ -207,7 +211,7 @@ public class GetCategoryBySlugQueryHandlerTests
     public async Task HandleAsync_WithDifferentSlugs_Should_QueryCorrectly(string slug)
     {
         var category = new CategoryDetailedResponse(
-            Guid.NewGuid(), "Category", slug, null, 1, null, slug);
+            Guid.NewGuid(), "Category", slug, null, 1,true, null, slug);
 
         _mockQueries
             .Setup(x => x.GetBySlugAsync(slug, It.IsAny<CancellationToken>()))
