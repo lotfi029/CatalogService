@@ -4,6 +4,7 @@ namespace CatalogService.Application.DTOs.ProductCategories;
 
 public sealed class ProductCategoryRequestValidator : AbstractValidator<ProductCategoryRequest>
 {
+    private bool _haveVariant = true;
     public ProductCategoryRequestValidator()
     {
         RuleFor(pc => pc.IsPrimary)
@@ -11,8 +12,20 @@ public sealed class ProductCategoryRequestValidator : AbstractValidator<ProductC
             .WithMessage("IsPrimary is required.");
 
         RuleFor(pc => pc.CategoryVariants)
-            .NotNull().WithMessage("CategoryVariants is required.")
-            .NotEmpty().WithMessage("CategoryVariants must contain at least one item.");
+            .Custom((categoryVariant, context) =>
+            {
+                if (categoryVariant is null)
+                {
+                    _haveVariant = false;
+                    return;
+                }
+                else
+                {
+                    if (categoryVariant.Count == 0)
+                        context.AddFailure(nameof(categoryVariant),
+                            "CategoryVariants must contain at least one item.");
+                }
+            });
 
         RuleFor(pc => pc.CategoryVariants)
             .Custom((categoryVariants, context) =>
@@ -29,9 +42,10 @@ public sealed class ProductCategoryRequestValidator : AbstractValidator<ProductC
                     context.AddFailure("CategoryVariants",
                         "CategoryVariant must not exceed 50 item");
                 }
-            }).When(pc => pc.CategoryVariants is not null && pc.CategoryVariants.Count > 0);
+            }).When(pc => pc.CategoryVariants is not null && pc.CategoryVariants.Count > 0 && _haveVariant);
 
         RuleForEach(pc => pc.CategoryVariants)
-            .SetValidator(new ProductVariantRequestValidator());
+            .SetValidator(new ProductVariantRequestValidator())
+            .When(pc => _haveVariant);
     }
 }

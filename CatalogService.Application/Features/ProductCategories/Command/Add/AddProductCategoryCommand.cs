@@ -22,7 +22,7 @@ internal sealed class AddProductCategoryCommandHandler(
                 productId: command.ProductId,
                 categoryId: command.CategoryId,
                 isPrimary: command.IsPrimary,
-                productVariants: [.. command.Request.Select(pv => (pv.Price, pv.CompareAtPrice, pv.Variants))],
+                productVariants: [.. command.Request?.Select(pv => (pv.Price, pv.CompareAtPrice, pv.Variants)) ?? []],
                 ct: ct);
 
             if (addingResult.IsFailure)

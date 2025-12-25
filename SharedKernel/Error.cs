@@ -35,4 +35,6 @@ public record Error
 
     public static Error Unexpected(string Description)
         => new("Error.Unexpected", Description, 500);
+    public override string ToString()
+        => $"The Code Is: {Code}, With Message: {Description}, and the status code is: {Status}";
 }

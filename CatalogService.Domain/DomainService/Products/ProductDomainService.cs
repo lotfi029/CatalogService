@@ -1,4 +1,7 @@
 ﻿using CatalogService.Domain.DomainEvents.Products;
+using CatalogService.Domain.DomainEvents.Products.ProductAttributes;
+using CatalogService.Domain.DomainEvents.Products.ProductCategories;
+using CatalogService.Domain.DomainEvents.Products.ProductVariants;
 using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.DomainService.Products;
@@ -436,9 +439,10 @@ public sealed class ProductDomainService(
     }
     #endregion
 
-    private static void AddDomainEvents(Guid ProductId, IDomainEvent domainEvent)
+    private void AddDomainEvents(Guid ProductId, IDomainEvent domainEvent)
     {
         var proxyProduct = Product.CreateProxy(ProductId);
+        productRepository.Attach(proxyProduct);
         proxyProduct.AddDomainEvent(domainEvent);
     }
 }

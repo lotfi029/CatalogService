@@ -56,7 +56,9 @@ public class ApplicationDbContext(
     private async Task PublicDomainEventsAsync(CancellationToken ct = default)
     {
         var domainEvents = ChangeTracker
-            .Entries<Entity>()
+            .Entries<Entity>();
+
+        var domain = domainEvents
             .Select(e => e.Entity)
             .SelectMany(entity =>
             {
@@ -66,6 +68,6 @@ public class ApplicationDbContext(
                 return domainEvent;
             }).ToList();
 
-        await domainEventsDispatcher.DispatchAsync(domainEvents, ct);
+        await domainEventsDispatcher.DispatchAsync(domain, ct);
     }
 }
