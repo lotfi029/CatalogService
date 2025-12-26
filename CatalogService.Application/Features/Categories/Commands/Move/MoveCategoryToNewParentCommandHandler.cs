@@ -23,10 +23,13 @@ internal sealed class MoveCategoryToNewParentCommandHandler(
         if (category.ParentId == command.NewParentId)
             return CategoryErrors.AlreadyHasThisParent;
 
+        if (await repository.FindAsync(command.NewParentId, null, ct) is not { } categoryParent)
+            return CategoryErrors.ParentNotFound(command.NewParentId);
+
         using var transaction = await unitOfWork.BeginTransactionAsync(ct);
         try
         {
-            var result = await categoryDomainService.MoveToNewParent(category.Id, command.Id, ct);
+            var result = await categoryDomainService.MoveToNewParent(id: command.Id, parent: categoryParent, ct);
 
             if (result.IsFailure)
             {

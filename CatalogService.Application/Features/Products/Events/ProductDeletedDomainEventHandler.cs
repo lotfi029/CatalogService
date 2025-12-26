@@ -1,16 +1,29 @@
-﻿using CatalogService.Application.Features.Products.Queries;
-using CatalogService.Application.Interfaces;
+﻿using CatalogService.Application.Interfaces;
 using CatalogService.Domain.DomainEvents.Products;
 
 namespace CatalogService.Application.Features.Products.Events;
 
 internal sealed class ProductDeletedDomainEventHandler(
     IProductSearchService productSearchService,
-    IProductQueries productQueries,
-    ILogger<ProductDeactivatedDomainEventHandler> logger) 
-    :   ProductDomainEventHandlerBase(productSearchService, productQueries, logger),
-        IDomainEventHandler<ProductDeletedDomainEvent>
+    ILogger<ProductDeactivatedDomainEventHandler> logger) : IDomainEventHandler<ProductDeletedDomainEvent>
 {
     public async Task HandleAsync(ProductDeletedDomainEvent domainEvent, CancellationToken cancellationToken)
-        => await base.HandleAsync(domainEvent.Id, cancellationToken);
+    {
+        try
+        {
+            var deletingProductResult = await productSearchService.DeleteDocumentAsync(domainEvent.Id, cancellationToken);
+            if (deletingProductResult.IsFailure)
+            {
+                logger.LogError("Error ocurred while deleting product document the error: {error}",
+                    deletingProductResult.Error.ToString());
+            }
+            return;
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex,
+                "Error Ocurred while handling product deleting event with product Id: {productId}",
+                domainEvent.Id);
+        }
+    }
 }

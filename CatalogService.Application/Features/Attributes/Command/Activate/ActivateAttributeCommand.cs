@@ -1,9 +1,11 @@
-﻿namespace CatalogService.Application.Features.Attributes.Command.Activate;
+﻿using CatalogService.Domain.DomainService.Attributes;
+
+namespace CatalogService.Application.Features.Attributes.Command.Activate;
 
 public sealed record ActivateAttributeCommand(Guid Id) : ICommand;
 
 internal sealed class ActivateAttributeCommandHandler(
-    IAttributeRepository attributeRepository,
+    IAttributeDomainService attributeDomainService,
     IUnitOfWork unitOfWork,
     ILogger<ActivateAttributeCommandHandler> logger) : ICommandHandler<ActivateAttributeCommand>
 {
@@ -14,13 +16,9 @@ internal sealed class ActivateAttributeCommandHandler(
 
         try
         {
-            if (await attributeRepository.FindAsync(command.Id, null, ct) is not { } attribute)
-                return AttributeErrors.NotFound(command.Id);
+            if (await attributeDomainService.ActiveAsync(command.Id, ct) is { IsFailure: true } activationErrors)
+                return activationErrors;
 
-            if (attribute.Activate() is { IsFailure: true } error)
-                return error;
-
-            attributeRepository.Update(attribute);
             await unitOfWork.SaveChangesAsync(ct);
             return Result.Success();
         }

@@ -24,7 +24,6 @@ public interface ICategoryVariantAttributeRepository
     Task<IEnumerable<CategoryVariantAttribute>> GetCategoryVariantsByCategoryIdId(
         Guid categoryId,
         CancellationToken ct = default);
-    Task<int> RemoveAllByCategoryAsync(Guid categoryId, CancellationToken ct = default);
-    Task<int> RemoveAllByVariantAttributeAsync(Guid variantAttributeId, CancellationToken ct = default);
+    Task<int> ExecuteDeleteAsync(Expression<Func<CategoryVariantAttribute, bool>> predicate, CancellationToken ct = default);
     Task<int> ExecuteUpdateAsync(Expression<Func<CategoryVariantAttribute, bool>> predicate, Action<UpdateSettersBuilder<CategoryVariantAttribute>> action, CancellationToken ct = default);
 }

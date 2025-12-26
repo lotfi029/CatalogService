@@ -67,6 +67,14 @@ internal sealed class ProductAttributeRepository(ApplicationDbContext context) :
             .Where(e => e.ProductId == productId)
             .ToListAsync(ct);
     }
+    public async Task<IEnumerable<ProductAttributes>> GetAllByAttributeIdAsync(
+        Guid attributeId,
+        CancellationToken ct = default)
+    {
+        return await _dbSet
+            .Where(e => e.AttributeId == attributeId)
+            .ToListAsync(ct);
+    }
 
     public async Task<ProductAttributes?> GetById(
         Guid productId,

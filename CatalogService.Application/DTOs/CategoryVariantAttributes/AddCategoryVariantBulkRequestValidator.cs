@@ -15,8 +15,7 @@ public sealed class AddCategoryVariantBulkRequestValidator : AbstractValidator<A
                 var displayOrders = Variants.Select(d => d.DisplayOrder);
                 
                 var validDisplayOrder =
-                    displayOrders.Count() == displayOrders.Distinct().Count() &&
-                    displayOrders.Min() == 1 && displayOrders.Max() == displayOrders.Count();
+                    displayOrders.Count() == displayOrders.Distinct().Count();
 
 
                 if (variantIds.Count() != variantIds.Distinct().Count())
@@ -29,7 +28,7 @@ public sealed class AddCategoryVariantBulkRequestValidator : AbstractValidator<A
 
                 if (!validDisplayOrder)
                     context.AddFailure("DisplayOrder",
-                        "'Variants' the display order for all variant must be ordered and unique");
+                        "'Variants' the display order for all variant must unique");
 
             }).When(v => v.Variants is not null);
     }

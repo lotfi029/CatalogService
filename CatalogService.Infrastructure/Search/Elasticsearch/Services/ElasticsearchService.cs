@@ -6,7 +6,7 @@ using Result = SharedKernel.Result;
 
 namespace CatalogService.Infrastructure.Search.Elasticsearch.Services;
 
-internal class ElasticsearchService<TDocument>(
+internal abstract class ElasticsearchService<TDocument>(
     ElasticsearchClient client,
     string indexName,
     string defaultIndex,

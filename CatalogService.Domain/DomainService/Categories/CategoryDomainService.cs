@@ -1,4 +1,6 @@
 ﻿using CatalogService.Domain.Contants;
+using CatalogService.Domain.DomainEvents.Categories;
+using CatalogService.Domain.DomainEvents.Categories.CategoryVariants;
 
 namespace CatalogService.Domain.DomainService.Categories;
 
@@ -44,18 +46,15 @@ public sealed class CategoryDomainService(
 
     public async Task<Result<List<Category>>> MoveToNewParent(
         Guid id,
-        Guid parentId,
+        Category parent,
         CancellationToken ct = default)
     {
-        if (await repository.FindAsync(parentId, null, ct) is not { } parent)
-            return CategoryErrors.NotFound(parentId);
-
         var categoryTree = await repository.GetChildrenAsync(id, ct);
 
         if (categoryTree is null || categoryTree.Count == 0)
             return CategoryErrors.NotFound(id);
 
-        if (categoryTree.Exists(e => e.Id == parentId))
+        if (categoryTree.Exists(e => e.Id == parent.Id))
             return CategoryErrors.InvalidChildToMoving;
 
         var rootCategory = categoryTree.FirstOrDefault(e => e.Id == id)!;
@@ -100,12 +99,12 @@ public sealed class CategoryDomainService(
 
         if (await repository.FindAllAsync(c => c.ParentId == id, ct: ct) is { } children)
         {
-            if (parentId is null)
-                return CategoryErrors.DeleteFailHasChildren;
+            if (!parentId.HasValue || await repository.FindAsync(parentId.Value, null, ct) is not { } parent)
+                return CategoryErrors.ParentNotFound(parentId ?? Guid.Empty); 
 
             foreach (var child in children)
             {
-                if (await MoveToNewParent(child.Id, parentId.Value, ct) is { IsFailure: true } moveError)
+                if (await MoveToNewParent(child.Id, parent, ct) is { IsFailure: true } moveError)
                     return moveError.Error;
             }
         }
@@ -140,7 +139,7 @@ public sealed class CategoryDomainService(
             return VariantAttributeErrors.NotFound(variantId);
 
         if (await categoryVariantRepository.ExistsAsync(id, variantId, ct))
-            return Errors.CategoryVariantAttributeErrors.AlreadyExists(id, variantId);
+            return CategoryVariantAttributeErrors.AlreadyExists(id, variantId);
 
         var categoryVariant = CategoryVariantAttribute.Create(
             categoryId: id,
@@ -152,6 +151,8 @@ public sealed class CategoryDomainService(
             return categoryVariant.Error;
 
         categoryVariantRepository.Add(categoryVariant.Value!);
+
+        AddDomainEvents(id, new CategoryVariantAddedDomainEvent(id, variantId));
 
         return Result.Success();
     }
@@ -185,9 +186,10 @@ public sealed class CategoryDomainService(
         }
 
         categoryVariantRepository.AddRange(categoryVariants);
-
+        AddDomainEvents(id, new CategoryVariantAddedBulkDomainEvent(id));
         return Result.Success();
     }
+
     public async Task<Result> UpdateCategoryVariantAttributeAsync(
         Guid id,
         Guid variantId,
@@ -198,29 +200,68 @@ public sealed class CategoryDomainService(
         if (await categoryVariantRepository.GetAsync(id, variantId, ct) is not { } categoryVariant)
             return CategoryVariantAttributeErrors.NotFound(id, variantId);
 
+        if (categoryVariant.DisplayOrder == displayOrder)
+            return Result.Success();
 
-        categoryVariant.UpdateDisplayOrder(displayOrder);
+        int operation = 0;
 
-        if (isRequired)
-            categoryVariant.MarkRequired();
+        if (displayOrder > categoryVariant.DisplayOrder)
+            operation = -1;
         else
-            categoryVariant.MarkOptional();
+            operation = 1;
 
-        categoryVariantRepository.Update(categoryVariant);
 
+        await categoryVariantRepository.ExecuteUpdateAsync(
+            predicate: 
+                cv => cv.CategoryId == id && 
+                Math.Min(displayOrder, categoryVariant.DisplayOrder) <= cv.DisplayOrder && 
+                cv.DisplayOrder <= Math.Max(displayOrder, categoryVariant.DisplayOrder),
+            action: x =>
+            {
+                x.SetProperty(prop => prop.DisplayOrder,
+                    val => (val.CategoryId == id && val.VariantAttributeId == variantId)
+                        ? displayOrder
+                        : val.DisplayOrder + operation);
+
+                x.SetProperty(
+                    prop => prop.IsRequired,
+                    val => (val.CategoryId == id && val.VariantAttributeId == variantId)
+                    ? isRequired
+                    : val.IsRequired);
+            }, ct);
+        AddDomainEvents(id, new CategoryVariantUpdatedDomainEvent(id, variantId));
         return Result.Success();
     }
-    public async Task<Result> RemoveVariantAttributeFromCategoryAsync(
+    public async Task<Result> RemoveVariantAttributeAsync(
         Guid id,
         Guid variantId,
         CancellationToken ct = default)
     {
-        if (await categoryVariantRepository.GetAsync(id, variantId, ct) is not { } categoryVariant)
-            return CategoryVariantAttributeErrors.NotFound(id, variantId);
+        await categoryVariantRepository.ExecuteDeleteAsync(
+            predicate: cv => cv.CategoryId == id && cv.VariantAttributeId == variantId,
+            ct);
 
-        categoryVariantRepository.Remove(categoryVariant);
+        AddDomainEvents(id, new CategoryVariantDeletedDomainEvent(id));
 
         return Result.Success();
     }
-    // TODO: Remove service
+    public async Task<Result> RemoveAllVariantAttributesAsync(
+        Guid id,
+        CancellationToken ct = default)
+    {
+        await categoryVariantRepository.ExecuteDeleteAsync(
+            predicate: cv => cv.CategoryId == id,
+            ct);
+
+        AddDomainEvents(id, new CategoryVariantDeletedDomainEvent(id));
+
+        return Result.Success();
+    }
+
+    private void AddDomainEvents(Guid id, IDomainEvent domainEvent)
+    {
+        var categoryProxy = Category.CreateProxy(id);
+        repository.Attach(categoryProxy);
+        categoryProxy.AddDomainEvent(domainEvent);
+    }
 }

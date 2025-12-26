@@ -61,33 +61,19 @@ public class Attribute : AuditableEntity
             options
             );
     }
-    public static Result<Attribute> CreateProxy(Guid Id)
+    public static Attribute CreateProxy(Guid Id)
     {
-        return Result.Success(new Attribute(id: Id));
+        return new(id: Id);
     }
-    public Result UpdateDetails(string name, bool isFilterable, bool isSearchable)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return DomainErrors.Null(name);
+    //public Result UpdateOptions(ValuesJson options)
+    //{
+    //    if (VerifyOptions(OptionsType, options) is { IsFailure: true } result)
+    //        return result;
 
-
-        Name = name;
-        IsFilterable = isFilterable;
-        IsSearchable = isSearchable;
-
-        AddDomainEvent(new AttributeDetailsUpdatedDomainEvent(Id));
-
-        return Result.Success();
-    }
-    public Result UpdateOptions(ValuesJson options)
-    {
-        if (VerifyOptions(OptionsType, options) is { IsFailure: true } result)
-            return result;
-
-        Options = options;
-        AddDomainEvent(new AttributeOptionsUpdatedDomainEvent(Id));
-        return Result.Success();
-    }
+    //    Options = options;
+        
+    //    return Result.Success();
+    //}
     public Result Activate()
     {
         if (IsActive)
@@ -104,16 +90,6 @@ public class Attribute : AuditableEntity
             return DomainErrors.Attributes.InvalidDeactiveOperation;
         Deactive();
         AddDomainEvent(new AttributeDeactivatedDomainEvent(Id));
-        return Result.Success();
-    }
-    public Result Deleted()
-    {
-        if (IsDeleted)
-            return DomainErrors.Attributes.NotFound;
-
-        Delete();
-
-        AddDomainEvent(new AttributeDeletedDomainEvent(Id));
         return Result.Success();
     }
 

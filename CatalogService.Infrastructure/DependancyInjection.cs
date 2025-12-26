@@ -119,6 +119,8 @@ public static class DependancyInjection
         });
         services.AddSingleton<IElasticsearchIndexManager, ElasticsearchIndexManager>();
         services.AddScoped<IProductSearchService, ProductSearchService>();
+        services.AddScoped<IAttributeSearchService, AttributeSearchService>();
+        services.AddScoped<ICategorySearchService, CategorySearchService>();
         
         return services;
     }

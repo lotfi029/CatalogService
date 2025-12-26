@@ -18,4 +18,5 @@ public interface IProductAttributeRepository
     Task<ProductAttributes?> GetById(Guid productId, Guid attributeId, CancellationToken ct = default);
     Task<int> ExecuteDeleteAsync(Expression<Func<ProductAttributes, bool>> predicate, CancellationToken ct = default);
     Task<int> ExecuteUpdateAsync(Expression<Func<ProductAttributes, bool>> predicate, Action<UpdateSettersBuilder<ProductAttributes>> action, CancellationToken ct = default);
+    Task<IEnumerable<ProductAttributes>> GetAllByAttributeIdAsync(Guid attributeId, CancellationToken ct = default);
 }

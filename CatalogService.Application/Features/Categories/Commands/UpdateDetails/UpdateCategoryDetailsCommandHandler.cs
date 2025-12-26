@@ -24,7 +24,7 @@ internal sealed class UpdateCategoryDetailsCommandHandler(
         catch (Exception ex)
         {
             logger.LogError(ex,
-                "Error occurred while updating category details for category {CategoryId}",
+                "Error ocurred while updating category details for category {CategoryId}",
                 command.Id);
             return Error.Unexpected($"Error Occured While Update Category Details With Id: {command.Id}");
         }

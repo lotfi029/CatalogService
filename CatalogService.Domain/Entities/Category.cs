@@ -13,10 +13,11 @@ public class Category : AuditableEntity
     public Category? Parent { get; private init; }
 
     private readonly List<Category> _children = [];
-    private readonly List<CategoryVariantAttribute> _variantAttributes = [];
-    public IReadOnlyCollection<CategoryVariantAttribute> CategoryVariantAttributes => _variantAttributes.AsReadOnly();
+    public ICollection<CategoryVariantAttribute> CategoryVariantAttributes { get; private set; } = [];
     public IReadOnlyCollection<Category> Children => _children.AsReadOnly();
     private Category() { }
+    private Category(Guid id) 
+        : base(id) { }
     private Category(
         string name,
         string slug,
@@ -71,7 +72,12 @@ public class Category : AuditableEntity
 
         return category;
     }
-    public static string CreatePath(string? parentPath, string slug)
+    public static Category CreateProxy(
+        Guid id)
+    {
+        return new(id);
+    }
+    private static string CreatePath(string? parentPath, string slug)
     {
         if (!string.IsNullOrWhiteSpace(parentPath))
             return $"{parentPath}/{slug}";
@@ -113,7 +119,5 @@ public class Category : AuditableEntity
         AddDomainEvent(new CategoryDeletedDomainEvent(Id));
         return Result.Success();
     }
-    public void AddChild(Category child)
-        => _children.Add(child);
 }
 

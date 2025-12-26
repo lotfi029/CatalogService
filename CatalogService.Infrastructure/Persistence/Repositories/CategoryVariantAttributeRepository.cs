@@ -91,20 +91,6 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
                 cv => cv.CategoryId == categoryId && cv.VariantAttributeId == variantAttributeId,
                 ct);
     }
-
-    public async Task<int> RemoveAllByCategoryAsync(Guid categoryId, CancellationToken ct = default)
-    {
-        return await _dbSet
-            .Where(cv => cv.CategoryId == categoryId)
-            .ExecuteDeleteAsync(ct);
-    }
-
-    public async Task<int> RemoveAllByVariantAttributeAsync(
-        Guid variantAttributeId,
-        CancellationToken ct = default)
-    {
-        return await _dbSet
-            .Where(cv => cv.VariantAttributeId == variantAttributeId)
-            .ExecuteDeleteAsync(ct);
-    }
+    public async Task<int> ExecuteDeleteAsync(Expression<Func<CategoryVariantAttribute, bool>> predicate, CancellationToken ct = default)
+        => await _dbSet.Where(predicate).ExecuteDeleteAsync(ct);
 }

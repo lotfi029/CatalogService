@@ -1,9 +1,11 @@
-﻿namespace CatalogService.Application.Features.Attributes.Command.Deactivate;
+﻿using CatalogService.Domain.DomainService.Attributes;
+
+namespace CatalogService.Application.Features.Attributes.Command.Deactivate;
 
 public sealed record DeactivateAttributeCommand(Guid Id) : ICommand;
 
 internal sealed class DeactivateAttributeCommandHandler(
-    IAttributeRepository attributeRepository,
+    IAttributeDomainService attributeDomainService,
     IUnitOfWork unitOfWork,
     ILogger<DeactivateAttributeCommandHandler> logger) : ICommandHandler<DeactivateAttributeCommand>
 {
@@ -14,13 +16,9 @@ internal sealed class DeactivateAttributeCommandHandler(
 
         try
         {
-            if (await attributeRepository.FindAsync(command.Id, null, ct) is not { } attribute)
-                return AttributeErrors.NotFound(command.Id);
+            if (await attributeDomainService.DeactiveAsync(command.Id, ct) is { IsFailure: true } deactivationErrors)
+                return deactivationErrors;
 
-            if (attribute.Deactivate() is { IsFailure: true} error)
-                return error;
-
-            attributeRepository.Update(attribute);
             await unitOfWork.SaveChangesAsync(ct);
             return Result.Success();
         }

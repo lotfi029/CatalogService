@@ -1,5 +1,4 @@
-﻿using CatalogService.Domain.DomainEvents.Products;
-using CatalogService.Domain.DomainEvents.Products.ProductAttributes;
+﻿using CatalogService.Domain.DomainEvents.Products.ProductAttributes;
 using CatalogService.Domain.DomainEvents.Products.ProductCategories;
 using CatalogService.Domain.DomainEvents.Products.ProductVariants;
 using CatalogService.Domain.JsonProperties;

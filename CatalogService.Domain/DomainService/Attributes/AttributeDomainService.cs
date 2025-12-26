@@ -1,5 +1,7 @@
 ﻿using CatalogService.Domain.Contants;
+using CatalogService.Domain.DomainEvents.Attributes;
 using CatalogService.Domain.JsonProperties;
+using Attribute = CatalogService.Domain.Entities.Attribute;
 
 namespace CatalogService.Domain.DomainService.Attributes;
 
@@ -15,7 +17,7 @@ public sealed class AttributeDomainService(
         if (!Enum.TryParse<VariantDataType>(optionType, ignoreCase: true, out var enumOptionType))
             return DomainErrors.Attributes.InvalidCastingEnum;
 
-        var attribute = Entities.Attribute.Create(
+        var attribute = Attribute.Create(
             name: name,
             code: code,
             optionType: new(enumOptionType),
@@ -33,23 +35,17 @@ public sealed class AttributeDomainService(
     }
     public async Task<Result> UpdateOptionsAsync(Guid id, ValuesJson options, CancellationToken ct = default)
     {
-        if (await attributeRepository.FindAsync(id, null, ct) is not { } attribute)
+        var updatedRows = await attributeRepository.ExcuteUpdateAsync(
+            predicate: a => a.Id == id && a.OptionsType.DataType == VariantDataType.Select,
+            action: x =>
+            {
+                x.SetProperty(e => e.Options, options);
+            }, ct);
+
+        if (updatedRows == 0)
             return AttributeErrors.NotFound(id);
 
-        if (attribute.OptionsType.DataType != VariantDataType.Select)
-            return AttributeErrors.InvalidUpdateOptions;
-
-        //await attributeRepository.ExcuteUpdateAsync(
-        //    predicate: a => a.Id == id,
-        //    action: x =>
-        //    {
-        //        x.SetProperty(e => e.Options, options);
-        //    }, ct);
-
-
-        attribute.UpdateOptions(options);
-        attributeRepository.Update(attribute);
-
+        AddDomainEvents(id, new AttributeOptionsUpdatedDomainEvent(id));
         return Result.Success();
     }
     public async Task<Result> UpdateDetailsAsync(
@@ -59,15 +55,19 @@ public sealed class AttributeDomainService(
         bool isSearchable,
         CancellationToken ct = default)
     {
-        if (await attributeRepository.FindAsync(id, null, ct) is not { } attribute)
+        var updatedRows = await attributeRepository.ExcuteUpdateAsync(
+            predicate: a => a.Id == id,
+            action: x =>
+            {
+                x.SetProperty(e => e.Name, name);
+                x.SetProperty(e => e.IsSearchable, isSearchable);
+                x.SetProperty(e => e.IsFilterable, isFilterable);
+            }, ct);
+
+        if (updatedRows == 0)
             return AttributeErrors.NotFound(id);
 
-        attribute.UpdateDetails(
-            name: name,
-            isFilterable: isFilterable,
-            isSearchable: isSearchable);
-
-        attributeRepository.Update(attribute);
+        AddDomainEvents(id, new AttributeDetailsUpdatedDomainEvent(id));
 
         return Result.Success();
     }
@@ -77,8 +77,8 @@ public sealed class AttributeDomainService(
         if (await attributeRepository.FindAsync(id, null, ct) is not { } attribute)
             return AttributeErrors.NotFound(id);
 
-        if (attribute.Deleted() is { IsFailure: true } error)
-            return error;
+        //if (attribute.Deleted() is { IsFailure: true } error)
+        //    return error;
 
         await productAttributeRepository.ExecuteUpdateAsync(
             predicate: pa => pa.AttributeId == id,
@@ -87,7 +87,46 @@ public sealed class AttributeDomainService(
                 pa.SetProperty(e => e.IsDeleted, true);
             }, ct);
 
-        attributeRepository.Update(attribute);
+        attributeRepository.Remove(attribute);
+
         return Result.Success();
+    }
+    public async Task<Result> DeactiveAsync(Guid id, CancellationToken ct = default)
+    {
+        var updatedRows = await attributeRepository.ExcuteUpdateAsync(
+            predicate: a => a.Id == id,
+            action: x =>
+            {
+                x.SetProperty(e => e.IsActive, false);
+            }, ct);
+
+        if (updatedRows == 0)
+            return AttributeErrors.NotFound(id);
+
+        AddDomainEvents(id, new AttributeDeactivatedDomainEvent(id));
+
+        return Result.Success();
+    }
+    public async Task<Result> ActiveAsync(Guid id, CancellationToken ct = default)
+    {
+        var updatedRows = await attributeRepository.ExcuteUpdateAsync(
+            predicate: a => a.Id == id,
+            action: x =>
+            {
+                x.SetProperty(e => e.IsActive, true);
+            }, ct);
+
+        if (updatedRows == 0)
+            return AttributeErrors.NotFound(id);
+
+        AddDomainEvents(id, new AttributeActivatedDomainEvent(id));
+
+        return Result.Success();
+    }
+    private void AddDomainEvents(Guid id, IDomainEvent domainEvent)
+    {
+        var attributeProxy = Attribute.CreateProxy(id);
+        attributeRepository.Attach(attributeProxy);
+        attributeProxy.AddDomainEvent(domainEvent);
     }
 }

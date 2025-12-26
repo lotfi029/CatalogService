@@ -18,7 +18,7 @@ internal sealed class RemoveCategoryVariantCommandHandler(
     {
         try
         {
-            var result = await categoryDomainService.RemoveVariantAttributeFromCategoryAsync(
+            var result = await categoryDomainService.RemoveVariantAttributeAsync(
                 command.Id,
                 command.VariantId,
                 ct);
