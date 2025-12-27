@@ -20,9 +20,29 @@ internal sealed class ProductSearchService(
         throw new NotImplementedException();
     }
 
-    public Task<List<string>> GetSuggestionsAsync(string prefix, int size = 10, CancellationToken ct = default)
+    public async Task<List<string>> GetSuggestionsAsync(string prefix, int size = 10, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var response = await client.SearchAsync<ProductDetailedResponse>(s => s
+            .Indices(_indexName)
+            .Size(size)
+            .Query(q => q
+                .Bool(b => b
+                    .Should(
+                        sh => sh.MatchPhrasePrefix(m => m.Field("name").Query(prefix).Boost(2)),
+                        sh => sh.Prefix(m => m.Field("name.keyword").Value(prefix)
+                    ))
+                    .Filter(f => f.Term(t => t.Field("isActive").Value(true)))
+                )
+            )
+            .Source(src => src.Filter(f => f.Includes(e => e.Name)))
+            , ct);
+
+        if (!response.IsValidResponse)
+        {
+            logger.LogError("Suggestions faileds: {Errors}", response.ElasticsearchServerError?.Error);
+            return [];
+        } 
+        return response.Documents.Select(d => d.Name).Distinct().ToList();
     }
 
     public async Task<(List<ProductDetailedResponse> Products, long Total)> SearchProductsAsync(
@@ -31,7 +51,6 @@ internal sealed class ProductSearchService(
         Dictionary<string, List<string>>? filters = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
-        string? status = null,
         int from = 0,
         int size = 20,
         CancellationToken ct = default)
@@ -56,15 +75,6 @@ internal sealed class ProductSearchService(
                 {
                     Field = "productCategories.categoryId",
                     Terms = new TermsQueryField([.. categoryIds.Select(e => FieldValue.String(e.ToString()))])
-                });
-            }
-
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                mustQueries.Add(new TermQuery
-                {
-                    Field = "status.keyword",
-                    Value = status
                 });
             }
             if (minPrice.HasValue || maxPrice.HasValue)
@@ -102,7 +112,7 @@ internal sealed class ProductSearchService(
                 }
             }
             var searchResponse = await client.SearchAsync<ProductDetailedResponse>(s => s
-            .Index(_indexName)
+            .Indices(_indexName)
             .From(from)
             .Size(size)
             .Query(q => q

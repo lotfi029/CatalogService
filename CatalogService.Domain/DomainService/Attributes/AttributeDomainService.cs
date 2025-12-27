@@ -77,17 +77,15 @@ public sealed class AttributeDomainService(
         if (await attributeRepository.FindAsync(id, null, ct) is not { } attribute)
             return AttributeErrors.NotFound(id);
 
-        //if (attribute.Deleted() is { IsFailure: true } error)
-        //    return error;
-
         await productAttributeRepository.ExecuteUpdateAsync(
             predicate: pa => pa.AttributeId == id,
             action: pa =>
             {
                 pa.SetProperty(e => e.IsDeleted, true);
             }, ct);
-
-        attributeRepository.Remove(attribute);
+        attribute.SetDelete();
+        attribute.AddDomainEvent(new AttributeDeletedDomainEvent(id));
+        attributeRepository.Update(attribute);
 
         return Result.Success();
     }
@@ -102,7 +100,7 @@ public sealed class AttributeDomainService(
 
         if (updatedRows == 0)
             return AttributeErrors.NotFound(id);
-
+        
         AddDomainEvents(id, new AttributeDeactivatedDomainEvent(id));
 
         return Result.Success();

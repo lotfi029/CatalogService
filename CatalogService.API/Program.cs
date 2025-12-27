@@ -34,6 +34,7 @@ if (app.Environment.IsDevelopment())
     });
     await app.Services.InitialElasticsearch();
 }
+Console.WriteLine(app.Environment.EnvironmentName);
 
 app.UseHttpsRedirection();
 

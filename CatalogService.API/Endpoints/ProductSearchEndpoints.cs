@@ -1,5 +1,7 @@
-﻿using CatalogService.Application.Interfaces;
-using CatalogService.Infrastructure.Search.Elasticsearch.IndexManager;
+﻿using CatalogService.Application.DTOs.Products;
+using CatalogService.Application.DTOs.Products.Search;
+using CatalogService.Application.Features.Products.Queries.Searchs.GetSuggestions;
+using CatalogService.Application.Features.Products.Queries.Searchs.Search;
 
 namespace CatalogService.API.Endpoints;
 
@@ -10,24 +12,60 @@ public class ProductSearchEndpoints : IEndpoint
         var group = app.MapGroup("/products/search")
             .WithTags("Product Search");
 
-        group.MapGet("/", Search);
+        group.MapPost("/products", Search)
+            .Produces(StatusCodes.Status200OK);
+
+        group.MapGet("/products/suggest", GetProductSuggestions)
+            .Produces(StatusCodes.Status200OK);
     }
     private async Task<IResult> Search(
-        [FromServices] IProductSearchService productSearch,
-        [FromServices] IElasticsearchIndexManager indexManager,
-        CancellationToken ct)
+        [AsParameters] SearchProductRequest request,
+        [FromServices] IQueryHandler<SearchProductQuery, (IEnumerable<ProductDetailedResponse> products, long Total)> handler,
+        [FromServices] IValidator<SearchProductRequest> validator,
+        CancellationToken ct = default)
     {
-        var indexResult = await indexManager.CreateProductIndexAsync(ct);
 
-        if (indexResult is false)
-            return TypedResults.BadRequest("Failed to index the product");
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationErrors)
+            return TypedResults.ValidationProblem(validationErrors.ToDictionary());
 
-        var response = await productSearch.SearchProductsAsync(
-            searchTerm: "produc",
-            categoryIds: [],
-            filters: [],
-            ct: ct);
+        var query = new SearchProductQuery(
+            SearchTerm: request.SearchTerm,
+            CategoryIds: request.CategoryIds,
+            Filters: request.Filters,
+            MinPrice: request.MinPrice,
+            MaxPrice: request.MaxPrice,
+            Page: request.Page,
+            Size: request.Size
+            );
 
-        return TypedResults.NoContent();
+        var result = await handler.HandleAsync(query, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(new
+            {
+                Data = result.Value.products,
+                result.Value.Total,
+                request.Page,
+                request.Size,
+                TotalPages = (int)Math.Ceiling((double)result.Value.Total / request.Size)
+            })
+            : result.ToProblem();
     }
+    private async Task<IResult> GetProductSuggestions(
+        [FromServices] IQueryHandler<GetProductSuggestionsQuery, List<string>> handler,
+        [FromQuery] string prefix,
+        [FromQuery] int size,
+        CancellationToken ct = default)
+    {
+        var query = new GetProductSuggestionsQuery(
+            prefix,
+            size);
+
+        var result = await handler.HandleAsync(query, ct);
+
+        return result.IsSuccess
+            ? TypedResults.Ok(result.Value)
+            : result.ToProblem();
+    }
+
 }

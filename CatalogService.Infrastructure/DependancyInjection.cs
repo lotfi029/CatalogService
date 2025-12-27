@@ -13,7 +13,6 @@ using CatalogService.Infrastructure.Persistence.ConnectionStrings;
 using CatalogService.Infrastructure.Persistence.Dapper;
 using CatalogService.Infrastructure.Persistence.Dapper.Queries;
 using CatalogService.Infrastructure.Persistence.Repositories;
-using CatalogService.Infrastructure.Search.Elasticsearch;
 using CatalogService.Infrastructure.Search.Elasticsearch.IndexManager;
 using CatalogService.Infrastructure.Search.Elasticsearch.Services;
 using CatalogService.Infrastructure.Search.ElasticSearch;

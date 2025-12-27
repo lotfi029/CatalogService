@@ -68,7 +68,7 @@ public sealed class ElasticsearchIndexManager(
 
     public async Task<bool> CreateCategoryIndexAsync(CancellationToken ct = default)
     {
-        var indexName = $"{_options.DefaultIndex}-categories";
+        var indexName = $"{_options.DefaultIndex}-{ElasticsearchIndexNames.CategoryPostfixIndex}";
 
         if (await IndexExistsAsync(indexName, ct))
         {
@@ -95,7 +95,7 @@ public sealed class ElasticsearchIndexManager(
 
     public async Task<bool> CreateAttributeIndexAsync(CancellationToken ct = default)
     {
-        var indexName = $"{_options.DefaultIndex}-attributes";
+        var indexName = $"{_options.DefaultIndex}-{ElasticsearchIndexNames.AttributePostfixIndex}";
 
         if (await IndexExistsAsync(indexName, ct))
         {
@@ -115,7 +115,11 @@ public sealed class ElasticsearchIndexManager(
                 .Boolean(b => b.IsFilterable)
                 .Boolean(b => b.IsSearchable)
                 .Boolean(b => b.IsActive)
-                .Keyword(k => k.Options)
+                .Object(e => e.Options, o => o
+                    .Properties(op => op
+                        .Keyword(k => k.Options!.Values)
+                    )
+                )
                 .Date(d => d.CreatedAt)
                 )), ct);
 
@@ -131,7 +135,7 @@ public sealed class ElasticsearchIndexManager(
 
     public async Task<bool> CreateVariantAttributeIndexAsync(CancellationToken ct = default)
     {
-        var indexName = $"{_options.DefaultIndex}-variant-attributes";
+        var indexName = $"{_options.DefaultIndex}-{ElasticsearchIndexNames.VariantAttributeDefinitionPostfixIndex}";
 
         if (await IndexExistsAsync(indexName, ct))
         {
@@ -151,7 +155,11 @@ public sealed class ElasticsearchIndexManager(
                 .Text(t => t.Name, td => td.Fields(f => f.Keyword("keyword")))
                 .Keyword(k => k.Datatype)
                 .Boolean(b => b.AffectsInventory)
-                .Keyword(k => k.AllowedValues)
+                .Object(e => e.AllowedValues, o => o
+                    .Properties(op => op
+                        .Keyword(e => e.AllowedValues!.Values)
+                    )
+                )
                 ))
             , ct);
 

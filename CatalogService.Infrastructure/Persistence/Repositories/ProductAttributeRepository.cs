@@ -69,10 +69,12 @@ internal sealed class ProductAttributeRepository(ApplicationDbContext context) :
     }
     public async Task<IEnumerable<ProductAttributes>> GetAllByAttributeIdAsync(
         Guid attributeId,
+        string[] ignoredQueryFilters,
         CancellationToken ct = default)
     {
         return await _dbSet
             .Where(e => e.AttributeId == attributeId)
+            .IgnoreQueryFilters(ignoredQueryFilters)
             .ToListAsync(ct);
     }
 

@@ -16,7 +16,8 @@ internal sealed class DeleteAttributeCommandHandler(
 
         try
         {
-            await attributeService.DeleteAsync(command.Id, ct);
+            if (await attributeService.DeleteAsync(command.Id, ct) is { IsFailure: true } deletionError)
+                return deletionError;
             await unitOfWork.SaveChangesAsync(ct);
             return Result.Success();
         }

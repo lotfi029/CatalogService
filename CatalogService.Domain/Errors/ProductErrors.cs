@@ -55,4 +55,9 @@ public class ProductErrors
         => Error.Unexpected("Failed to retrieve product");
     public static Error GetAllProduct
         => Error.Unexpected("Failed to retrieve products");
+
+    public static Error GetSuggestions
+        => Error.Unexpected("Failed to retrieve suggestions");
+    public static Error SearchProducts
+        => Error.Unexpected("Failed to retrieve products");
 }

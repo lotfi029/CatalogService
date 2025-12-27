@@ -31,8 +31,8 @@ internal sealed class AddProductCategoryCommandHandler(
                 return addingResult.Error;
             }
 
-            await unitOfWork.SaveChangesAsync(ct);
             await unitOfWork.CommitTransactionAsync(trainsaction, ct);
+            await unitOfWork.SaveChangesAsync(ct);
             return Result.Success();
         }
         catch(Exception ex)

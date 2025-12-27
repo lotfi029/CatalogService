@@ -65,15 +65,11 @@ public class Attribute : AuditableEntity
     {
         return new(id: Id);
     }
-    //public Result UpdateOptions(ValuesJson options)
-    //{
-    //    if (VerifyOptions(OptionsType, options) is { IsFailure: true } result)
-    //        return result;
-
-    //    Options = options;
-        
-    //    return Result.Success();
-    //}
+    public Result SetDelete()
+    {
+        Delete();
+        return Result.Success();
+    }
     public Result Activate()
     {
         if (IsActive)

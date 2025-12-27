@@ -57,7 +57,9 @@ internal sealed class ProductQueries(
                 pv.price_currency as Currency,
                 pv.compare_at_price as CompareAtPrice
             FROM public.product_variants pv
-            WHERE pv.product_id = @id;
+            WHERE pv.product_id = @id
+                AND pv.is_deleted = false;
+                
         
             -- Attributes
             SELECT 
@@ -86,9 +88,9 @@ internal sealed class ProductQueries(
 
         var result = product with
         {
-            ProductCategories = categories.Any() ? [.. categories] : null,
-            ProductVariants = variants.Any() ? [.. variants] : null,
-            ProductAttributes = attributes.Any() ? [.. attributes] : null
+            ProductCategories = categories.Any() ? [.. categories] : [],
+            ProductVariants = variants.Any() ? [.. variants] : [],
+            ProductAttributes = attributes.Any() ? [.. attributes] : []
         };
 
         return result;

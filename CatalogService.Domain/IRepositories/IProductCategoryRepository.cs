@@ -13,9 +13,11 @@ public interface IProductCategoryRepository
     Task<bool> ExistsAsync(Guid productId, Guid categoryId, CancellationToken ct = default);
     Task<IEnumerable<ProductCategories>> GetByCategoryIdAsync(
         Guid categoryId,
+        string[] ignoredQueryFilters,
         CancellationToken ct = default);
     Task<IEnumerable<ProductCategories>> GetByProductIdAsync(
         Guid productId,
+        string[] ignoredQueryFilters,
         CancellationToken ct = default);
     Task<ProductCategories?> GetAsync(
         Guid productId,

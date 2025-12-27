@@ -19,7 +19,6 @@ public interface IProductSearchService : IElasticsearchService<ProductDetailedRe
         Dictionary<string, List<string>>? filters = null,
         decimal? minPrice = null,
         decimal? maxPrice = null,
-        string? status = null,
         int from = 0,
         int size = 20,
         CancellationToken ct = default);

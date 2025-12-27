@@ -3,12 +3,12 @@ using CatalogService.Application.Interfaces;
 
 namespace CatalogService.Application.Features.Categories.Events;
 
-internal abstract class CategoryDomainEventHandlerBase(
+internal abstract class CategoryIndexingEventHandlerBase(
     ICategoryQueries categoryQueries,
     ICategorySearchService categorySearchService,
     ILogger logger)
 {
-    protected async Task HandleAsync(Guid id, CancellationToken ct = default)
+    protected async Task UpdateCategoryIndexAsync(Guid id, CancellationToken ct = default)
     {
         if (await categoryQueries.GetByIdAsync(id, ct) is not { IsSuccess: true } category)
         {

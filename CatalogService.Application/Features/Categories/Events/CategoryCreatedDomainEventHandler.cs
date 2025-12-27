@@ -8,14 +8,14 @@ internal sealed class CategoryCreatedDomainEventHandler(
     ICategoryQueries categoryQueries,
     ICategorySearchService categorySearchService,
     ILogger<CategoryCreatedDomainEventHandler> logger)
-    : CategoryDomainEventHandlerBase(categoryQueries, categorySearchService, logger),
+    : CategoryIndexingEventHandlerBase(categoryQueries, categorySearchService, logger),
     IDomainEventHandler<CategoryCreatedDomainEvent>
 {
     public async Task HandleAsync(CategoryCreatedDomainEvent domainEvent, CancellationToken ct)
     {
         try
         {
-            await base.HandleAsync(domainEvent.Id, ct);
+            await base.UpdateCategoryIndexAsync(domainEvent.Id, ct);
         }
         catch (Exception ex)
         {

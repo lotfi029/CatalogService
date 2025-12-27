@@ -60,17 +60,19 @@ internal class ProductCategoryRepository(ApplicationDbContext context) : IProduc
             .FindAsync([productId, categoryId], cancellationToken: ct);
     }
 
-    public async Task<IEnumerable<ProductCategories>> GetByCategoryIdAsync(Guid categoryId, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductCategories>> GetByCategoryIdAsync(Guid categoryId, string[] ignoredQueryFilters, CancellationToken ct = default)
     {
         return await context.ProductCategories
             .Where(pc => pc.CategoryId == categoryId)
+            .IgnoreQueryFilters(ignoredQueryFilters)
             .ToListAsync(ct);
     }
 
-    public async Task<IEnumerable<ProductCategories>> GetByProductIdAsync(Guid productId, CancellationToken ct = default)
+    public async Task<IEnumerable<ProductCategories>> GetByProductIdAsync(Guid productId, string[] ignoredQueryFilters, CancellationToken ct = default)
     {
         return await context.ProductCategories
             .Where(pc => pc.ProductId == productId)
+            .IgnoreQueryFilters(ignoredQueryFilters)
             .ToListAsync(ct);
     }
 

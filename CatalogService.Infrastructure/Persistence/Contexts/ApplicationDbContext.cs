@@ -44,6 +44,10 @@ public class ApplicationDbContext(
                     else 
                         entityTrack.Entity.SetUpdateAudit(Guid.NewGuid().ToString());
                     break;
+                case EntityState.Deleted:
+                    entityTrack.Entity.SetDeletionAudit(Guid.NewGuid().ToString());
+                    entityTrack.State = EntityState.Modified;
+                    break;
                 default:
                     break;
             }

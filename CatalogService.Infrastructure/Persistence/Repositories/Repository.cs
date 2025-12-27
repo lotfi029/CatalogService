@@ -106,7 +106,7 @@ public class Repository<T> : IRepository<T>
         else
         {
             return await _dbSet
-                .IgnoreQueryFilters()
+                .IgnoreQueryFilters(ignoreQueryFilters)
                 .SingleOrDefaultAsync(e => e.Id == id, ct);
         }
     }
