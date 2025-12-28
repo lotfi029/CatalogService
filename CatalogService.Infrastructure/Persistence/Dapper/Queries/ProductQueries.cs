@@ -4,7 +4,6 @@ using CatalogService.Application.DTOs.Products;
 using CatalogService.Application.DTOs.ProductVariants;
 using CatalogService.Application.Features.Products.Queries;
 using CatalogService.Domain.JsonProperties;
-using System.Linq;
 
 namespace CatalogService.Infrastructure.Persistence.Dapper.Queries;
 
@@ -125,83 +124,97 @@ internal sealed class ProductQueries(
     }
 
     public async Task<List<ProductDetailedResponse>> GetByIdsAsync(
-        IEnumerable<Guid> ids,
+        List<Guid>? ids,
         CancellationToken ct = default)
     {
-        var idList = ids.ToList();
-
-        if (idList.Count == 0)
+        if (ids?.Count == 0)
             return [];
 
         var connection = connectionFactory.CreateConnection();
 
         var sql = """
-        -- Products
-        SELECT 
-            p.id as Id,
-            p.name as Name,
-            p.description as Description,
-            p.vendor_id as VendorId,
-            CASE 
-                WHEN p.status = 1 THEN 'Draft'
-                WHEN p.status = 2 THEN 'Active'
-                WHEN p.status = 3 THEN 'Inactive'
-                WHEN p.status = 4 THEN 'Archive'
-                ELSE 'Unspecified'
-            END as Status,
-            p.created_at as CreatedAt,
-            p.last_updated_at as LastUpdatedAt,
-            p.is_active as IsActive
-        FROM public.products p
-        WHERE p.id = ANY(@ids)
-            AND p.is_deleted = false;
+            -- Products
+            SELECT 
+                p.id as Id,
+                p.name as Name,
+                p.description as Description,
+                p.vendor_id as VendorId,
+                CASE 
+                    WHEN p.status = 1 THEN 'Draft'
+                    WHEN p.status = 2 THEN 'Active'
+                    WHEN p.status = 3 THEN 'Inactive'
+                    WHEN p.status = 4 THEN 'Archive'
+                    ELSE 'Unspecified'
+                END as Status,
+                p.created_at as CreatedAt,
+                p.last_updated_at as LastUpdatedAt,
+                p.is_active as IsActive
+            FROM public.products p
+            WHERE p.is_deleted = false
+                AND (
+                    @ids::uuid[] IS NULL
+                    OR cardinality(@ids) = 0
+                    OR p.id = ANY(@ids)
+                );
         
-        -- Categories
-        SELECT 
-            pc.product_id as ProductId,
-            c.id as CategoryId,
-            c.name as CategoryName,
-            c.slug as CategorySlug,
-            pc.is_primary as IsPrimary
-        FROM public.product_categories pc
-        INNER JOIN public.categories c
-            ON pc.category_id = c.id
-        WHERE pc.product_id = ANY(@ids)
-            AND c.is_active = true
-            AND c.is_deleted = false;
+            -- Categories
+            SELECT 
+                pc.product_id as ProductId,
+                c.id as CategoryId,
+                c.name as CategoryName,
+                c.slug as CategorySlug,
+                pc.is_primary as IsPrimary
+            FROM public.product_categories pc
+            INNER JOIN public.categories c
+                ON pc.category_id = c.id
+            WHERE (
+                    @ids::uuid[] IS NULL
+                    OR cardinality(@ids) = 0
+                    OR pc.product_id = ANY(@ids)
+                )
+                AND c.is_active = true
+                AND c.is_deleted = false;
         
-        -- Variants
-        SELECT 
-            pv.product_id as ProductId,
-            pv.id as ProductVariantId,
-            pv.sku as Sku,
-            pv.variant_attributes as VariantAttributes,
-            pv.customization_options as CustomizationOptions,
-            pv.price as Price,
-            pv.price_currency as Currency,
-            pv.compare_at_price as CompareAtPrice
-        FROM public.product_variants pv
-        WHERE pv.product_id = ANY(@ids);
+            -- Variants
+            SELECT 
+                pv.product_id as ProductId,
+                pv.id as ProductVariantId,
+                pv.sku as Sku,
+                pv.variant_attributes as VariantAttributes,
+                pv.customization_options as CustomizationOptions,
+                pv.price as Price,
+                pv.price_currency as Currency,
+                pv.compare_at_price as CompareAtPrice
+            FROM public.product_variants pv
+            WHERE (
+                    @ids::uuid[] IS NULL
+                    OR cardinality(@ids) = 0
+                    OR pv.product_id = ANY(@ids)
+                );
         
-        -- Attributes
-        SELECT 
-            pa.product_id as ProductId,
-            a.id as AttributeId,
-            a.name as AttributeName,
-            a.code as AttributeCode,
-            a.is_filterable as IsFilterable,
-            a.is_searchable as IsSearchable,
-            pa.value as AttributeValue
-        FROM public.product_attributes pa
-        INNER JOIN public.attributes a
-            ON pa.attribute_id = a.id
-        WHERE pa.product_id = ANY(@ids)
-            AND a.is_active = true
-            AND a.is_deleted = false;
-        """;
+            -- Attributes
+            SELECT 
+                pa.product_id as ProductId,
+                a.id as AttributeId,
+                a.name as AttributeName,
+                a.code as AttributeCode,
+                a.is_filterable as IsFilterable,
+                a.is_searchable as IsSearchable,
+                pa.value as AttributeValue
+            FROM public.product_attributes pa
+            INNER JOIN public.attributes a
+                ON pa.attribute_id = a.id
+            WHERE (
+                    @ids::uuid[] IS NULL
+                    OR cardinality(@ids) = 0
+                    OR pa.product_id = ANY(@ids)
+                )
+                AND a.is_active = true
+                AND a.is_deleted = false;
+            """;
 
         using var multi = await connection.QueryMultipleAsync(
-            new CommandDefinition(sql, new { ids = idList }, cancellationToken: ct));
+            new CommandDefinition(sql, new { ids }, cancellationToken: ct));
 
         var products = (await multi.ReadAsync<ProductDetailedResponse>()).ToList();
 

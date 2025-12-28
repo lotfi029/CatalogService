@@ -1,0 +1,22 @@
+﻿using CatalogService.Application.DTOs.Products;
+
+namespace CatalogService.Application.Interfaces;
+
+public interface IProductSearchService : IElasticsearchService<ProductDetailedResponse>
+{
+    Task<(List<ProductDetailedResponse> Products, long Total)> SearchProductsAsync(
+        string? searchTerm = null,
+        List<Guid>? categoryIds = null,
+        Dictionary<string, List<string>>? filters = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        int from = 0,
+        int size = 20,
+        CancellationToken ct = default);
+
+    Task<List<string>> GetSuggestionsAsync(string prefix, int size = 10, CancellationToken ct = default);
+
+    Task<Dictionary<string, List<(string Value, long Count)>>> GetFacetsAsync(
+        List<Guid>? categoryIds = null,
+        CancellationToken ct = default);
+}

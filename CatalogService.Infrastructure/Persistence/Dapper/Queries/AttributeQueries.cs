@@ -59,8 +59,8 @@ internal sealed class AttributeQueries(
             WHERE a.is_active = true
                 AND a.is_deleted = false
                 AND (
-                @ids is null 
-                or cardinality(@ids) = 0
+                @ids::uuid[] is null
+                OR cardinality(@ids) = 0
                 or a.id = ANY(@ids)
                 )
             """;

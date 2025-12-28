@@ -1,4 +1,4 @@
-﻿namespace CatalogService.Infrastructure.Search.Elasticsearch.IndexManager;
+﻿namespace CatalogService.Application.Interfaces;
 
 public interface IBulkReindexService
 {

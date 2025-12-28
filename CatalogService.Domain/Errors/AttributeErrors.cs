@@ -55,4 +55,7 @@ public class AttributeErrors
     public static Error GetAttributeByType
         => Error.Unexpected("Failed to get attributes by type");
 
+    public static Error ReindexAttributes
+        => Error.Unexpected("Failed to reindex all attributes");
+
 }

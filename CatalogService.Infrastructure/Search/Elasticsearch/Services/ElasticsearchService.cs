@@ -2,7 +2,6 @@
 using CatalogService.Infrastructure.Search.Errors;
 using Elastic.Clients.Elasticsearch;
 using Microsoft.Extensions.Logging;
-using Result = SharedKernel.Result;
 
 namespace CatalogService.Infrastructure.Search.Elasticsearch.Services;
 
@@ -25,22 +24,6 @@ internal abstract class ElasticsearchService<TDocument>(
         if (!response.IsValidResponse)
         {
             logger.LogError("Failed to index document: {Error}", response.ElasticsearchServerError?.Error);
-            return ElasticsearchServiceErrors.IndexedFailed;
-        }
-
-        return Result.Success();
-    }
-
-
-    public async Task<Result> IndexManyAsync(
-        IEnumerable<TDocument> documents,
-        CancellationToken ct = default)
-    {
-        var response = await client.IndexManyAsync(documents, _indexName, ct);
-
-        if (!response.IsValidResponse)
-        {
-            logger.LogError("Failed to bulk index documents: {Error}", response.ElasticsearchServerError?.Error);
             return ElasticsearchServiceErrors.IndexedFailed;
         }
 
@@ -103,5 +86,10 @@ internal abstract class ElasticsearchService<TDocument>(
         return response.Exists
             ? Result.Success()
             : ElasticsearchServiceErrors.NotFound;
+    }
+
+    public virtual Task<Result> IndexManyAsync(IEnumerable<TDocument> documents, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
     }
 }

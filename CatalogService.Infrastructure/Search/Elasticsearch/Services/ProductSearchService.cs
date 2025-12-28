@@ -1,6 +1,7 @@
 ﻿using CatalogService.Application.DTOs.Products;
 using CatalogService.Application.Interfaces;
 using CatalogService.Infrastructure.Search.ElasticSearch;
+using CatalogService.Infrastructure.Search.Errors;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Microsoft.Extensions.Logging;
@@ -150,5 +151,20 @@ internal sealed class ProductSearchService(
             logger.LogError(ex, "Error occurred while searching products.");
             return (new List<ProductDetailedResponse>(), 0);
         }
+    }
+
+    public sealed override async Task<Result> IndexManyAsync(IEnumerable<ProductDetailedResponse> documents, CancellationToken ct = default)
+    {
+        var response = await client.BulkAsync(b => b
+            .Index(_indexName)
+            .IndexMany(documents, (d, doc) => d.Id(doc.Id)),
+            ct);
+        if (!response.IsValidResponse)
+        {
+            logger.LogError("Failed to bulk index documents: {Error}", response.ElasticsearchServerError?.Error);
+            return ElasticsearchServiceErrors.IndexedFailed;
+        }
+
+        return Result.Success();
     }
 }

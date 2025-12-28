@@ -11,3 +11,4 @@ global using CatalogService.Domain.IRepositories;
 global using CatalogService.Infrastructure.Persistence.Contexts;
 
 global using SharedKernel;
+global using Result = SharedKernel.Result;

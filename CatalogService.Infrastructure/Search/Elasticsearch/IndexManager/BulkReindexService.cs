@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CatalogService.Infrastructure.Search.Elasticsearch.IndexManager;
 
-public sealed class BulkReindexService(
+internal sealed class BulkReindexService(
     IServiceProvider serviceProvider,
     ILogger<BulkReindexService> logger) : IBulkReindexService
 {
@@ -27,7 +27,6 @@ public sealed class BulkReindexService(
     public async Task ReindexAllProductsAsync(CancellationToken ct = default)
     {
         using var scope = serviceProvider.CreateScope();
-        var productRepository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
         var productQueries = scope.ServiceProvider.GetRequiredService<IProductQueries>();
         var esService = scope.ServiceProvider.GetRequiredService<IProductSearchService>();
 
@@ -35,26 +34,28 @@ public sealed class BulkReindexService(
         {
             logger.LogInformation("Starting product reindex");
 
-            var products = await productRepository.GetWithPredicateAsync(p => p.IsActive, ct);
-            var productList = products.ToList();
+            var products = await productQueries.GetByIdsAsync(null, ct);
+            if (products.Count == 0)
+            {
+                logger.LogInformation("There is no products to reindex");
+                return;
+            }
+            logger.LogInformation("Found {Count} products to reindex", products.Count);
 
-            logger.LogInformation("Found {Count} products to reindex", productList.Count);
-
-            var batches = productList.Chunk(BatchSize);
-            var totalBatches = (int)Math.Ceiling((double)productList.Count / BatchSize);
+            var batches = products.Chunk(BatchSize);
+            var totalBatches = (int)Math.Ceiling((double)products.Count / BatchSize);
             var currentBatch = 0;
 
-            foreach (var batch in batches)
+            foreach (var document in batches)
             {
                 currentBatch++;
-                var documents = await productQueries.GetByIdsAsync(productList.Select(e => e.Id), ct);
 
-                var success = await esService.IndexManyAsync(documents, ct);
+                var success = await esService.IndexManyAsync(document, ct);
 
                 if (success.IsSuccess)
                 {
                     logger.LogInformation("Indexed batch {Current}/{Total} ({Count} products)",
-                        currentBatch, totalBatches, documents.Count);
+                        currentBatch, totalBatches, document.Count());
                 }
                 else
                 {
@@ -64,7 +65,7 @@ public sealed class BulkReindexService(
                 await Task.Delay(100, ct);
             }
 
-            logger.LogInformation("Completed product reindex: {Count} products indexed", productList.Count);
+            logger.LogInformation("Completed product reindex: {Count} products indexed", products.Count);
         }
         catch (Exception ex)
         {
@@ -77,21 +78,21 @@ public sealed class BulkReindexService(
     {
         using var scope = serviceProvider.CreateScope();
         var categoryQuery = scope.ServiceProvider.GetRequiredService<ICategoryQueries>();
-        var categoryRepository = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
         var esService = scope.ServiceProvider.GetRequiredService<ICategorySearchService>();
 
         try
         {
             logger.LogInformation("Starting category reindex");
 
-            var categories = await categoryRepository.GetWithPredicateAsync(x => x.IsActive, ct);
-            var documents = await categoryQuery.GetCategoriesByIdAsync([.. categories.Select(x => x.Id)], ct: ct);
+            var documents = await categoryQuery.GetCategoriesByIdAsync([], ct: ct);
+            if (documents.Count == 0)
+            {
+                logger.LogInformation("There is no categories to reindex");
+                return;
+            }
             logger.LogInformation("Found {Count} categories to reindex", documents.Count);
-
-
             await esService.IndexManyAsync(documents, ct);
-
-            logger.LogInformation("Completed category reindex: {Count} categories indexed", documents);
+            logger.LogInformation("Completed category reindex: {Count} categories indexed", documents.Count);
         }
         catch (Exception ex)
         {
@@ -111,7 +112,11 @@ public sealed class BulkReindexService(
             logger.LogInformation("Starting attribute reindex");
 
             var documents = await attributeQuery.GetByIdsAsync(null, ct);
-
+            if (documents.Count == 0)
+            {
+                logger.LogInformation("There is no attribute to reindex");
+                return;
+            }
             await esService.IndexManyAsync(documents, ct);
 
             logger.LogInformation("Completed attribute reindex: {Count} attributes indexed", documents.Count);

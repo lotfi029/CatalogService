@@ -194,11 +194,15 @@ public sealed class CategoryQueries(
             	AND va.is_active = true
             WHERE c.is_deleted = false
             	AND c.is_active = true
-                AND c.id = ANY(@ids)
+                AND (
+                    @ids::uuid[] IS NULL
+                    OR cardinality(@ids) = 0
+                    OR c.id = ANY(@ids)
+                )
             ORDER BY c.level, c.name, cva.display_order;
             """;
 
-        var parameter = ids is { Count: > 0 } ? new { ids } : null;
+        var parameter = new { ids };
         var lookup = new Dictionary<Guid, CategoryDetailedResponse>();
         var command = new CommandDefinition(sql, parameters: parameter, cancellationToken: ct);
 
@@ -208,13 +212,14 @@ public sealed class CategoryQueries(
                 if (!lookup.TryGetValue(category.Id, out var existing))
                 {
                     existing = category with { Variants = [] };
+                    lookup.Add(existing.Id, existing);
                 }
 
                 if (variant is not null)
                 {
                     existing.Variants!.Add(variant);
                 }
-                return category;
+                return existing;
             }, 
             splitOn: "VariantAttributeId");
 

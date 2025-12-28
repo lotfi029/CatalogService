@@ -13,8 +13,6 @@ public sealed record SearchProductQuery(
     int Size
     ) : IQuery<(IEnumerable<ProductDetailedResponse> products, long Total)>;
 
-
-
 internal sealed class SearchProductQueryHandler(
     IProductSearchService productSearchService,
     ILogger<SearchProductQueryHandler> logger) : IQueryHandler<SearchProductQuery, (IEnumerable<ProductDetailedResponse> products, long Total)>

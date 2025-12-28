@@ -65,4 +65,7 @@ public sealed class CategoryErrors
 
     public static Error DeleteCategory
         => Error.Unexpected("Failed to deleting category");
+
+    public static Error ReindexCategories
+        => Error.Unexpected("Failed to reindex all categories");
 }

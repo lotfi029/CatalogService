@@ -4,6 +4,7 @@ namespace CatalogService.Application.Interfaces;
 
 public interface ICategorySearchService : IElasticsearchService<CategoryDetailedResponse>
 {
+
     Task<(List<CategoryDetailedResponse> Categories, long Total)> SearchCategoriesAsync(
         string? searchTerm = null,
         Guid? parentId = null,
