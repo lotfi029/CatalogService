@@ -130,7 +130,8 @@ public sealed class CategoryQueries(
             	cva.display_order as DisplayOrder,
             	cva.is_required as IsRequired
             FROM public.categories c
-            LEFT JOIN public.category_variant_attributes cva ON c.id = cva.category_id
+            LEFT JOIN public.category_variant_attributes cva 
+                ON c.id = cva.category_id
             LEFT JOIN public.variant_attribute_definitions va 
             	ON cva.variant_attribute_id = va.id 
             	AND va.is_deleted = false
@@ -162,5 +163,64 @@ public sealed class CategoryQueries(
             return CategoryErrors.NotFound(id);
 
         return response;
+    }
+
+    public async Task<List<CategoryDetailedResponse>> GetCategoriesByIdAsync(
+        List<Guid>? ids, CancellationToken ct = default)
+    {
+        using var connection = connectionFactory.CreateConnection();
+
+        var sql = """
+            SELECT 
+            	c.id as Id,
+            	c.name as Name,
+            	c.slug as Slug,
+            	c.parent_id as ParentId,
+            	c.level as Level,
+                c.description as Description,
+            	c.path as Path,
+            	cva.variant_attribute_id as VariantAttributeId,
+                va.name as VariantAttributeName,
+            	va.code as Code,
+            	va.data_type_name as Datatype,
+            	cva.display_order as DisplayOrder,
+            	cva.is_required as IsRequired
+            FROM public.categories c
+            LEFT JOIN public.category_variant_attributes cva 
+                ON c.id = cva.category_id
+            LEFT JOIN public.variant_attribute_definitions va 
+            	ON cva.variant_attribute_id = va.id 
+            	AND va.is_deleted = false
+            	AND va.is_active = true
+            WHERE c.is_deleted = false
+            	AND c.is_active = true
+                AND c.id = ANY(@ids)
+            ORDER BY c.level, c.name, cva.display_order;
+            """;
+
+        var parameter = ids is { Count: > 0 } ? new { ids } : null;
+        var lookup = new Dictionary<Guid, CategoryDetailedResponse>();
+        var command = new CommandDefinition(sql, parameters: parameter, cancellationToken: ct);
+
+        await connection.QueryAsync<CategoryDetailedResponse, CategoryVariantForCategoryResponse, CategoryDetailedResponse>(command,
+            (category, variant) => 
+            {
+                if (!lookup.TryGetValue(category.Id, out var existing))
+                {
+                    existing = category with { Variants = [] };
+                }
+
+                if (variant is not null)
+                {
+                    existing.Variants!.Add(variant);
+                }
+                return category;
+            }, 
+            splitOn: "VariantAttributeId");
+
+        if (lookup.Count == 0)
+            return [];
+
+        return [.. lookup.Values];
     }
 }

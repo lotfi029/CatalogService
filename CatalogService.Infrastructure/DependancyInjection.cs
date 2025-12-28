@@ -120,6 +120,7 @@ public static class DependancyInjection
         services.AddScoped<IProductSearchService, ProductSearchService>();
         services.AddScoped<IAttributeSearchService, AttributeSearchService>();
         services.AddScoped<ICategorySearchService, CategorySearchService>();
+        services.AddScoped<IBulkReindexService, BulkReindexService>();
         
         return services;
     }

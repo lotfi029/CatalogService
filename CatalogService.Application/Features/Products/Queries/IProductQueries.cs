@@ -6,4 +6,5 @@ public interface IProductQueries
 {
     Task<Result<IEnumerable<ProductResponse>>> GetAllAsync(CancellationToken ct = default);
     Task<Result<ProductDetailedResponse>> GetAsync(Guid id, CancellationToken ct = default);
+    Task<List<ProductDetailedResponse>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
 }

@@ -37,6 +37,43 @@ internal sealed class AttributeQueries(
 
         return result;
     }
+    public async Task<List<AttributeDetailedResponse>> GetByIdsAsync(
+        List<Guid>? ids, 
+        CancellationToken ct = default)
+    {
+        var connection = connectionFactory.CreateConnection();
+
+        var sql = """
+            SELECT 
+                a.id as Id,
+                a.name as Name,
+                a.code as Code,
+                a.options_type_name as OptionsType,
+                a.options as Options,
+                a.is_active as IsActive,
+                a.is_filterable as IsFilterable,
+                a.is_searchable as IsSearchable,
+                a.created_at as CreatedAt,
+                a.last_updated_at as UpdatedAt
+            FROM public.attributes a
+            WHERE a.is_active = true
+                AND a.is_deleted = false
+                AND (
+                @ids is null 
+                or cardinality(@ids) = 0
+                or a.id = ANY(@ids)
+                )
+            """;
+        var parameters = new { ids };
+        var result = await connection.QueryAsync<AttributeDetailedResponse>(
+            new CommandDefinition(
+                commandText: sql, parameters: parameters, cancellationToken: ct));
+
+        if (result is null)
+            return [];
+
+        return [.. result];
+    }
     public async Task<Result<AttributeDetailedResponse>> GetByCodeAsync(string code, CancellationToken ct = default)
     {
         var connection = connectionFactory.CreateConnection();

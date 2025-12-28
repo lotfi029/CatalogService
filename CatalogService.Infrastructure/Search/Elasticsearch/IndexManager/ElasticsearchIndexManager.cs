@@ -43,7 +43,7 @@ public sealed class ElasticsearchIndexManager(
                         )
                         .TokenFilters(tf => tf
                             .EdgeNGram("autocomplete_filter", e => e
-                                .MinGram(2)
+                                .MinGram(1)
                                 .MaxGram(20)
                             )
                         )

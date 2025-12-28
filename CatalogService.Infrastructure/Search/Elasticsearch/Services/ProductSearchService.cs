@@ -28,13 +28,23 @@ internal sealed class ProductSearchService(
             .Query(q => q
                 .Bool(b => b
                     .Should(
-                        sh => sh.MatchPhrasePrefix(m => m.Field("name").Query(prefix).Boost(2)),
-                        sh => sh.Prefix(m => m.Field("name.keyword").Value(prefix)
-                    ))
-                    .Filter(f => f.Term(t => t.Field("isActive").Value(true)))
+                        sh => sh.MatchPhrasePrefix(m => m
+                            .Field(f => f.Name)
+                            .Query(prefix)),
+                        sh => sh.Prefix(p => p
+                            .Field(f => f.Name.Suffix("keyword"))
+                            .Value(prefix)
+                            )
+                    )
+                    .MinimumShouldMatch(1)
+                    .Filter(f => f
+                        .Term(t => t
+                            .Field(e => e.IsActive)
+                            .Value(true)
+                        )
+                    )
                 )
             )
-            .Source(src => src.Filter(f => f.Includes(e => e.Name)))
             , ct);
 
         if (!response.IsValidResponse)
@@ -42,7 +52,7 @@ internal sealed class ProductSearchService(
             logger.LogError("Suggestions faileds: {Errors}", response.ElasticsearchServerError?.Error);
             return [];
         } 
-        return response.Documents.Select(d => d.Name).Distinct().ToList();
+        return [.. response.Documents.Select(d => d.Name).Distinct()];
     }
 
     public async Task<(List<ProductDetailedResponse> Products, long Total)> SearchProductsAsync(

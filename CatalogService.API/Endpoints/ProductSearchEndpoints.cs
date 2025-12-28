@@ -1,16 +1,21 @@
 ﻿using CatalogService.Application.DTOs.Products;
 using CatalogService.Application.DTOs.Products.Search;
+using CatalogService.Application.Features.Products.Queries;
 using CatalogService.Application.Features.Products.Queries.Searchs.GetSuggestions;
 using CatalogService.Application.Features.Products.Queries.Searchs.Search;
+using CatalogService.Infrastructure.Search.Elasticsearch.IndexManager;
+using Elastic.Clients.Elasticsearch.Project;
+using Microsoft.AspNetCore.Http.Metadata;
 
 namespace CatalogService.API.Endpoints;
 
-public class ProductSearchEndpoints : IEndpoint
+internal sealed class ProductSearchEndpoints : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/products/search")
-            .WithTags("Product Search");
+            .WithTags("Product Search")
+            .MapToApiVersion(1);
 
         group.MapPost("/products", Search)
             .Produces(StatusCodes.Status200OK);
@@ -19,7 +24,7 @@ public class ProductSearchEndpoints : IEndpoint
             .Produces(StatusCodes.Status200OK);
     }
     private async Task<IResult> Search(
-        [AsParameters] SearchProductRequest request,
+        [FromBody] SearchProductRequest request,
         [FromServices] IQueryHandler<SearchProductQuery, (IEnumerable<ProductDetailedResponse> products, long Total)> handler,
         [FromServices] IValidator<SearchProductRequest> validator,
         CancellationToken ct = default)
@@ -68,4 +73,38 @@ public class ProductSearchEndpoints : IEndpoint
             : result.ToProblem();
     }
 
+}
+internal sealed class ReIndexEndpoints : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/re-index/")
+            .WithTags("ReIndex")
+            .MapToApiVersion(1);
+
+
+        group.MapGet("/products", ReIndexProducts);
+        //group.MapPost("/products", ReIndexCategories);
+        //group.MapPost("/products", ReIndexAttributes);
+    }
+
+    private async Task<IResult> ReIndexProducts(
+        IBulkReindexService reindexService,
+        CancellationToken ct = default)
+    {
+
+        await reindexService.ReindexAllCategoriesAsync(ct);
+        await reindexService.ReindexAllAttributesAsync(ct);
+        return TypedResults.Ok();
+    }
+    //private async Task<IResult> ReIndexAttributes(
+    //    CancellationToken ct = default)
+    //{
+
+    //} 
+    //private async Task<IResult> ReIndexCategories(
+    //    CancellationToken ct = default)
+    //{
+
+    //} 
 }

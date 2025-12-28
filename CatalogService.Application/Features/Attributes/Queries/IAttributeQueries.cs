@@ -8,5 +8,6 @@ public interface IAttributeQueries
     Task<Result<IEnumerable<AttributeResponse>>> GetAllAsync(CancellationToken ct = default);
     Task<Result<AttributeDetailedResponse>> GetAsync(Guid id, CancellationToken ct = default);
     Task<Result<AttributeDetailedResponse>> GetByCodeAsync(string code, CancellationToken ct = default);
+    Task<List<AttributeDetailedResponse>> GetByIdsAsync(List<Guid>? ids, CancellationToken ct = default);
     Task<Result<IEnumerable<AttributeResponse>>> GetByOptionsTypeAsync(string type, CancellationToken ct = default);
 }
