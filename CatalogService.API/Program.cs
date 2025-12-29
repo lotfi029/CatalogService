@@ -15,7 +15,6 @@ builder.Services
     .AddAPI(builder.Configuration);
 
 
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -34,7 +33,6 @@ if (app.Environment.IsDevelopment())
     });
     await app.Services.InitialElasticsearch();
 }
-Console.WriteLine(app.Environment.EnvironmentName);
 
 app.UseHttpsRedirection();
 

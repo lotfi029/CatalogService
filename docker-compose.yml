@@ -1,7 +1,7 @@
 services:
   catalogservice.api:
     image: ${DOCKER_REGISTRY-}catalogserviceapi
-    container_name: catalogservice-api
+    container_name: catalog_service
     build:
       context: .
       dockerfile: CatalogService.API/Dockerfile
@@ -14,6 +14,39 @@ services:
       - ElasticSettings__Uri=http://elasticsearch:9200
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=ecommerce_catalogservice_v01;username=postgres;password=String
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  userservice:
+    image: lotfi029/user-service
+    container_name: user_service
+    ports:
+      - "6001:9090"
+    environment:
+      POSTGRES_PASSWORD: String
+      POSTGRES_DATABASE: ecommerce.users
+      POSTGRES_HOST: postgres-userservicedb
+      POSTGRES_PORT: 5432
+    depends_on:
+      postgres_user:
+        condition: service_healthy
+    networks:
+      - user_network
+      - catalog_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9090/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
     container_name: catalog-elasticsearch
@@ -37,6 +70,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.2.2
@@ -46,19 +80,48 @@ services:
     ports:
       - "5601:5601"
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks:
       - catalog_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:6000/api/status || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
+
+  postgres_user:
+    image: postgres:18
+    container_name: ecommerceuserdb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: String
+      POSTGRES_DB: ecommerce.users
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+    ports:
+      - "5434:5432"
+    hostname: postgres-userservicedb
+    volumes:
+      - ecommerce_user_postgres:/var/lib/postgresql/data
+    networks:
+      - user_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   elasticsearch_data:
     driver: local
+  ecommerce_user_postgres:
+    driver: local
 
 networks:
   catalog_network:
+    driver: bridge
+  user_network:
     driver: bridge

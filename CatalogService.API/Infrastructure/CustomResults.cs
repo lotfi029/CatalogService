@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SharedKernel;
+﻿using SharedKernel;
 
 namespace CatalogService.API.Infrastructure;
 
