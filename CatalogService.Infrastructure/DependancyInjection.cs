@@ -7,6 +7,7 @@ using CatalogService.Application.Features.Products.Queries;
 using CatalogService.Application.Features.ProductVariants.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
 using CatalogService.Application.Interfaces;
+using CatalogService.Infrastructure.Authentication;
 using CatalogService.Infrastructure.DomainEvents;
 using CatalogService.Infrastructure.Persistence;
 using CatalogService.Infrastructure.Persistence.ConnectionStrings;
@@ -18,11 +19,14 @@ using CatalogService.Infrastructure.Search.Elasticsearch.Services;
 using CatalogService.Infrastructure.Search.ElasticSearch;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using System.Text;
 
 namespace CatalogService.Infrastructure;
 
@@ -33,6 +37,7 @@ public static class DependancyInjection
         IConfiguration configuration) => services
             .AddPersistence(configuration)
             .AddElasticSearchSearvices(configuration)
+            .AddAuth(configuration)
             .AddServices();
 
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
@@ -143,5 +148,36 @@ public static class DependancyInjection
     {
         services.AddTransient<IDomainEventsDispatcher, DomainEventsDispatcher>();
         return services;
+    }
+    private static IServiceCollection AddAuth(this IServiceCollection service, IConfiguration configuration)
+    {
+        var settings = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
+
+        service.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(o =>
+        {
+            o.SaveToken = true;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key)),
+
+                ValidateIssuer = true,
+                ValidIssuer = settings.Issure,
+
+                ValidateAudience = true,
+                ValidAudience = settings.Audiance,
+
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+
+        service.AddAuthorization();
+
+        return service;
     }
 }

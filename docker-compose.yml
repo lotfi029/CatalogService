@@ -28,12 +28,10 @@ services:
     image: lotfi029/user-service
     container_name: user_service
     ports:
-      - "6001:9090"
+      - "6000:8080"
+      - "6001:8081"
     environment:
-      POSTGRES_PASSWORD: String
-      POSTGRES_DATABASE: ecommerce.users
-      POSTGRES_HOST: postgres-userservicedb
-      POSTGRES_PORT: 5432
+      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=users;username=postgres;password=String
     depends_on:
       postgres_user:
         condition: service_healthy
@@ -41,7 +39,7 @@ services:
       - user_network
       - catalog_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9090/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:6000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -97,7 +95,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: String
-      POSTGRES_DB: ecommerce.users
+      POSTGRES_DB: ecommerce_users
       PGDATA: /var/lib/postgresql/data/pgdata
 
     ports:
