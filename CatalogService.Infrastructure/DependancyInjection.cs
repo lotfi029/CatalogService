@@ -8,6 +8,7 @@ using CatalogService.Application.Features.ProductVariants.Queries;
 using CatalogService.Application.Features.VariantAttributes.Queries;
 using CatalogService.Application.Interfaces;
 using CatalogService.Infrastructure.Authentication;
+using CatalogService.Infrastructure.Authorization;
 using CatalogService.Infrastructure.DomainEvents;
 using CatalogService.Infrastructure.Persistence;
 using CatalogService.Infrastructure.Persistence.ConnectionStrings;
@@ -176,7 +177,12 @@ public static class DependancyInjection
             };
         });
 
-        service.AddAuthorization();
+        service.AddAuthorizationBuilder()
+            .AddPolicy(PolicyNames.Admin, options => options
+                .RequireRole(DefaultRoles.Admin))
+            .AddPolicy(PolicyNames.Vendor, options => options
+                .RequireRole([DefaultRoles.Admin, DefaultRoles.Vendor]));
+
 
         return service;
     }

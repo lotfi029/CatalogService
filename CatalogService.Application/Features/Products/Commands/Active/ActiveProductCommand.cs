@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.Products.Commands.Active;
 
-public sealed record ActiveProductCommand(Guid Id) : ICommand;
+public sealed record ActiveProductCommand(Guid UserId, Guid Id) : ICommand;
 
 internal sealed class ActiveProductCommandHandler(
     IProductDomainService productService,
@@ -11,11 +11,11 @@ internal sealed class ActiveProductCommandHandler(
 {
     public async Task<Result> HandleAsync(ActiveProductCommand command, CancellationToken ct = default)
     {
-        if (command.Id == Guid.Empty)
+        if (command.Id == Guid.Empty || command.UserId == Guid.Empty)
             return ProductErrors.InvalidId;
         try
         {
-            var result = await productService.ActivaAsync(command.Id, ct: ct);
+            var result = await productService.ActivaAsync(command.UserId, command.Id, ct: ct);
             if (result.IsFailure)
                 return result.Error;
 

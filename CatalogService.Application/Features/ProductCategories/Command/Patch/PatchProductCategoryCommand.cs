@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.ProductCategories.Command.Patch;
 
-public sealed record PatchProductCategoryCommand(Guid ProductId, Guid CategoryId, bool IsPrimary) : ICommand;
+public sealed record PatchProductCategoryCommand(Guid UserId, Guid ProductId, Guid CategoryId, bool IsPrimary) : ICommand;
 
 internal sealed class PatchProductCategoryCommandHandler(
     IProductDomainService productService,
@@ -17,6 +17,7 @@ internal sealed class PatchProductCategoryCommandHandler(
         try
         {
             var updatingResult = await productService.UpdateProductCategoryAsync(
+                userId: command.UserId,
                 productId: command.ProductId, 
                 categoryId: command.CategoryId, 
                 isPrimary: command.IsPrimary, 

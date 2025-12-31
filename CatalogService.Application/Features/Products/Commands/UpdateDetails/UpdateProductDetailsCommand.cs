@@ -3,6 +3,7 @@
 namespace CatalogService.Application.Features.Products.Commands.UpdateDetails;
 
 public sealed record UpdateProductDetailsCommand(
+    Guid UserId,
     Guid Id,
     string Name,
     string? Description) : ICommand;
@@ -20,6 +21,7 @@ internal sealed class UpdateProductDetailsCommandHandler(
         try
         {
             var productResult = await productService.UpdateDetails(
+                userId: command.UserId,
                 id: command.Id,
                 name: command.Name,
                 description: command.Description,

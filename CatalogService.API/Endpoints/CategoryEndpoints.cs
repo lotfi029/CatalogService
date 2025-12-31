@@ -7,6 +7,7 @@ using CatalogService.Application.Features.Categories.Commands.UpdateDetails;
 using CatalogService.Application.Features.Categories.Queries.GetById;
 using CatalogService.Application.Features.Categories.Queries.GetBySlug;
 using CatalogService.Application.Features.Categories.Queries.Tree;
+using CatalogService.Infrastructure.Authorization;
 
 namespace CatalogService.API.Endpoints;
 
@@ -14,52 +15,49 @@ internal sealed class CategoryEndpoints : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("categories");
+        var group = app.MapGroup("categories")
+            .WithTags(CategoryEntpointsNames.Tag)
+            .MapToApiVersion(1);
         
         group.MapPost("/", Create)
             .Produces<Guid>(statusCode: StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesValidationProblem()
-            .MapToApiVersion(1);
+            .RequireAuthorization(PolicyNames.Admin);
         
         group.MapPost("/{id:guid}/update-details", UpdateDetails)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesValidationProblem()
-            .MapToApiVersion(1);
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapPut("/{id:guid}/move", Move)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .MapToApiVersion(1);
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapDelete("/{id:guid}", Delete)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .MapToApiVersion(1);
-
+            .RequireAuthorization(PolicyNames.Admin);
+        
         group.MapGet("/{id:guid}", GetById)
             .Produces<CategoryDetailedResponse>(statusCode: StatusCodes.Status200OK)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .WithName(CategoryEntpointsNames.GetCategoryById)
-            .MapToApiVersion(1);
+            .RequireAuthorization(PolicyNames.Vendor);
 
         group.MapGet("/slug/{slug:alpha}", GetBySlug)
             .Produces<CategoryDetailedResponse>(StatusCodes.Status200OK)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
-            .MapToApiVersion(1);
-
-        group.MapGet("/{id:guid}/products", GetProducts)
-            .Produces(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .MapToApiVersion(1); // TODO:
+            .RequireAuthorization(PolicyNames.Vendor);
 
         group.MapGet("/tree", GetTree)
             .Produces<CategoryResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .MapToApiVersion(1);
+            .RequireAuthorization(PolicyNames.Vendor);
     }
 
     private async Task<IResult> Create(
@@ -164,10 +162,5 @@ internal sealed class CategoryEndpoints : IEndpoint
         return result.IsSuccess
             ? TypedResults.Ok(result.Value)
             : result.ToProblem();
-    }
-    private async Task<IResult> GetProducts(
-        [FromRoute] Guid id)
-    {
-        throw new NotImplementedException();
     }
 }

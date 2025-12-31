@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.ProductVariants.Commands.Delete;
 
-public sealed record DeleteProductVariantCommand(Guid ProductId, Guid ProductVariantId) : ICommand;
+public sealed record DeleteProductVariantCommand(Guid UserId, Guid ProductId, Guid ProductVariantId) : ICommand;
 
 internal sealed class DeleteProductVariantCommandHandler(
     IProductDomainService productService,
@@ -16,7 +16,7 @@ internal sealed class DeleteProductVariantCommandHandler(
 
         try
         {
-            if (await productService.DeleteProductVariantAsync(command.ProductId, command.ProductVariantId, ct) is { IsFailure: true } deletingError)
+            if (await productService.DeleteProductVariantAsync(command.UserId, command.ProductId, command.ProductVariantId, ct) is { IsFailure: true } deletingError)
                 return deletingError.Error;
 
             await unitOfWork.SaveChangesAsync(ct);

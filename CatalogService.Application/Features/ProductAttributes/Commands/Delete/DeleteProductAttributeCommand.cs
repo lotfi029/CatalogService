@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.ProductAttributes.Commands.Delete;
 
-public sealed record DeleteProductAttributeCommand(Guid ProductId, Guid AttributeId) : ICommand;
+public sealed record DeleteProductAttributeCommand(Guid UserId, Guid ProductId, Guid AttributeId) : ICommand;
 internal sealed class DeleteProductAttributeCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
@@ -16,6 +16,7 @@ internal sealed class DeleteProductAttributeCommandHandler(
         try
         {
             var deleteResult = await productService.DeleteAttributeAsync(
+                userId: command.UserId,
                 productId: command.ProductId,
                 attributeId: command.AttributeId,
                 ct: ct);

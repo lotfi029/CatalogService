@@ -3,7 +3,7 @@ using CatalogService.Domain.DomainService.Products;
 
 namespace CatalogService.Application.Features.ProductCategories.Command.AddCategory;
 
-public sealed record AddProductCategoryCommand(Guid ProductId, Guid CategoryId, bool IsPrimary, List<ProductVariantRequest> Request) : ICommand;
+public sealed record AddProductCategoryCommand(Guid UserId, Guid ProductId, Guid CategoryId, bool IsPrimary, List<ProductVariantRequest> Request) : ICommand;
 
 internal sealed class AddProductCategoryCommandHandler(
     IProductDomainService productDomainService,
@@ -19,6 +19,7 @@ internal sealed class AddProductCategoryCommandHandler(
         try
         {
             var addingResult = await productDomainService.AddProductCategory(
+                userId: command.UserId,
                 productId: command.ProductId,
                 categoryId: command.CategoryId,
                 isPrimary: command.IsPrimary,

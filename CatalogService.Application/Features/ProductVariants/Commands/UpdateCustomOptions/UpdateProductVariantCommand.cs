@@ -3,7 +3,7 @@ using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Application.Features.ProductVariants.Commands.UpdateCustomOptions;
 
-public sealed record UpdateProductVariantCommand(Guid Id, ProductVariantsOption CustomOptions) : ICommand;
+public sealed record UpdateProductVariantCommand(Guid UserId, Guid Id, ProductVariantsOption CustomOptions) : ICommand;
 
 internal sealed class UpdateProductVariantCommandHandler(
     IProductDomainService productService,
@@ -17,6 +17,7 @@ internal sealed class UpdateProductVariantCommandHandler(
         try
         {
             var updatingResult = await productService.UpdateProductVariantCustomizationOptionsAsync(
+                command.UserId,
                 command.Id,
                 command.CustomOptions,
                 ct);

@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.ProductAttributes.Commands.Add;
 
-public sealed record AddProductAttributeCommand(Guid ProductId, Guid AttributeId, string Value) : ICommand;
+public sealed record AddProductAttributeCommand(Guid UserId, Guid ProductId, Guid AttributeId, string Value) : ICommand;
 internal sealed class AddProductAttributeCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
@@ -16,6 +16,7 @@ internal sealed class AddProductAttributeCommandHandler(
         try
         {
             var addingResult = await productService.AddAttributeAsync(
+                userId: command.UserId,
                 productId: command.ProductId,
                 attributeId: command.AttributeId,
                 value: command.Value,

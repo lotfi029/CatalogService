@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.ProductAttributes.Commands.Update;
 
-public sealed record UpdateProductAttributeCommand(Guid ProductId, Guid AttributeId, string Value) : ICommand;
+public sealed record UpdateProductAttributeCommand(Guid UserId, Guid ProductId, Guid AttributeId, string Value) : ICommand;
 internal sealed class UpdateProductAttributeCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
@@ -16,6 +16,7 @@ internal sealed class UpdateProductAttributeCommandHandler(
         try
         {
             var updateResult = await productService.UpdateAttributeValueAsync(
+                userId: command.UserId,
                 productId: command.ProductId,
                 attributeId: command.AttributeId,
                 newValue: command.Value,

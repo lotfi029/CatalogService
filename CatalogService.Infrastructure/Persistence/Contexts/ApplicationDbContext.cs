@@ -1,10 +1,13 @@
 ﻿using CatalogService.Domain.Abstractions;
 using CatalogService.Infrastructure.DomainEvents;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace CatalogService.Infrastructure.Persistence.Contexts;
 
 public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
+    IHttpContextAccessor httpContextAccessor,
     IDomainEventsDispatcher domainEventsDispatcher) : DbContext(options)
 {
     public DbSet<Product> Products { get; set; }
@@ -21,6 +24,8 @@ public class ApplicationDbContext(
 
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
+        var userId = httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
         var entities = ChangeTracker.Entries<IAuditable>();
 
         foreach (var entityTrack in entities)
@@ -28,7 +33,7 @@ public class ApplicationDbContext(
             switch (entityTrack.State)
             {
                 case EntityState.Added:
-                    entityTrack.Entity.SetCreationAudit(Guid.NewGuid().ToString());
+                    entityTrack.Entity.SetCreationAudit(userId);
                     break;
 
                 case EntityState.Modified:
@@ -38,14 +43,14 @@ public class ApplicationDbContext(
 
                         if (isDeletedProp.IsModified && isDeletedProp.OriginalValue == false)
                         {
-                            entityTrack.Entity.SetDeletionAudit(Guid.NewGuid().ToString());
+                            entityTrack.Entity.SetDeletionAudit(userId);
                         }
                     }
                     else 
-                        entityTrack.Entity.SetUpdateAudit(Guid.NewGuid().ToString());
+                        entityTrack.Entity.SetUpdateAudit(userId);
                     break;
                 case EntityState.Deleted:
-                    entityTrack.Entity.SetDeletionAudit(Guid.NewGuid().ToString());
+                    entityTrack.Entity.SetDeletionAudit(userId);
                     entityTrack.State = EntityState.Modified;
                     break;
                 default:

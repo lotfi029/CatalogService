@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.Products.Commands.Archive;
 
-public sealed record ArchiveProductCommand(Guid Id) : ICommand;
+public sealed record ArchiveProductCommand(Guid UserId, Guid Id) : ICommand;
 
 internal sealed class ArchiveProductCommandHandler(
     IProductDomainService productService,
@@ -16,7 +16,7 @@ internal sealed class ArchiveProductCommandHandler(
 
         try
         {
-            if (await productService.ArchiveAsync(command.Id, ct) is { IsFailure: true } archivedError)
+            if (await productService.ArchiveAsync(command.UserId, command.Id, ct) is { IsFailure: true } archivedError)
                 return archivedError.Error;
 
             await unitOfWork.SaveChangesAsync(ct);

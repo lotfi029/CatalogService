@@ -2,7 +2,7 @@
 
 namespace CatalogService.Application.Features.ProductVariants.Commands.UpdatePrice;
 
-public sealed record UpdateProductVariantPriceCommand(Guid Id, decimal Price, decimal? CompareAtPrice, string Currency) : ICommand;
+public sealed record UpdateProductVariantPriceCommand(Guid UserId, Guid Id, decimal Price, decimal? CompareAtPrice, string Currency) : ICommand;
 
 internal sealed class UpdateProductVariantPriceCommandHandler(
     IProductDomainService productService,
@@ -16,6 +16,7 @@ internal sealed class UpdateProductVariantPriceCommandHandler(
         try
         {
             var updatingResult = await productService.UpdateProductVariantPriceAsync(
+                command.UserId,
                 command.Id,
                 price: command.Price,
                 compareAtPrice: command.CompareAtPrice,

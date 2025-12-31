@@ -3,7 +3,7 @@ using CatalogService.Domain.DomainService.Products;
 
 namespace CatalogService.Application.Features.ProductAttributes.Commands.AddBulk;
 
-public sealed record AddProductAttributeBulkCommand(Guid ProductId, IEnumerable<ProductAttributeBulk> Attribute) : ICommand;
+public sealed record AddProductAttributeBulkCommand(Guid UserId, Guid ProductId, IEnumerable<ProductAttributeBulk> Attribute) : ICommand;
 internal sealed class AddProductAttributeBulkCommandHandler(
     IProductDomainService productService,
     IUnitOfWork unitOfWork,
@@ -17,6 +17,7 @@ internal sealed class AddProductAttributeBulkCommandHandler(
         try
         {
             var addingResult = await productService.AddAttributeBulkAsync(
+                userId: command.UserId,
                 productId: command.ProductId,
                 command.Attribute.Select(a => (a.AttributeId, a.Value)),
                 ct: ct);

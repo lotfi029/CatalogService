@@ -7,6 +7,7 @@ using CatalogService.Application.Features.Products.Commands.CreateBulk;
 using CatalogService.Application.Features.Products.Commands.UpdateDetails;
 using CatalogService.Application.Features.Products.Queries.Get;
 using CatalogService.Application.Features.Products.Queries.GetAll;
+using CatalogService.Infrastructure.Authorization;
 
 namespace CatalogService.API.Endpoints;
 
@@ -15,32 +16,39 @@ internal sealed class ProductEndpoints : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/products")
+            .WithTags("Products")
             .MapToApiVersion(1);
 
         group.MapPost("/", Create)
             .Produces<Guid>(StatusCodes.Status201Created)
-            .ProducesProblem(StatusCodes.Status400BadRequest);
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .RequireAuthorization(PolicyNames.Vendor);
         
         group.MapPost("/bulk", CreateBulk)
             .Produces(StatusCodes.Status201Created)
-            .ProducesProblem(StatusCodes.Status400BadRequest);
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .RequireAuthorization(PolicyNames.Vendor);
 
         group.MapPut("/{id:guid}", UpdateDetails)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithName(ProductEntpointsNames.GetProductById);
+            .WithName(ProductEntpointsNames.GetProductById)
+            .RequireAuthorization(PolicyNames.Vendor);
 
         group.MapPatch("/{id:guid}/active", Active)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Vendor);
+
         group.MapPatch("/{id:guid}/archive", Archive)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Vendor);
 
         group.MapGet("/{id:guid}", Get)
             .Produces<ProductDetailedResponse>(StatusCodes.Status200OK)
@@ -58,12 +66,15 @@ internal sealed class ProductEndpoints : IEndpoint
         [FromBody] ProductRequest request,
         [FromServices] IValidator<ProductRequest> validator,
         [FromServices] ICommandHandler<CreateProductCommand, Guid> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
-        var command = new CreateProductCommand(Guid.NewGuid(), request.Name, request.Description);
+        string userId = httpContext.GetUserId();
+
+        var command = new CreateProductCommand(Guid.Parse(userId), request.Name, request.Description);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -74,12 +85,15 @@ internal sealed class ProductEndpoints : IEndpoint
         [FromBody] CreateBulkProductsRequest request,
         [FromServices] IValidator<CreateBulkProductsRequest> validator,
         [FromServices] ICommandHandler<CreateBulkProductCommand> handler,
+        HttpContext context,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
-        var command = new CreateBulkProductCommand(Guid.NewGuid(), request);
+        string userId = context.GetUserId();
+
+        var command = new CreateBulkProductCommand(Guid.Parse(userId), request);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -91,12 +105,15 @@ internal sealed class ProductEndpoints : IEndpoint
         [FromBody] ProductRequest request,
         [FromServices] IValidator<ProductRequest> validator,
         [FromServices] ICommandHandler<UpdateProductDetailsCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationResult)
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
-        var command = new UpdateProductDetailsCommand(id, request.Name, request.Description);
+        var userId = httpContext.GetUserId();
+
+        var command = new UpdateProductDetailsCommand(Guid.Parse(userId), id, request.Name, request.Description);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -106,9 +123,11 @@ internal sealed class ProductEndpoints : IEndpoint
     private async Task<IResult> Active(
         [FromRoute] Guid id,
         [FromServices] ICommandHandler<ActiveProductCommand> handler,
+        HttpContext context,
         CancellationToken ct = default)
     {
-        var command = new ActiveProductCommand(id);
+        var userId = context.GetUserId();
+        var command = new ActiveProductCommand(Guid.Parse(userId), id);
 
         var result = await handler.HandleAsync(command, ct);
 
@@ -119,9 +138,11 @@ internal sealed class ProductEndpoints : IEndpoint
     private async Task<IResult> Archive(
         [FromRoute] Guid id,
         [FromServices] ICommandHandler<ArchiveProductCommand> handler,
+        HttpContext context,
         CancellationToken ct = default)
     {
-        var command = new ArchiveProductCommand(id);
+        var userId = context.GetUserId();
+        var command = new ArchiveProductCommand(Guid.Parse(userId), id);
 
         var result = await handler.HandleAsync(command, ct);
 

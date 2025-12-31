@@ -31,7 +31,7 @@ services:
       - "6000:8080"
       - "6001:8081"
     environment:
-      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=users;username=postgres;password=String
+      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=ecommerce_user_v02;username=postgres;password=String
     depends_on:
       postgres_user:
         condition: service_healthy

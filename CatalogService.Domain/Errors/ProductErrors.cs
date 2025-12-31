@@ -7,6 +7,11 @@ public class ProductErrors
     => Error.BadRequest(
         $"{_code}.{nameof(InvalidId)}",
         $"Please enter a valid id");
+
+    public static Error InvalidAccess =>
+        Error.Unauthorized(
+            $"{_code}.{nameof(InvalidAccess)}",
+            "You have not access to this product");
     public static Error InvalidProductStatus(string status)
         => Error.BadRequest(
             $"{_code}.{nameof(InvalidProductStatus)}",
