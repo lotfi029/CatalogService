@@ -1,4 +1,5 @@
 ﻿using CatalogService.Domain.JsonProperties;
+using System.Security.Cryptography;
 
 namespace CatalogService.Domain.Entities;
 
@@ -7,21 +8,17 @@ public sealed class ProductVariant
     public Guid Id { get; }
     public Guid ProductId { get; private set; }
     public Sku SKU { get; } = default!;
-    public ProductVariantsOption VariantAttributes { get; private set; } = default!;
-    public ProductVariantsOption? CustomizationOptions { get; private set; }
-
     public Money Price { get; private set; } = new();
     public Money? CompareAtPrice { get; private set; } = new();
 
     public Product Product { get; private set; } = default!;
     public bool IsDeleted { get; private set; }
 
+    public ICollection<ProductVariantValue> Values { get; init; } = [];
     private ProductVariant() { }
     private ProductVariant(
         Guid productId,
         Sku sku,
-        ProductVariantsOption variantAttributes,
-        ProductVariantsOption? customizationOptions,
         Money price,
         Money compareAtPrice
         ) : base()
@@ -29,8 +26,6 @@ public sealed class ProductVariant
         Id = Guid.CreateVersion7();
         ProductId = productId;
         SKU = sku;
-        VariantAttributes = variantAttributes;
-        CustomizationOptions = customizationOptions;
         Price = price;
         CompareAtPrice = compareAtPrice;
         IsDeleted = false;
@@ -38,8 +33,7 @@ public sealed class ProductVariant
 
     public static ProductVariant Create(
         Guid productId,
-        ProductVariantsOption variantAttributes,
-        ProductVariantsOption? customizationOptions,
+        Dictionary<string, string> variantAttributes,
         Money price,
         Money compareAtPrice
         )
@@ -48,62 +42,20 @@ public sealed class ProductVariant
         return new ProductVariant(
             productId,
             GenerateSku(productId, variantAttributes),
-            variantAttributes,
-            customizationOptions,
             price,
             compareAtPrice
             );
     }
-    public Result UpdateCustomizationOptions(ProductVariantsOption customOptions)
-    {
-        if (customOptions is null)
-            return DomainErrors.Null("CustomizationOptins");
-
-        CustomizationOptions = customOptions;
-        // TODO: raise domain event
-        return Result.Success();
-    }
-    public Result UpdatePrice(decimal price, decimal? compareAtPrice, string currency)
-    {
-        if (string.IsNullOrWhiteSpace(currency))
-            return DomainErrors.Null("Currency");
-
-        if (price < 0)
-        {
-            return DomainErrors.Null("Price");
-        }
-        if (compareAtPrice is not null)
-        {
-            if (compareAtPrice.Value < 0)
-                return DomainErrors.Null("CompareAtPrice");
-
-            CompareAtPrice = new(compareAtPrice, currency);
-        }
-        Price = new(price, currency);
-        // TODO: raise domain error
-        return Result.Success();
-    }
-    public Result Delete()
-    {
-        IsDeleted = true;
-        return Result.Success();
-    }
-    public Result Restore()
-    {
-        IsDeleted = false;
-        return Result.Success();
-    }
-    private static Sku GenerateSku(Guid productId, ProductVariantsOption variantAttributes)
+    private static Sku GenerateSku(Guid productId, Dictionary<string, string> variantAttributes)
     {
         var prefix = productId.ToString("N")[..8];
 
         prefix = prefix.ToLower();
 
-        if (variantAttributes?.Variants is null || variantAttributes.Variants.Count == 0)
+        if (variantAttributes.Count == 0)
             return new Sku($"{prefix}");
 
-        var variantParts = variantAttributes.Variants
-        .OrderBy(o => o.Key)
+        var variantParts = variantAttributes
         .Select(o =>
         {
             var keyPart = new string([.. o.Key

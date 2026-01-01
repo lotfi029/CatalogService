@@ -28,6 +28,8 @@ public class ProductCategoriesErrors
         Error.Unexpected("Failed to add product category");
     public static Error UpdateProductCategory =>
         Error.Unexpected("Failed to update product category");
+    public static Error DeleteProductCategory =>
+        Error.Unexpected("Failed to delete product category");
     public static Error GetProductCategory =>
         Error.Unexpected("Failed to retrieve product category");
 }

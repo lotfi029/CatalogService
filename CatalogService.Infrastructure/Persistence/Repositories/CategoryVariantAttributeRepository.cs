@@ -53,17 +53,13 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
             cv => cv.CategoryId == categoryId && cv.VariantAttributeId == variantAttributeId,
             ct);
     }
-
-    public async Task<IEnumerable<CategoryVariantAttribute>> GetByCategoryIdAsync(
-        Guid categoryId,
+    public async Task<bool> ExistsAsync(
+        Expression<Func<CategoryVariantAttribute, bool>> predicate, 
         CancellationToken ct = default)
     {
         return await _dbSet
-            .Where(cv => cv.CategoryId == categoryId)
-            .OrderBy(cv => cv.DisplayOrder)
-            .ToListAsync(ct);
+            .AnyAsync(predicate, ct);
     }
-
     public async Task<IEnumerable<CategoryVariantAttribute>> GetByVariantAttributeIdAsync(
         Guid variantAttributeId,
         CancellationToken ct = default)
@@ -73,14 +69,25 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
             .Where(cv => cv.VariantAttributeId == variantAttributeId)
             .ToListAsync(ct);
     }
-    public async Task<IEnumerable<CategoryVariantAttribute>> GetCategoryVariantsByCategoryIdId(Guid categoryId, CancellationToken ct = default)
+    public async Task<IEnumerable<CategoryVariantAttribute>> GetAvaliableVariantAsync(HashSet<Guid> categoryIds, CancellationToken ct = default)
     {
-        return await _dbSet.Where(cv => cv.CategoryId == categoryId)
+        return await _dbSet
+            .Where(cv => categoryIds.Contains(cv.CategoryId))
             .Include(cv => cv.VariantAttribute)
             .AsNoTracking()
             .ToListAsync(ct);
     }
-
+    public async Task<IEnumerable<CategoryVariantAttribute>> GetAsync(
+        HashSet<Guid> categoryIds,
+        HashSet<Guid> variants,
+        CancellationToken ct = default)
+    {
+        return await _dbSet
+            .Where(cv => categoryIds.Contains(cv.CategoryId) && variants.Contains(cv.VariantAttributeId))
+            .Include(cv => cv.VariantAttribute)
+            .AsNoTracking()
+            .ToListAsync(ct);
+    }
     public async Task<CategoryVariantAttribute?> GetAsync(
         Guid categoryId,
         Guid variantAttributeId,

@@ -47,7 +47,7 @@ public static class DependancyInjection
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
         dataSourceBuilder.EnableDynamicJson();
         var dataSource = dataSourceBuilder.Build();
-
+        services.AddHttpContextAccessor();
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseNpgsql(dataSource);
@@ -57,6 +57,7 @@ public static class DependancyInjection
 
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+        services.AddScoped<IProductVariantValueRepository, ProductVariantValueRepository>();
         services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
         services.AddScoped<IProductAttributeRepository, ProductAttributeRepository>();
         

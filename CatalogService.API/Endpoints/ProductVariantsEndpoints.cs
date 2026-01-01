@@ -6,6 +6,8 @@ using CatalogService.Application.Features.ProductVariants.Commands.UpdatePrice;
 using CatalogService.Application.Features.ProductVariants.Queries.Get;
 using CatalogService.Application.Features.ProductVariants.Queries.GetByProductId;
 using CatalogService.Application.Features.ProductVariants.Queries.GetBySku;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
 
 namespace CatalogService.API.Endpoints;
 
@@ -58,12 +60,17 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
         [FromBody] UpdateProductVariantCustomOptionsRequest request,
         [FromServices] IValidator<UpdateProductVariantCustomOptionsRequest> validator,
         [FromServices] ICommandHandler<UpdateProductVariantCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationError)
             return TypedResults.ValidationProblem(validationError.ToDictionary());
 
-        var command = new UpdateProductVariantCommand(productVariantId, request.CustomVariant);
+        var userId = httpContext.GetUserId();
+        var command = new UpdateProductVariantCommand(
+            UserId: Guid.Parse(userId),
+            productVariantId, 
+            request.CustomVariant);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -75,12 +82,14 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
         [FromBody] UpdateProductVariantPriceRequest request,
         [FromServices] IValidator<UpdateProductVariantPriceRequest> validator,
         [FromServices] ICommandHandler<UpdateProductVariantPriceCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationError)
             return TypedResults.ValidationProblem(validationError.ToDictionary());
-
+        var userId = httpContext.GetUserId();
         var command = new UpdateProductVariantPriceCommand(
+            UserId: Guid.Parse(userId),
             productVariantId, 
             Price: request.Price,
             CompareAtPrice: request.CompareAtPrice,
@@ -95,10 +104,14 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
         [FromRoute] Guid productVariantId,
         [FromQuery] Guid productId,
         [FromServices] ICommandHandler<DeleteProductVariantCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
-
-        var command = new DeleteProductVariantCommand(productId, productVariantId);
+        var userId = httpContext.GetUserId();
+        var command = new DeleteProductVariantCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId, 
+            ProductVariantId: productVariantId);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -108,10 +121,13 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
     private async Task<IResult> DeleteAll(
         [FromRoute] Guid productId,
         [FromServices] ICommandHandler<DeleteAllProductVariantCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
-
-        var command = new DeleteAllProductVariantCommand(productId);
+        var userId = httpContext.GetUserId();
+        var command = new DeleteAllProductVariantCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess

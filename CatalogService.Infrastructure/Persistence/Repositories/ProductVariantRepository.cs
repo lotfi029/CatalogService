@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.VisualBasic;
 using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
@@ -59,6 +60,15 @@ internal sealed class ProductVariantRepository(ApplicationDbContext context) : I
     public async Task<ProductVariant?> GetById(Guid id, CancellationToken ct = default)
     {
         return await _dbSet.FindAsync([id], cancellationToken: ct);
+    }
+    public async Task<int> ExecuteUpdateAsync(
+        Expression<Func<ProductVariant, bool>> predicate, 
+        Action<UpdateSettersBuilder> action, 
+        CancellationToken ct = default)
+    {
+        return await _dbSet
+            .Where(predicate)
+            .ExecuteUpdateAsync(action, ct);
     }
     public async Task<int> ExecuteDeleteAsync(Expression<Func<ProductVariant, bool>> predicate, CancellationToken ct = default)
     {

@@ -56,12 +56,19 @@ internal sealed class ProductAttributesEndpoints : IEndpoint
         [FromBody] ProductAttributeRequest request,
         [FromServices] IValidator<ProductAttributeRequest> validator,
         [FromServices] ICommandHandler<AddProductAttributeCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationErrors)
             return TypedResults.ValidationProblem(validationErrors.ToDictionary());
+        
+        var userId = httpContext.GetUserId();
+        var command = new AddProductAttributeCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId, 
+            AttributeId: attributeId, 
+            request.Value);
 
-        var command = new AddProductAttributeCommand(ProductId: productId, AttributeId: attributeId, request.Value);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -73,12 +80,18 @@ internal sealed class ProductAttributesEndpoints : IEndpoint
         [FromBody] ProductAttributeBulkRequest request,
         [FromServices] IValidator<ProductAttributeBulkRequest> validator,
         [FromServices] ICommandHandler<AddProductAttributeBulkCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationErrors)
             return TypedResults.ValidationProblem(validationErrors.ToDictionary());
 
-        var command = new AddProductAttributeBulkCommand(ProductId: productId, Attribute: request.Attributes);
+        var userId = httpContext.GetUserId();
+        var command = new AddProductAttributeBulkCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId, 
+            Attribute: request.Attributes);
+
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -91,12 +104,19 @@ internal sealed class ProductAttributesEndpoints : IEndpoint
         [FromBody] ProductAttributeRequest request,
         [FromServices] IValidator<ProductAttributeRequest> validator,
         [FromServices] ICommandHandler<UpdateProductAttributeCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationErrors)
             return TypedResults.ValidationProblem(validationErrors.ToDictionary());
 
-        var command = new UpdateProductAttributeCommand(ProductId: productId, AttributeId: attributeId, request.Value);
+        var userId = httpContext.GetUserId();
+        var command = new UpdateProductAttributeCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId, 
+            AttributeId: attributeId, 
+            request.Value);
+
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -107,10 +127,15 @@ internal sealed class ProductAttributesEndpoints : IEndpoint
         [FromRoute] Guid productId,
         [FromRoute] Guid attributeId,
         [FromServices] ICommandHandler<DeleteProductAttributeCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
+        var userId = httpContext.GetUserId();
+        var command = new DeleteProductAttributeCommand(
+            UserId: Guid.Parse(userId), 
+            ProductId: productId, 
+            AttributeId: attributeId);
 
-        var command = new DeleteProductAttributeCommand(ProductId: productId, AttributeId: attributeId);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -121,10 +146,15 @@ internal sealed class ProductAttributesEndpoints : IEndpoint
         [FromRoute] Guid productId,
         [FromRoute] Guid attributeId,
         [FromServices] ICommandHandler<DeleteAllProductAttributeCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
+        var userId = httpContext.GetUserId();
+        var command = new DeleteAllProductAttributeCommand(
+            UserId: Guid.Parse(userId), 
+            ProductId: productId, 
+            AttributeId: attributeId);
 
-        var command = new DeleteAllProductAttributeCommand(ProductId: productId, AttributeId: attributeId);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess

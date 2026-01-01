@@ -75,6 +75,15 @@ internal class ProductCategoryRepository(ApplicationDbContext context) : IProduc
             .IgnoreQueryFilters(ignoredQueryFilters)
             .ToListAsync(ct);
     }
+    public async Task<HashSet<Guid>> GetCategoryIdsAsync(
+        Guid productId,
+        CancellationToken ct = default)
+    {
+        return await context.ProductCategories
+            .Where(e => e.ProductId == productId)
+            .Select(e => e.CategoryId)
+            .ToHashSetAsync(ct);
+    }
 
 
     public async Task<int> RemoveAllByCategoryAsync(Guid categoryId, CancellationToken ct = default)

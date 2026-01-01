@@ -7,7 +7,7 @@ public interface IProductDomainService
     Result<Guid> Create(Guid vendorId, string name, string? description);
     Result CreateBulk(Guid vendorId, IEnumerable<(string name, string? description)> values);
     Task<Result> UpdateDetails(Guid userId, Guid id, string name, string? description, CancellationToken ct = default);
-    Task<Result> ActivaAsync(Guid userId, Guid productId, CancellationToken ct = default);
+    Task<Result> ActivateAsync(Guid userId, Guid productId, CancellationToken ct = default);
     Task<Result> ArchiveAsync(Guid userId, Guid productId, CancellationToken ct = default);
 
     Task<Result> AddProductCategory(
@@ -18,7 +18,8 @@ public interface IProductDomainService
         List<(decimal price, decimal? compareAtPrice, ProductVariantsOption variants)> productVariants, 
         CancellationToken ct = default);
     Task<Result> UpdateProductCategoryAsync(Guid userId, Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default);
-    Task<Result> RemoveCategory(Guid userId, Guid productId, Guid categoryId, CancellationToken ct = default);
+    Task<Result> DeleteCategoryAsync(Guid userId, Guid productId, Guid categoryId, CancellationToken ct = default);
+    Task<Result> DeleteAllCategoryAsync(Guid userId, Guid productId, CancellationToken ct = default);
 
 
     Task<Result> AddAttributeBulkAsync(Guid userId, Guid productId, IEnumerable<(Guid attributeId, string value)> values, CancellationToken ct = default);

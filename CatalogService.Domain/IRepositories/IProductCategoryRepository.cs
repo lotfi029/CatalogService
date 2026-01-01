@@ -19,6 +19,9 @@ public interface IProductCategoryRepository
         Guid productId,
         string[] ignoredQueryFilters,
         CancellationToken ct = default);
+    Task<HashSet<Guid>> GetCategoryIdsAsync(
+        Guid productId,
+        CancellationToken ct = default);
     Task<ProductCategories?> GetAsync(
         Guid productId,
         Guid categoryId,

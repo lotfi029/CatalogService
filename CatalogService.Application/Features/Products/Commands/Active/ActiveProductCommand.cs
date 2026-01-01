@@ -15,7 +15,7 @@ internal sealed class ActiveProductCommandHandler(
             return ProductErrors.InvalidId;
         try
         {
-            var result = await productService.ActivaAsync(command.UserId, command.Id, ct: ct);
+            var result = await productService.ActivateAsync(command.UserId, command.Id, ct: ct);
             if (result.IsFailure)
                 return result.Error;
 

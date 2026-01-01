@@ -1,5 +1,7 @@
 ﻿using CatalogService.Application.DTOs.ProductCategories;
 using CatalogService.Application.Features.ProductCategories.Command.AddCategory;
+using CatalogService.Application.Features.ProductCategories.Command.Delete;
+using CatalogService.Application.Features.ProductCategories.Command.DeleteAll;
 using CatalogService.Application.Features.ProductCategories.Command.Patch;
 using CatalogService.Application.Features.ProductCategories.Queries.Get;
 using CatalogService.Application.Features.ProductCategories.Queries.GetByProductId;
@@ -22,6 +24,16 @@ internal sealed class ProductCategoriesEndpoints : IEndpoint
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
+        
+        group.MapDelete("/{categoryId:guid}", DeleteCategory)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+        
+        group.MapPatch("/", DeleteAll)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
         group.MapGet("/{categoryId:guid}", Get)
             .Produces<ProductCategoryResponse>(StatusCodes.Status200OK)
@@ -36,12 +48,15 @@ internal sealed class ProductCategoriesEndpoints : IEndpoint
         [FromBody] ProductCategoryRequest request,
         [FromServices] IValidator<ProductCategoryRequest> validator,
         [FromServices] ICommandHandler<AddProductCategoryCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
         if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationErrors)
             return TypedResults.ValidationProblem(validationErrors.ToDictionary());
 
+        var userId = httpContext.GetUserId();
         var command = new AddProductCategoryCommand(
+            UserId: Guid.Parse(userId),
             ProductId: productId,
             CategoryId: categoryId,
             request.IsPrimary!.Value,
@@ -58,12 +73,51 @@ internal sealed class ProductCategoriesEndpoints : IEndpoint
         [FromRoute] Guid categoryId,
         [FromQuery] bool isPrimary,
         [FromServices] ICommandHandler<PatchProductCategoryCommand> handler,
+        HttpContext httpContext,
         CancellationToken ct)
     {
+        var userId = httpContext.GetUserId();
         var command = new PatchProductCategoryCommand(
+            UserId: Guid.Parse(userId),
             ProductId: productId,
             CategoryId: categoryId,
             isPrimary);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    private async Task<IResult> DeleteCategory(
+        [FromRoute] Guid productId,
+        [FromRoute] Guid categoryId,
+        [FromServices] ICommandHandler<DeleteProductCategoryCommand> handler,
+        HttpContext httpContext,
+        CancellationToken ct)
+    {
+        var userId = httpContext.GetUserId();
+        var command = new DeleteProductCategoryCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId,
+            CategoryId: categoryId);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    private async Task<IResult> DeleteAll(
+        [FromRoute] Guid productId,
+        [FromServices] ICommandHandler<DeleteAllProductCategoryCommand> handler,
+        HttpContext httpContext,
+        CancellationToken ct)
+    {
+        var userId = httpContext.GetUserId();
+        var command = new DeleteAllProductCategoryCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId);
 
         var result = await handler.HandleAsync(command, ct);
 
