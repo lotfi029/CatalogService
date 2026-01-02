@@ -21,25 +21,29 @@ internal sealed class VariantAttributeEndpoints : IEndpoint
             .Produces<Guid>()
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
             .ProducesProblem(statusCode: StatusCodes.Status409Conflict)
-            .MapToApiVersion(_apiVersion);
+            .MapToApiVersion(_apiVersion)
+            .RequireAuthorization(PolicyNames.Admin);
         
         group.MapPost("/bulk", CreateBulk)
             .Produces(statusCode: StatusCodes.Status201Created)
             .ProducesProblem(statusCode: StatusCodes.Status409Conflict)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .MapToApiVersion(_apiVersion);
+            .MapToApiVersion(_apiVersion)
+            .RequireAuthorization(PolicyNames.Admin);
         
         group.MapPut("/{id:guid}", Update)
             .Produces(statusCode: StatusCodes.Status201Created)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
-            .MapToApiVersion(_apiVersion);
+            .MapToApiVersion(_apiVersion)
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapDelete("/{id:guid}", Delete)
             .Produces(statusCode: StatusCodes.Status201Created)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .MapToApiVersion(_apiVersion);
+            .MapToApiVersion(_apiVersion)
+            .RequireAuthorization(PolicyNames.Admin);
         
         group.MapGet("/{id:guid}", GetById)
             .WithName(nameof(GetById))

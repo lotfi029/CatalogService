@@ -13,10 +13,6 @@ internal sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Pro
         builder.ToTable("product_variants");
 
         builder.Property(pv => pv.SKU)
-            .HasConversion(
-                sku => sku.Value,
-                value => new Sku(value)!
-            )
             .HasColumnName("sku")
             .HasMaxLength(100)
             .IsRequired();

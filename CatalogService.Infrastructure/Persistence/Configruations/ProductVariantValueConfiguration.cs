@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Infrastructure.Persistence.Configruations;
+﻿using CatalogService.Domain.Contants;
+
+namespace CatalogService.Infrastructure.Persistence.Configruations;
 
 internal sealed class ProductVariantValueConfiguration : IEntityTypeConfiguration<ProductVariantValue>
 {
@@ -34,5 +36,12 @@ internal sealed class ProductVariantValueConfiguration : IEntityTypeConfiguratio
 
         builder.Property(pvv => pvv.VariantAttributeId)
             .HasColumnName("variant_attribute_id");
+
+        builder.HasQueryFilter(
+            QueryFilterConsts.SoftDeleteFilter,
+            x =>
+                !x.IsDeleted && 
+                !x.ProductVariant.IsDeleted && 
+                !x.VariantAttributeDefinition.IsDeleted);
     }
 }

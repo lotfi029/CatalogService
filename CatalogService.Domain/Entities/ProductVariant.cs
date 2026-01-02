@@ -1,13 +1,10 @@
-﻿using CatalogService.Domain.JsonProperties;
-using System.Security.Cryptography;
-
-namespace CatalogService.Domain.Entities;
+﻿namespace CatalogService.Domain.Entities;
 
 public sealed class ProductVariant
 {
     public Guid Id { get; }
     public Guid ProductId { get; private set; }
-    public Sku SKU { get; } = default!;
+    public string SKU { get; } = string.Empty;
     public Money Price { get; private set; } = new();
     public Money? CompareAtPrice { get; private set; } = new();
 
@@ -18,9 +15,9 @@ public sealed class ProductVariant
     private ProductVariant() { }
     private ProductVariant(
         Guid productId,
-        Sku sku,
+        string sku,
         Money price,
-        Money compareAtPrice
+        Money? compareAtPrice
         ) : base()
     {
         Id = Guid.CreateVersion7();
@@ -33,43 +30,48 @@ public sealed class ProductVariant
 
     public static ProductVariant Create(
         Guid productId,
-        Dictionary<string, string> variantAttributes,
+        List<string> variants,
         Money price,
-        Money compareAtPrice
+        Money? compareAtPrice
         )
     {
 
         return new ProductVariant(
             productId,
-            GenerateSku(productId, variantAttributes),
+            GenerateSku(productId, variants),
             price,
             compareAtPrice
             );
     }
-    private static Sku GenerateSku(Guid productId, Dictionary<string, string> variantAttributes)
+    public Result UpdatePrice(decimal price, decimal? compareAtPrice, string currency)
     {
-        var prefix = productId.ToString("N")[..8];
+        if (string.IsNullOrWhiteSpace(currency))
+            return DomainErrors.Null("Currency");
 
-        prefix = prefix.ToLower();
-
-        if (variantAttributes.Count == 0)
-            return new Sku($"{prefix}");
-
-        var variantParts = variantAttributes
-        .Select(o =>
+        if (price < 0)
         {
-            var keyPart = new string([.. o.Key
-                .Where(char.IsLetterOrDigit)
-                .Take(3)])
-                .ToUpper();
+            return DomainErrors.Null("Price");
+        }
+        if (compareAtPrice is not null)
+        {
+            if (compareAtPrice.Value < 0)
+                return DomainErrors.Null("CompareAtPrice");
 
-            var valuePart = new string([.. o.Value.Where(char.IsLetterOrDigit)])
-                .ToUpper();
+            CompareAtPrice = new(compareAtPrice, currency);
+        }
+        Price = new(price, currency);
+        return Result.Success();
+    }
+    private static string GenerateSku(Guid productId, List<string> variantAttributes)
+    {
+        var productPrefix = productId.ToString("N")[..6].ToUpperInvariant();
 
-            return $"{keyPart}-{valuePart}";
-        });
+        if (variantAttributes == null || variantAttributes.Count == 0)
+            return productPrefix;
+        variantAttributes = variantAttributes.Count > 3 ? [.. variantAttributes.Take(3)] : variantAttributes;
+        var variantCode = string.Join("-", variantAttributes
+            .Select(a => a.Length > 2 ? a[..2].ToUpperInvariant() : a.ToUpperInvariant()));
 
-        var variantString = string.Join("_", variantParts);
-        return new($"{prefix}_{variantString}");
+        return $"{productPrefix}-{variantCode}";
     }
 }

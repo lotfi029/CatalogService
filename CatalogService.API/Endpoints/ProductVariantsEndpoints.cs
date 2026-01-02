@@ -1,13 +1,11 @@
-﻿using CatalogService.Application.DTOs.ProductVariants;
+﻿using CatalogService.API.EndpointNames;
+using CatalogService.Application.DTOs.ProductVariants;
+using CatalogService.Application.Features.ProductVariants.Commands.Add;
 using CatalogService.Application.Features.ProductVariants.Commands.Delete;
-using CatalogService.Application.Features.ProductVariants.Commands.DeleteAll;
-using CatalogService.Application.Features.ProductVariants.Commands.UpdateCustomOptions;
 using CatalogService.Application.Features.ProductVariants.Commands.UpdatePrice;
 using CatalogService.Application.Features.ProductVariants.Queries.Get;
 using CatalogService.Application.Features.ProductVariants.Queries.GetByProductId;
 using CatalogService.Application.Features.ProductVariants.Queries.GetBySku;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 
 namespace CatalogService.API.Endpoints;
 
@@ -16,29 +14,28 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/product-variants")
+            .WithTags(ProductVariantEndpointNames.Tags)
             .MapToApiVersion(1);
 
-        group.MapPut("/{productVariantId:guid}/custom-options", UpdateCustomOptions)
+        group.MapPut("/", Add)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Vendor);
 
-        group.MapPut("/{productVariantId:guid}/price", UpdatePrice)
+        group.MapPut("/{variantId:guid}/price", Update)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Vendor);
         
-        group.MapDelete("/{productVariantId:guid}", Delete)
+        group.MapDelete("/{variantId:guid}", Delete)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound);
-        
-        group.MapDelete("/product/{productId:guid}", DeleteAll)
-            .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Vendor);
 
-        group.MapGet("/{productVariantId:guid}", Get)
+        group.MapGet("/{variantId:guid}", Get)
             .Produces<ProductVariantResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
@@ -48,37 +45,39 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
         
-        group.MapGet("sku", GetBySku)
+        group.MapGet("/sku", GetBySku)
             .Produces<ProductVariantResponse[]>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
     }
-
-    private async Task<IResult> UpdateCustomOptions(
-        [FromRoute] Guid productVariantId,
-        [FromBody] UpdateProductVariantCustomOptionsRequest request,
-        [FromServices] IValidator<UpdateProductVariantCustomOptionsRequest> validator,
-        [FromServices] ICommandHandler<UpdateProductVariantCommand> handler,
+    private async Task<IResult> Add(
+        [FromBody] ProductVariantRequest request,
+        [FromServices] IValidator<ProductVariantRequest> validator,
+        [FromServices] ICommandHandler<AddProductVariantCommand> handler,
         HttpContext httpContext,
-        CancellationToken ct)
+        CancellationToken ct = default
+        )
     {
-        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationError)
-            return TypedResults.ValidationProblem(validationError.ToDictionary());
+        if (await validator.ValidateAsync(request, ct) is { IsValid: false } validationErrors)
+            return TypedResults.ValidationProblem(validationErrors.ToDictionary());
 
         var userId = httpContext.GetUserId();
-        var command = new UpdateProductVariantCommand(
-            UserId: Guid.Parse(userId),
-            productVariantId, 
-            request.CustomVariant);
+        var command = new AddProductVariantCommand(
+            Guid.Parse(userId),
+            request.ProductId,
+            request.Price,
+            request.CompareAtPrice,
+            request.Variants.ToDictionary(x => x.VariantId, x => x.Value));
+
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
             ? TypedResults.NoContent()
             : result.ToProblem();
     }
-    private async Task<IResult> UpdatePrice(
-        [FromRoute] Guid productVariantId,
+    private async Task<IResult> Update(
+        [FromRoute] Guid variantId,
         [FromBody] UpdateProductVariantPriceRequest request,
         [FromServices] IValidator<UpdateProductVariantPriceRequest> validator,
         [FromServices] ICommandHandler<UpdateProductVariantPriceCommand> handler,
@@ -90,7 +89,7 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
         var userId = httpContext.GetUserId();
         var command = new UpdateProductVariantPriceCommand(
             UserId: Guid.Parse(userId),
-            productVariantId, 
+            variantId, 
             Price: request.Price,
             CompareAtPrice: request.CompareAtPrice,
             Currency: request.Currency);
@@ -101,7 +100,7 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
             : result.ToProblem();
     }
     private async Task<IResult> Delete(
-        [FromRoute] Guid productVariantId,
+        [FromRoute] Guid variantId,
         [FromQuery] Guid productId,
         [FromServices] ICommandHandler<DeleteProductVariantCommand> handler,
         HttpContext httpContext,
@@ -111,23 +110,7 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
         var command = new DeleteProductVariantCommand(
             UserId: Guid.Parse(userId),
             ProductId: productId, 
-            ProductVariantId: productVariantId);
-        var result = await handler.HandleAsync(command, ct);
-
-        return result.IsSuccess
-            ? TypedResults.NoContent()
-            : result.ToProblem();
-    }
-    private async Task<IResult> DeleteAll(
-        [FromRoute] Guid productId,
-        [FromServices] ICommandHandler<DeleteAllProductVariantCommand> handler,
-        HttpContext httpContext,
-        CancellationToken ct)
-    {
-        var userId = httpContext.GetUserId();
-        var command = new DeleteAllProductVariantCommand(
-            UserId: Guid.Parse(userId),
-            ProductId: productId);
+            ProductVariantId: variantId);
         var result = await handler.HandleAsync(command, ct);
 
         return result.IsSuccess
@@ -135,11 +118,11 @@ internal sealed class ProductVariantsEndpoints : IEndpoint
             : result.ToProblem();
     }
     private async Task<IResult> Get(
-        [FromRoute] Guid productVariantId,
+        [FromRoute] Guid variantId,
         [FromServices] IQueryHandler<GetProductVariantByIdQuery, ProductVariantResponse> handler,
         CancellationToken ct)
     {
-        var query = new GetProductVariantByIdQuery(productVariantId);
+        var query = new GetProductVariantByIdQuery(variantId);
         var result = await handler.HandleAsync(query, ct);
 
         return result.IsSuccess

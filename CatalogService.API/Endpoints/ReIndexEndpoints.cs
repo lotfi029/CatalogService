@@ -14,10 +14,14 @@ internal sealed class ReIndexEndpoints : IEndpoint
             .MapToApiVersion(1);
 
 
-        group.MapPost("/products", ReIndexProducts);
-        group.MapPost("/attributes", ReIndexCategories);
-        group.MapPost("/categories", ReIndexAttributes);
-        group.MapPost("/all", ReIndexAll);
+        group.MapPost("/products", ReIndexProducts)
+            .RequireAuthorization(PolicyNames.Admin);
+        group.MapPost("/attributes", ReIndexCategories)
+            .RequireAuthorization(PolicyNames.Admin);
+        group.MapPost("/categories", ReIndexAttributes)
+            .RequireAuthorization(PolicyNames.Admin);
+        group.MapPost("/all", ReIndexAll)
+            .RequireAuthorization(PolicyNames.Admin);
 
 
     }

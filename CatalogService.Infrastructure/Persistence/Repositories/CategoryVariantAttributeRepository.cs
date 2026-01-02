@@ -98,6 +98,16 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
                 cv => cv.CategoryId == categoryId && cv.VariantAttributeId == variantAttributeId,
                 ct);
     }
-    public async Task<int> ExecuteDeleteAsync(Expression<Func<CategoryVariantAttribute, bool>> predicate, CancellationToken ct = default)
-        => await _dbSet.Where(predicate).ExecuteDeleteAsync(ct);
+    public async Task<int> ExecuteDeleteAsync(
+        Expression<Func<CategoryVariantAttribute, bool>> predicate, 
+        CancellationToken ct = default)=> 
+        await _dbSet.Where(predicate)
+        .ExecuteDeleteAsync(ct);
+
+    public async Task<HashSet<Guid>> GetVariantAttributeIds(
+        Guid categoryId,
+        CancellationToken ct = default) =>
+        await _dbSet.Where(e => e.CategoryId == categoryId)
+        .Select(e => e.VariantAttributeId)
+        .ToHashSetAsync(ct);
 }

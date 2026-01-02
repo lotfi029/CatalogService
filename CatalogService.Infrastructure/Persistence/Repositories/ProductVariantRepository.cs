@@ -62,15 +62,17 @@ internal sealed class ProductVariantRepository(ApplicationDbContext context) : I
         return await _dbSet.FindAsync([id], cancellationToken: ct);
     }
     public async Task<int> ExecuteUpdateAsync(
-        Expression<Func<ProductVariant, bool>> predicate, 
-        Action<UpdateSettersBuilder> action, 
+        Expression<Func<ProductVariant, bool>> predicate,
+        Action<UpdateSettersBuilder<ProductVariant>> action,
         CancellationToken ct = default)
     {
         return await _dbSet
             .Where(predicate)
             .ExecuteUpdateAsync(action, ct);
     }
-    public async Task<int> ExecuteDeleteAsync(Expression<Func<ProductVariant, bool>> predicate, CancellationToken ct = default)
+    public async Task<int> ExecuteDeleteAsync(
+        Expression<Func<ProductVariant, bool>> predicate, 
+        CancellationToken ct = default)
     {
         return await _dbSet
             .Where(predicate)

@@ -18,5 +18,8 @@ public interface IProductVariantRepository
     Task<bool> ExistsAsync(Expression<Func<ProductVariant, bool>> predicate, CancellationToken ct = default);
     Task<bool> ExistsAsync(Guid productId, Guid productVariantId, CancellationToken ct = default);
     Task<int> ExecuteDeleteAsync(Expression<Func<ProductVariant, bool>> predicate, CancellationToken ct = default);
-    Task<int> ExecuteUpdateAsync(Expression<Func<ProductVariant, bool>> predicate, Action<UpdateSettersBuilder> action,CancellationToken ct = default);
+    Task<int> ExecuteUpdateAsync(
+        Expression<Func<ProductVariant, bool>> predicate,
+        Action<UpdateSettersBuilder<ProductVariant>> action,
+        CancellationToken ct = default);
 }

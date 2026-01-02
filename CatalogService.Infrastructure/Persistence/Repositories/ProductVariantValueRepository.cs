@@ -43,7 +43,7 @@ internal sealed class ProductVariantValueRepository(ApplicationDbContext context
     }
     public async Task<int> ExecuteUpdateAsync(
         Expression<Func<ProductVariantValue, bool>> predicate,
-        Action<UpdateSettersBuilder> action,
+        Action<UpdateSettersBuilder<ProductVariantValue>> action,
         CancellationToken ct = default)
     {
         return await _dbSet
@@ -71,6 +71,14 @@ internal sealed class ProductVariantValueRepository(ApplicationDbContext context
     {
         return await _dbSet.Where(e => e.Id == id).ToListAsync(ct);
     }
+    public async Task<HashSet<Guid>> GetProductVariantIdsAsync(
+        Expression<Func<ProductVariantValue, bool>> predicate,
+        CancellationToken ct) => 
+        await _dbSet
+        .Where(predicate)
+        .Select(x => x.ProductVariantId)
+        .ToHashSetAsync(ct);
+
 
     public async Task<ProductVariantValue?> GetById(Guid id, CancellationToken ct = default)
     {

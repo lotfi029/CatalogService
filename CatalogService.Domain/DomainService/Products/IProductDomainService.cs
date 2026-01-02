@@ -1,6 +1,4 @@
-﻿using CatalogService.Domain.JsonProperties;
-
-namespace CatalogService.Domain.DomainService.Products;
+﻿namespace CatalogService.Domain.DomainService.Products;
 
 public interface IProductDomainService
 {
@@ -14,13 +12,10 @@ public interface IProductDomainService
         Guid userId,
         Guid productId, 
         Guid categoryId, 
-        bool isPrimary, 
-        List<(decimal price, decimal? compareAtPrice, ProductVariantsOption variants)> productVariants, 
+        bool isPrimary,
         CancellationToken ct = default);
     Task<Result> UpdateProductCategoryAsync(Guid userId, Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default);
     Task<Result> DeleteCategoryAsync(Guid userId, Guid productId, Guid categoryId, CancellationToken ct = default);
-    Task<Result> DeleteAllCategoryAsync(Guid userId, Guid productId, CancellationToken ct = default);
-
 
     Task<Result> AddAttributeBulkAsync(Guid userId, Guid productId, IEnumerable<(Guid attributeId, string value)> values, CancellationToken ct = default);
     Task<Result> AddAttributeAsync(Guid userId, Guid productId, Guid attributeId, string value, CancellationToken ct = default);
@@ -28,9 +23,23 @@ public interface IProductDomainService
     Task<Result> DeleteAttributeAsync(Guid userId, Guid productId, Guid attributeId, CancellationToken ct = default);
     Task<Result> DeleteAllAttributeAsync(Guid userId, Guid productId, CancellationToken ct = default);
     
-    Task<Result> DeleteAllProductVariantAsync(Guid userId, Guid productId, CancellationToken ct = default);
-    Task<Result> DeleteProductVariantAsync(Guid userId, Guid productId, Guid variantId, CancellationToken ct = default);
-    Task<Result> UpdateProductVariantCustomizationOptionsAsync(Guid userId, Guid id, ProductVariantsOption customOption, CancellationToken ct = default);
-    Task<Result> UpdateProductVariantPriceAsync(Guid userId, Guid id, decimal price, decimal? compareAtPrice, string currency, CancellationToken ct = default);
-    
+    Task<Result> AddProductVariantAsync(
+        Guid userId, 
+        Guid productId, 
+        decimal price, 
+        decimal? compareAtPrice, 
+        Dictionary<Guid, string> variantAttributes, 
+        CancellationToken ct = default);
+    Task<Result> UpdateProductVariantPriceAsync(
+        Guid userId, 
+        Guid id, 
+        decimal price, 
+        decimal? compareAtPrice, 
+        string currency, 
+        CancellationToken ct = default);
+    Task<Result> DeleteProductVariantAsync(
+        Guid userId, 
+        Guid productId, 
+        Guid variantId, 
+        CancellationToken ct = default);
 }

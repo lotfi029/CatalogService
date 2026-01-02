@@ -20,43 +20,29 @@ public sealed class ProductVariantRequestValidator : AbstractValidator<ProductVa
                         "CompareAtPrice must to be greater than 0");
             });
 
-        RuleFor(e => e.Variants)
-            .NotNull()
+        RuleFor(e => e.ProductId)
             .NotEmpty();
 
+        RuleForEach(x => x.Variants)
+            .SetValidator(new VariantValueRequestValidator());
 
-        RuleFor(e => e.Variants)
+        RuleFor(x => x.Variants)
+            .NotEmpty()
             .Custom((variants, context) =>
             {
                 if (variants is null)
                     return;
 
-                if (variants.Variants.Count != variants.Variants.Distinct().Count())
-                {
-                    context.AddFailure("Variants",
-                        "Variants must not contain duplicated values.");
-                }
+                var variantIds = variants.Select(x => x.VariantId);
 
-                if (variants.Variants.Count > 50)
-                {
+                if (variantIds.Distinct().Count() != variantIds.Count())
                     context.AddFailure("Variants",
-                        "Variants must not exceed 50 items.");
-                }
-            });
+                        "'Variants' should be distinct");
 
-        RuleForEach(e => e.Variants.Variants)
-            .Custom((variant, context) =>
-            {
-                if (string.IsNullOrWhiteSpace(variant.Key))
-                {
-                    context.AddFailure("Key",
-                        "{PropertyName} is required and cannot be null or empty");
-                }
-                if (string.IsNullOrWhiteSpace(variant.Value))
-                {
-                    context.AddFailure("Value",
-                        "{PropertyName} is required and cannot be null or empty");
-                }
+                if (variants.Count() > 50)
+                    context.AddFailure("Variants",
+                        "'Variants' must be less than 50");
+
             });
     }
 }

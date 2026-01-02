@@ -22,17 +22,11 @@ public class ProductCategories
         IsDeleted = false;
     }
 
-    public static Result<ProductCategories> Create(
+    public static ProductCategories Create(
         Guid productId,
         Guid categoryId,
         bool isPrimary)
     {
-        if (productId == Guid.Empty)
-            return DomainErrors.Null(nameof(ProductId));
-
-        if (categoryId == Guid.Empty)
-            return DomainErrors.Null(nameof(categoryId));
-
         return new ProductCategories(
             productId,
             categoryId,

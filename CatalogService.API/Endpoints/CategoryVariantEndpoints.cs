@@ -15,25 +15,29 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
         var group = app.MapGroup("categories/{categoryId:guid}/variant-attributes")
             .MapToApiVersion(1);
 
-        group.MapPost("/", AddVariantAttribute)
+        group.MapPost("/", Add)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .ProducesProblem(statusCode: StatusCodes.Status404NotFound); // add delete 
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
         
-        group.MapPost("/bulk",  AddCategoryVariantBulk)
+        group.MapPost("/bulk",  AddBulk)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .ProducesProblem(statusCode: StatusCodes.Status404NotFound); // add delete 
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
         
-        group.MapPut("/{variantAttributeId:guid}", UpdateVariantAttribute)
+        group.MapPut("/{variantAttributeId:guid}", Update)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .ProducesProblem(statusCode: StatusCodes.Status404NotFound);
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
         
-        group.MapDelete("/{variantAttributeId:guid}", RemoveVariantAttribute)
+        group.MapDelete("/{variantAttributeId:guid}", Remove)
             .Produces(statusCode: StatusCodes.Status204NoContent)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .ProducesProblem(statusCode: StatusCodes.Status404NotFound);
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapGet("/{variantAttributeId:guid}", Get)
             .Produces<CategoryVariantAttributeDetailedResponse>(statusCode: StatusCodes.Status200OK)
@@ -46,7 +50,7 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest);
     }
 
-    private async Task<IResult> AddVariantAttribute(
+    private async Task<IResult> Add(
         [FromRoute] Guid categoryId,
         [FromBody] AddCategoryVariantRequest request,
         [FromServices] IValidator<AddCategoryVariantRequest> validator,
@@ -68,7 +72,7 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
             ? TypedResults.NoContent()
             : result.ToProblem();
     }
-    private async Task<IResult> AddCategoryVariantBulk(
+    private async Task<IResult> AddBulk(
         [FromRoute] Guid categoryId,
         [FromBody] AddCategoryVariantBulkRequest request,
         [FromServices] IValidator<AddCategoryVariantBulkRequest> validator,
@@ -85,7 +89,7 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
             ? TypedResults.NoContent()
             : result.ToProblem();
     }
-    private async Task<IResult> UpdateVariantAttribute(
+    private async Task<IResult> Update(
         [FromRoute] Guid categoryId,
         [FromRoute] Guid variantAttributeId,
         [FromBody] UpdateCategoryVariantRequest request,
@@ -108,7 +112,7 @@ internal sealed class CategoryVariantEndpoints : IEndpoint
             ? TypedResults.NoContent()
             : result.ToProblem();
     }
-    private async Task<IResult> RemoveVariantAttribute(
+    private async Task<IResult> Remove(
         [FromRoute] Guid categoryId,
         [FromRoute] Guid variantAttributeId,
         [FromServices] ICommandHandler<RemoveCategoryVariantCommand> handler,

@@ -7,7 +7,6 @@ using CatalogService.Application.Features.Products.Commands.CreateBulk;
 using CatalogService.Application.Features.Products.Commands.UpdateDetails;
 using CatalogService.Application.Features.Products.Queries.Get;
 using CatalogService.Application.Features.Products.Queries.GetAll;
-using CatalogService.Infrastructure.Authorization;
 
 namespace CatalogService.API.Endpoints;
 

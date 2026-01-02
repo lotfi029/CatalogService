@@ -1,9 +1,8 @@
-﻿using CatalogService.Domain.JsonProperties;
-
-namespace CatalogService.Application.DTOs.ProductVariants;
+﻿namespace CatalogService.Application.DTOs.ProductVariants;
 
 public sealed record ProductVariantRequest(
+    Guid ProductId,
     decimal Price,
     decimal? CompareAtPrice,
-    ProductVariantsOption Variants
+    IEnumerable<VariantValueRequest> Variants
     );

@@ -16,6 +16,9 @@ public interface ICategoryVariantAttributeRepository
     Task<IEnumerable<CategoryVariantAttribute>> GetAvaliableVariantAsync(
         HashSet<Guid> categoryId,
         CancellationToken ct = default);
+    Task<HashSet<Guid>> GetVariantAttributeIds(
+        Guid categoryId,
+        CancellationToken ct = default);
     Task<IEnumerable<CategoryVariantAttribute>> GetAsync(
         HashSet<Guid> categoryIds,
         HashSet<Guid> variants,

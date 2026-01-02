@@ -46,18 +46,15 @@ internal sealed class CategoryEndpoints : IEndpoint
         group.MapGet("/{id:guid}", GetById)
             .Produces<CategoryDetailedResponse>(statusCode: StatusCodes.Status200OK)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
-            .WithName(CategoryEntpointsNames.GetCategoryById)
-            .RequireAuthorization(PolicyNames.Vendor);
+            .WithName(CategoryEntpointsNames.GetCategoryById);
 
         group.MapGet("/slug/{slug:alpha}", GetBySlug)
             .Produces<CategoryDetailedResponse>(StatusCodes.Status200OK)
-            .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
-            .RequireAuthorization(PolicyNames.Vendor);
+            .ProducesProblem(statusCode: StatusCodes.Status404NotFound);
 
         group.MapGet("/tree", GetTree)
             .Produces<CategoryResponse>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .RequireAuthorization(PolicyNames.Vendor);
+            .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     private async Task<IResult> Create(

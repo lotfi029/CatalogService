@@ -1,9 +1,7 @@
 ﻿using CatalogService.Domain.DomainEvents.Products.ProductAttributes;
 using CatalogService.Domain.DomainEvents.Products.ProductCategories;
 using CatalogService.Domain.DomainEvents.Products.ProductVariants;
-using CatalogService.Domain.Entities;
-using CatalogService.Domain.JsonProperties;
-using Microsoft.VisualBasic;
+using System.Diagnostics.Tracing;
 
 namespace CatalogService.Domain.DomainService.Products;
 
@@ -14,6 +12,7 @@ public sealed class ProductDomainService(
     ICategoryVariantAttributeRepository categoryVariantRepository,
     IProductVariantRepository productVariantRepository,
     IProductAttributeRepository productAttributeRepository,
+    IProductVariantValueRepository productVariantValueRepository,
     IProductCategoryRepository productCategoryRepository) : IProductDomainService
 {
     #region product
@@ -124,72 +123,99 @@ public sealed class ProductDomainService(
     #endregion
 
     #region product variants
-    public async Task<Result> UpdateProductVariantCustomizationOptionsAsync( // depercated
-        Guid userId, 
-        Guid variantId, 
-        ProductVariantsOption customOption, 
+    public async Task<Result> AddProductVariantAsync(
+        Guid userId,
+        Guid productId,
+        decimal price,
+        decimal? compareAtPrice,
+        Dictionary<Guid, string> variantAttributes,
         CancellationToken ct = default)
     {
+        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationErrors)
+            return validationErrors.Error;
+
+        var variantResult = await ProductVariantValidationAsync(
+            productId: productId,
+            variantAttributes,
+            ct);
+
+        if (variantResult.IsFailure)
+            return variantResult.Error;
+
+        var productVariant = ProductVariant.Create(
+            productId: productId,
+            variantResult.Value!,
+            price: new Money(price),
+            compareAtPrice: compareAtPrice.HasValue ? new Money(compareAtPrice) : null
+            );
+
+        var values = variantAttributes
+            .Select(va =>
+                ProductVariantValue.Create(
+                    productVariantId: productVariant.Id,
+                    va.Key,
+                    va.Value
+                    ));
+
+        productVariantRepository.Add(productVariant);
+        productVariantValueRepository.AddRange([.. values]);
+
+        return Result.Success();
+    }
+
+    public async Task<Result> UpdateProductVariantPriceAsync(
+        Guid userId, 
+        Guid variantId, 
+        decimal price, 
+        decimal? compareAtPrice, 
+        string currency, 
+        CancellationToken ct = default)
+    {
+
         if (await productVariantRepository.GetById(id: variantId, ct) is not { } productVariant)
             return ProductVariantErrors.NotFound(variantId);
 
         if (await ValidateProductOwnership(userId, productVariant.ProductId, ct) is { IsFailure: true } validationError)
             return validationError;
 
-        //if (productVariant.UpdateCustomizationOptions(customOption) is { IsFailure: true } updatingError)
-        //    return updatingError.Error;
-
-        productVariantRepository.Update(productVariant);
+        if (productVariant.UpdatePrice(price, compareAtPrice, currency) is { IsFailure: true } error)
+            return error;
 
         AddDomainEvents(
             productVariant.ProductId, 
             new ProductVariantUpdatedDomainEvent(productVariant.ProductId, variantId)
         );
-
         return Result.Success();
     }
-    public async Task<Result> UpdateProductVariantPriceAsync(Guid userId, Guid variantId, decimal price, decimal? compareAtPrice, string currency, CancellationToken ct = default)
-    {
-        if (await productVariantRepository.GetById(id: variantId, ct) is not { } productVariant)
-            return ProductVariantErrors.NotFound(variantId);
-
-        if (await ValidateProductOwnership(userId, productVariant.ProductId, ct) is { IsFailure: true } validationError)
-            return validationError;
-
-        currency = currency.ToUpper();
-
-        //if (productVariant.UpdatePrice(price, compareAtPrice, currency) is { IsFailure: true } updatingError)
-        //    return updatingError.Error;
-
-        productVariantRepository.Update(productVariant);
-        AddDomainEvents(productVariant.ProductId, new ProductVariantUpdatedDomainEvent(productVariant.ProductId, variantId));
-        return Result.Success();
-    }
-    public async Task<Result> DeleteProductVariantAsync(Guid userId, Guid productId, Guid variantId, CancellationToken ct = default)
+    
+    public async Task<Result> DeleteProductVariantAsync(
+        Guid userId, 
+        Guid productId, 
+        Guid productVariantId, 
+        CancellationToken ct = default)
     {
         if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
             return validationError;
 
-        var deletedRaws = await productVariantRepository
-            .ExecuteDeleteAsync(x => x.Id == variantId, ct: ct);
+        var updatedRows = await productVariantRepository.
+            ExecuteUpdateAsync(
+                predicate: x => x.Id == productVariantId,
+                action: setter => setter
+                    .SetProperty(pv => pv.IsDeleted, true),
+                ct);
+
+        if (updatedRows == 0)
+            return ProductVariantErrors.NotFound(productVariantId);
+
+        await productVariantValueRepository.ExecuteUpdateAsync(
+            predicate: x => x.ProductVariantId == productVariantId,
+            action: setter => setter
+                .SetProperty(x => x.IsDeleted, true),
+            ct);
 
         AddDomainEvents(
             productId, 
-            new ProductVariantDeletedDomainEvent(productId,variantId)
-        );
-        return deletedRaws == 0
-            ? ProductVariantErrors.NotFound(variantId)
-            : Result.Success();
-    }
-    public async Task<Result> DeleteAllProductVariantAsync(Guid userId, Guid productId, CancellationToken ct = default)
-    {
-        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
-            return validationError;
-
-        var deletedRaws = await productVariantRepository.ExecuteDeleteAsync(x => x.ProductId == productId, ct: ct);
-        AddDomainEvents(
-            productId, 
-            new ProductVariantDeletedAllDomainEvent(productId)
+            new ProductVariantDeletedDomainEvent(productId,productVariantId)
         );
 
         return Result.Success();
@@ -202,7 +228,6 @@ public sealed class ProductDomainService(
         Guid productId,
         Guid categoryId,
         bool isPrimary,
-        List<(decimal price, decimal? compareAtPrice, ProductVariantsOption variants)> productVariants,
         CancellationToken ct = default)
     {
         if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
@@ -214,23 +239,24 @@ public sealed class ProductDomainService(
         if (!await categoryRepository.ExistsAsync(categoryId, ct: ct))
             return CategoryErrors.NotFound(categoryId);
 
-        var variantCreationResult = await BuildProductVariants(
+        var productCategory = ProductCategories.Create(
             productId: productId,
             categoryId: categoryId,
-            productVariants: productVariants,
-            ct: ct);
+            isPrimary: isPrimary);
 
-        if (variantCreationResult.IsFailure)
-            return variantCreationResult.Error;
-
-        var finalizeAdditionResult = FinalizeProductCategoryAddition(productId, categoryId, isPrimary, variantCreationResult.Value!);
-
-        if (finalizeAdditionResult.IsFailure)
-            return finalizeAdditionResult.Error;
-
+        productCategoryRepository.Add(productCategory);
+        AddDomainEvents(
+            productId,
+            new ProductCategoryAddedDomainEvent(productId, categoryId)
+        );
         return Result.Success();
     }
-    public async Task<Result> UpdateProductCategoryAsync(Guid userId, Guid productId, Guid categoryId, bool isPrimary, CancellationToken ct = default)
+    public async Task<Result> UpdateProductCategoryAsync(
+        Guid userId, 
+        Guid productId, 
+        Guid categoryId, 
+        bool isPrimary, 
+        CancellationToken ct = default)
     {
         if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
             return validationError;
@@ -253,7 +279,11 @@ public sealed class ProductDomainService(
 
         return Result.Success();
     }
-    public async Task<Result> DeleteCategoryAsync(Guid userId, Guid productId, Guid categoryId, CancellationToken ct = default)
+    public async Task<Result> DeleteCategoryAsync(
+        Guid userId, 
+        Guid productId, 
+        Guid categoryId, 
+        CancellationToken ct = default)
     {
         if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
             return validationError;
@@ -267,10 +297,27 @@ public sealed class ProductDomainService(
         if (rowAffected == 0)
             return ProductCategoriesErrors.NotFound;
 
-        //var variantCategories
+        // delete all variant in this category from this product
+        var variantIds = await categoryVariantRepository
+            .GetVariantAttributeIds(categoryId, ct);
+        // validate soft delete
+        if (variantIds.Count != 0)
+        {
+            var productVariantIds = await productVariantValueRepository
+                .GetProductVariantIdsAsync(x => variantIds.Contains(x.VariantAttributeId), ct);
 
-        //await productVariantRepository.ExecuteUpdateAsync(
-        //    predicate: pc => pc.)
+            await productVariantRepository.ExecuteUpdateAsync(
+                predicate: x => productVariantIds.Contains(x.Id),
+                action: setter => setter
+                    .SetProperty(prop => prop.IsDeleted, true),
+                ct);
+
+            await productVariantValueRepository.ExecuteUpdateAsync(
+                predicate: x => variantIds.Contains(x.VariantAttributeId),
+                action: setter => setter
+                    .SetProperty(x => x.IsDeleted, true),
+                ct);
+        }
 
         AddDomainEvents(
             productId, 
@@ -278,156 +325,70 @@ public sealed class ProductDomainService(
         );
         return Result.Success();
     }
-    public async Task<Result> DeleteAllCategoryAsync(Guid userId, Guid productId, CancellationToken ct = default)
-    {
-        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
-            return validationError;
-
-        var rowAffected = await productCategoryRepository.ExecuteUpdateAsync(
-            predicate: pc => pc.ProductId == productId,
-            action: body => body
-                .SetProperty(prop => prop.IsDeleted, true),
-            ct: ct);
-
-        AddDomainEvents(productId, new AllProductCategoryRemovedDomainEvent(productId));
-        return Result.Success();
-    }
-    public async Task<Result> AddProductVariantAsync(
-        Guid userId,
+    #endregion
+   
+    private async Task<Result<List<string>>> ProductVariantValidationAsync(
         Guid productId, 
-        decimal price, 
-        decimal compareAtPrice,
-        List<(Guid variantAttributeId, string value)> variantAttributes,
+        Dictionary<Guid, string> variantAttributes, 
         CancellationToken ct = default)
-    {
-        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationErrors)
-            return validationErrors.Error;
-
-        var checkVariant = await categoryVariantRepository
-            .GetAsync(
-
-        return Result.Success();
-    }
-    private async Task<bool> ProductVariantValidationAsync(Guid productId, List<(Guid variantAttributeId, string value)> variantAttributes, CancellationToken ct = default)
     {
         var categories = await productCategoryRepository
                 .GetCategoryIdsAsync(productId, ct);
 
         if (categories.Count == 0)
-            return false;
+            return ProductVariantErrors.InvalidVariants;
 
-        var variants = await categoryVariantRepository
-            .GetAsync(categories, [.. variantAttributes.Select(e => e.variantAttributeId)], ct);
+        var variantIds = new HashSet<Guid>(variantAttributes.Keys);
+        var categoryVariants = await categoryVariantRepository
+            .GetAsync(categories, variantIds, ct)
+            ?? [];
 
+        if (variantIds.Except(categoryVariants.Select(e => e.VariantAttributeId)).Any())
+            return ProductVariantErrors.InvalidVariants;
 
-
-    }
-    private async Task<Result<List<ProductVariant>>> BuildProductVariants(
-        Guid productId,
-        Guid? categoryId,
-        List<(decimal price, decimal? compareAtPrice, ProductVariantsOption variants)> productVariants,
-        CancellationToken ct)
-    {
-        HashSet<Guid> categoryIds = [];
-        if (categoryId is null)
-        {
-            var categories = await productCategoryRepository
-                .GetByProductIdAsync(productId, [], ct);
-
-            categoryIds = [.. categories.Select(e => e.CategoryId)];
-        }
-        else
-        {
-            categoryIds = [categoryId.Value];
-        }
-
-        var avaliableVariants = await categoryVariantRepository
-            .GetAvaliableVariantAsync(categoryIds, ct);
-
-
-
-        var variantsLookup = avaliableVariants
-            .OrderBy(cv => cv.DisplayOrder)
-            .ToDictionary(
-                keySelector: v => v.VariantAttribute.Code,
-                elementSelector: v => new
+        var variantsLookup = categoryVariants
+            .Join(
+                inner: variantAttributes,
+                outerKeySelector: cva => cva.VariantAttributeId,
+                innerKeySelector: va => va.Key,
+                (cva, va) => new 
                 {
-                    v.DisplayOrder,
-                    v.VariantAttribute.Datatype.DataType,
-                    v.VariantAttribute.AffectsInventory,
-                    v.VariantAttribute.Code,
-                    AllowedValues = v.VariantAttribute.AllowedValues?.Values ?? []
-                },
-                comparer: StringComparer.OrdinalIgnoreCase);
+                    cva.VariantAttributeId,
+                    cva.DisplayOrder,
+                    cva.VariantAttribute.Code,
+                    AllowedValues = cva.VariantAttribute.AllowedValues!.Values,
+                    cva.VariantAttribute.Datatype.DataType,
+                    va.Value
+                })
+            .OrderBy(x => x.DisplayOrder)
+            .ToDictionary(keySelector: k => k.VariantAttributeId);
 
-        List<ProductVariant> addedProductVariant = [];
-
-        foreach (var (price, compareAtPrice, variants) in productVariants)
+        List<string> sku = [];
+        foreach(var variant in variantsLookup)
         {
-            var inputVariants = variants.Variants;
-            var inputCodes = inputVariants.Select(e => e.Key)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var validationResult = ValidateVariantValue(
+                variant.Value.AllowedValues, 
+                variant.Value.DataType, 
+                variant.Value.Code, 
+                variant.Value.Value);
 
-            // Validate all required variants are provided
-            if (!variantsLookup.Keys.All(inputCodes.Contains))
-            {
-                return ProductCategoriesErrors.InvalidIncludedVariants([.. variantsLookup.Keys]);
-            }
-            // validate that all input variant is in the avaliable 
-            if (inputCodes.Except(variantsLookup.Keys).Any())
-            {
-                return ProductVariantErrors.NotFound(Guid.Empty);
-            }
-            List<VariantAttributeItem> variantAttributeItems = [];
-            List<VariantAttributeItem> customizedOptions = [];
+            if (validationResult.IsFailure)
+                return validationResult.Error;
 
-            foreach (var (code, value) in variants.Variants)
-            {
-                if (variantsLookup.TryGetValue(code, out var requiredVariant))
-                {
-                    var validationResult = ValidateVariantValue(
-                        (requiredVariant.AllowedValues, requiredVariant.DataType),
-                        code,
-                        value);
-
-                    if (validationResult.IsFailure)
-                        return validationResult.Error;
-
-                    if (requiredVariant.AffectsInventory)
-                    {
-                        variantAttributeItems.Add(new(requiredVariant.Code, value));
-                    }
-                    else
-                    {
-                        customizedOptions.Add(new(requiredVariant.Code, value));
-                    }
-                }
-                else
-                {
-                    customizedOptions.Add(new(code, value));
-                }
-            }
-
-            addedProductVariant.Add(ProductVariant.Create(
-                productId: productId,
-                variantAttributes: new(variantAttributeItems),
-                customizationOptions: new(customizedOptions),
-                price: new(price),
-                compareAtPrice: new(compareAtPrice)
-            ));
+            sku.Add(variant.Value.Value);
         }
-
-        return addedProductVariant;
+        return Result.Success(sku);
     }
     private static Result ValidateVariantValue(
-        (HashSet<string>? AllowedValues, VariantDataType Datatype) requiredVariant,
+        HashSet<string>? AllowedValues, 
+        VariantDataType Datatype,
         string code,
         string value)
     {
-        switch (requiredVariant.Datatype)
+        switch (Datatype)
         {
             case VariantDataType.Select:
-                var allowedValues = requiredVariant.AllowedValues!;
+                var allowedValues = AllowedValues!;
 
                 if (!allowedValues.Contains(value, comparer: StringComparer.OrdinalIgnoreCase))
                 {
@@ -446,36 +407,6 @@ public sealed class ProductDomainService(
         }
         return Result.Success();
     }
-
-    private Result FinalizeProductCategoryAddition(
-        Guid productId,
-        Guid categoryId,
-        bool isPrimary,
-        List<ProductVariant> addedProductVariant)
-    {
-        var productCategory = ProductCategories.Create(
-            productId: productId,
-            categoryId: categoryId,
-            isPrimary: isPrimary);
-
-        if (productCategory.IsFailure)
-            return productCategory.Error;
-
-        productCategoryRepository.Add(productCategory.Value!);
-
-        if (addedProductVariant.Count > 0)
-        {
-            productVariantRepository.AddRange([.. addedProductVariant]);
-        }
-
-        AddDomainEvents(
-            productId,
-            new ProductCategoryAddedDomainEvent(productId, categoryId)
-        );
-
-        return Result.Success();
-    }
-    #endregion
     #region product attribute 
     public async Task<Result> AddAttributeAsync(Guid userId, Guid productId, Guid attributeId, string value, CancellationToken ct = default)
     {
