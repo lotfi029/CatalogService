@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Query;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace CatalogService.Infrastructure.Persistence.Repositories;
@@ -105,9 +106,9 @@ public sealed class CategoryVariantAttributeRepository(ApplicationDbContext cont
         .ExecuteDeleteAsync(ct);
 
     public async Task<HashSet<Guid>> GetVariantAttributeIds(
-        Guid categoryId,
+        Expression<Func<CategoryVariantAttribute, bool>> predicate,
         CancellationToken ct = default) =>
-        await _dbSet.Where(e => e.CategoryId == categoryId)
+        await _dbSet.Where(predicate)
         .Select(e => e.VariantAttributeId)
         .ToHashSetAsync(ct);
 }

@@ -7,7 +7,6 @@ using CatalogService.Application.Features.Categories.Commands.UpdateDetails;
 using CatalogService.Application.Features.Categories.Queries.GetById;
 using CatalogService.Application.Features.Categories.Queries.GetBySlug;
 using CatalogService.Application.Features.Categories.Queries.Tree;
-using CatalogService.Infrastructure.Authorization;
 
 namespace CatalogService.API.Endpoints;
 
@@ -48,7 +47,7 @@ internal sealed class CategoryEndpoints : IEndpoint
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound)
             .WithName(CategoryEntpointsNames.GetCategoryById);
 
-        group.MapGet("/slug/{slug:alpha}", GetBySlug)
+        group.MapGet("/slug/{slug}", GetBySlug)
             .Produces<CategoryDetailedResponse>(StatusCodes.Status200OK)
             .ProducesProblem(statusCode: StatusCodes.Status404NotFound);
 

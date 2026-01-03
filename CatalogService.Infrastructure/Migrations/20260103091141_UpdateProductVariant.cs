@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CatalogService.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddProductVariantValue : Migration
+    public partial class UpdateProductVariant : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,12 +15,15 @@ namespace CatalogService.Infrastructure.Migrations
                 name: "customization_options",
                 table: "product_variants");
 
-            migrationBuilder.DropColumn(
-                name: "variant_attributes",
-                table: "product_variants");
+            migrationBuilder.AddColumn<bool>(
+                name: "is_active",
+                table: "product_categories",
+                type: "boolean",
+                nullable: false,
+                defaultValue: false);
 
             migrationBuilder.CreateTable(
-                name: "ProductVariantValue",
+                name: "product_variant_values",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -32,15 +35,15 @@ namespace CatalogService.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductVariantValue", x => x.id);
+                    table.PrimaryKey("PK_product_variant_values", x => x.id);
                     table.ForeignKey(
-                        name: "FK_ProductVariantValue_product_variants_product_variant_id",
+                        name: "FK_product_variant_values_product_variants_product_variant_id",
                         column: x => x.product_variant_id,
                         principalTable: "product_variants",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductVariantValue_variant_attribute_definitions_product_v~",
+                        name: "FK_product_variant_values_variant_attribute_definitions_produc~",
                         column: x => x.product_variant_id,
                         principalTable: "variant_attribute_definitions",
                         principalColumn: "id",
@@ -48,8 +51,8 @@ namespace CatalogService.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductVariantValue_product_variant_id",
-                table: "ProductVariantValue",
+                name: "IX_product_variant_values_product_variant_id",
+                table: "product_variant_values",
                 column: "product_variant_id");
         }
 
@@ -57,20 +60,17 @@ namespace CatalogService.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ProductVariantValue");
+                name: "product_variant_values");
+
+            migrationBuilder.DropColumn(
+                name: "is_active",
+                table: "product_categories");
 
             migrationBuilder.AddColumn<string>(
                 name: "customization_options",
                 table: "product_variants",
                 type: "jsonb",
                 nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "variant_attributes",
-                table: "product_variants",
-                type: "jsonb",
-                nullable: false,
-                defaultValue: "");
         }
     }
 }

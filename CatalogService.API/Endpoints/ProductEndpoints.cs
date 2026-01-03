@@ -58,8 +58,6 @@ internal sealed class ProductEndpoints : IEndpoint
             .Produces<IEnumerable<ProductResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status400BadRequest);
-        
-
     }
     private async Task<IResult> Create(
         [FromBody] ProductRequest request,
@@ -172,6 +170,5 @@ internal sealed class ProductEndpoints : IEndpoint
         return result.IsSuccess
             ? TypedResults.Ok(result.Value)
             : result.ToProblem();
-    }
-    
+    }   
 }

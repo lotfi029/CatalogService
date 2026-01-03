@@ -1,4 +1,6 @@
-﻿namespace CatalogService.Domain.Entities;
+﻿using CatalogService.Domain.JsonProperties;
+
+namespace CatalogService.Domain.Entities;
 
 public sealed class ProductVariant
 {
@@ -7,7 +9,7 @@ public sealed class ProductVariant
     public string SKU { get; } = string.Empty;
     public Money Price { get; private set; } = new();
     public Money? CompareAtPrice { get; private set; } = new();
-
+    public ProductVariantsOption VariantAttributes { get; } = default!;
     public Product Product { get; private set; } = default!;
     public bool IsDeleted { get; private set; }
 
@@ -17,7 +19,8 @@ public sealed class ProductVariant
         Guid productId,
         string sku,
         Money price,
-        Money? compareAtPrice
+        Money? compareAtPrice,
+        ProductVariantsOption variants
         ) : base()
     {
         Id = Guid.CreateVersion7();
@@ -26,13 +29,15 @@ public sealed class ProductVariant
         Price = price;
         CompareAtPrice = compareAtPrice;
         IsDeleted = false;
+        VariantAttributes = variants;
     }
 
     public static ProductVariant Create(
         Guid productId,
         List<string> variants,
         Money price,
-        Money? compareAtPrice
+        Money? compareAtPrice,
+        ProductVariantsOption variant
         )
     {
 
@@ -40,7 +45,8 @@ public sealed class ProductVariant
             productId,
             GenerateSku(productId, variants),
             price,
-            compareAtPrice
+            compareAtPrice,
+            variant
             );
     }
     public Result UpdatePrice(decimal price, decimal? compareAtPrice, string currency)

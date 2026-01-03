@@ -6,6 +6,7 @@ internal sealed class ProductVariantValueConfiguration : IEntityTypeConfiguratio
 {
     public void Configure(EntityTypeBuilder<ProductVariantValue> builder)
     {
+        builder.ToTable("product_variant_values");
         builder.HasKey(pvv => pvv.Id);
 
         builder.Property(pvv => pvv.Id)

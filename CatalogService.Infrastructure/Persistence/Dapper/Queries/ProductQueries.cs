@@ -46,14 +46,14 @@ internal sealed class ProductQueries(
                 ON pc.category_id = c.id
             WHERE pc.product_id = @id
                 AND c.is_active = true
-                AND c.is_deleted = false;
+                AND c.is_deleted = false
+                AND pc.is_active = true;
         
             -- Variants
             SELECT 
                 pv.id as ProductVariantId,
                 pv.sku as Sku,
                 pv.variant_attributes as VariantAttributes,
-                pv.customization_options as CustomizationOptions,
                 pv.price as Price,
                 pv.price_currency as Currency,
                 pv.compare_at_price as CompareAtPrice
@@ -173,6 +173,7 @@ internal sealed class ProductQueries(
                     OR pc.product_id = ANY(@ids)
                 )
                 AND c.is_active = true
+                AND pc.is_active = true
                 AND c.is_deleted = false;
         
             -- Variants
@@ -181,7 +182,6 @@ internal sealed class ProductQueries(
                 pv.id as ProductVariantId,
                 pv.sku as Sku,
                 pv.variant_attributes as VariantAttributes,
-                pv.customization_options as CustomizationOptions,
                 pv.price as Price,
                 pv.price_currency as Currency,
                 pv.compare_at_price as CompareAtPrice
@@ -235,7 +235,6 @@ internal sealed class ProductQueries(
                 v.ProductVariantId,
                 v.Sku,
                 v.VariantAttributes,
-                v.CustomizationOptions,
                 v.Price,
                 v.Currency,
                 v.CompareAtPrice)).ToList());

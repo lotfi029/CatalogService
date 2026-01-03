@@ -17,6 +17,10 @@ public sealed class ProductCategoryConfiguration : IEntityTypeConfiguration<Prod
         builder.Property(pc => pc.IsPrimary)
             .HasColumnName("is_primary")
             .HasDefaultValue(false);
+        
+        builder.Property(pc => pc.IsActive)
+            .HasColumnName("is_active")
+            .HasDefaultValue(false);
 
         builder.Property(pc => pc.CreatedAt)
             .HasColumnName("created_at")

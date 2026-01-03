@@ -4,6 +4,16 @@ public record CategoryResponse(
     Guid Id,
     string Name,
     string Slug,
-    Guid ParentId,
+    Guid? ParentId,
     short Level,
-    string? Path);
+    string Path)
+{
+    public CategoryResponse()
+        : this(
+              Guid.Empty,
+              string.Empty,
+              string.Empty,
+              null,
+              0,
+              string.Empty) { }
+}

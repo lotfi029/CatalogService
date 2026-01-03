@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CatalogService.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260101114412_AddProductVariantValue")]
-    partial class AddProductVariantValue
+    [Migration("20260103091141_UpdateProductVariant")]
+    partial class UpdateProductVariant
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.1")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -394,6 +394,12 @@ namespace CatalogService.Infrastructure.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_active");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -435,6 +441,11 @@ namespace CatalogService.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("sku");
+
+                    b.Property<string>("VariantAttributes")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("variant_attributes");
 
                     b.HasKey("Id");
 
@@ -485,7 +496,7 @@ namespace CatalogService.Infrastructure.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("ProductVariantValue");
+                    b.ToTable("product_variant_values", (string)null);
                 });
 
             modelBuilder.Entity("CatalogService.Domain.Entities.VariantAttributeDefinition", b =>

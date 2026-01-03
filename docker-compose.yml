@@ -13,7 +13,7 @@ services:
     environment:
       - ElasticSettings__Uri=http://elasticsearch:9200
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=ecommerce_catalogservice_v01;username=postgres;password=String
+      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=catalogservice_test;username=postgres;password=String
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -28,8 +28,8 @@ services:
     image: lotfi029/user-service
     container_name: user_service
     ports:
-      - "6000:8080"
-      - "6001:8081"
+      - "7000:8080"
+      - "7001:8081"
     environment:
       - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=ecommerce_user_v02;username=postgres;password=String
     depends_on:
@@ -58,7 +58,7 @@ services:
         soft: -1
         hard: -1
     ports:
-      - "9200:9200"
+      - "9300:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
@@ -76,7 +76,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
-      - "5601:5601"
+      - "6601:5601"
     depends_on:
       elasticsearch:
         condition: service_healthy

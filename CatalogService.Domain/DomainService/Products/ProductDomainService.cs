@@ -1,7 +1,7 @@
 ﻿using CatalogService.Domain.DomainEvents.Products.ProductAttributes;
 using CatalogService.Domain.DomainEvents.Products.ProductCategories;
 using CatalogService.Domain.DomainEvents.Products.ProductVariants;
-using System.Diagnostics.Tracing;
+using CatalogService.Domain.JsonProperties;
 
 namespace CatalogService.Domain.DomainService.Products;
 
@@ -144,9 +144,10 @@ public sealed class ProductDomainService(
 
         var productVariant = ProductVariant.Create(
             productId: productId,
-            variantResult.Value!,
+            variantResult.Value.sku,
             price: new Money(price),
-            compareAtPrice: compareAtPrice.HasValue ? new Money(compareAtPrice) : null
+            compareAtPrice: compareAtPrice.HasValue ? new Money(compareAtPrice) : null,
+            variantResult.Value.variants
             );
 
         var values = variantAttributes
@@ -160,6 +161,10 @@ public sealed class ProductDomainService(
         productVariantRepository.Add(productVariant);
         productVariantValueRepository.AddRange([.. values]);
 
+        AddDomainEvents(
+            productId,
+            new ProductVariantAddedDomainEvent(productId, productVariant.Id, [.. values.Select(e => e.ProductVariantId)])
+        );
         return Result.Success();
     }
 
@@ -215,7 +220,7 @@ public sealed class ProductDomainService(
 
         AddDomainEvents(
             productId, 
-            new ProductVariantDeletedDomainEvent(productId,productVariantId)
+            new ProductVariantDeletedDomainEvent(productId, productVariantId)
         );
 
         return Result.Success();
@@ -297,10 +302,10 @@ public sealed class ProductDomainService(
         if (rowAffected == 0)
             return ProductCategoriesErrors.NotFound;
 
-        // delete all variant in this category from this product
+        
         var variantIds = await categoryVariantRepository
-            .GetVariantAttributeIds(categoryId, ct);
-        // validate soft delete
+            .GetVariantAttributeIds(x => x.CategoryId == categoryId, ct);
+        
         if (variantIds.Count != 0)
         {
             var productVariantIds = await productVariantValueRepository
@@ -325,88 +330,48 @@ public sealed class ProductDomainService(
         );
         return Result.Success();
     }
-    #endregion
-   
-    private async Task<Result<List<string>>> ProductVariantValidationAsync(
-        Guid productId, 
-        Dictionary<Guid, string> variantAttributes, 
+    
+    public async Task<Result> ActiveCategoryAsync(
+        Guid userId,
+        Guid productId,
+        Guid categoryId,
         CancellationToken ct = default)
     {
-        var categories = await productCategoryRepository
-                .GetCategoryIdsAsync(productId, ct);
+        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
+            return validationError;
 
-        if (categories.Count == 0)
-            return ProductVariantErrors.InvalidVariants;
+        var requiredVariants = await categoryVariantRepository
+            .GetVariantAttributeIds(x => x.CategoryId == categoryId && x.IsRequired, ct);
 
-        var variantIds = new HashSet<Guid>(variantAttributes.Keys);
-        var categoryVariants = await categoryVariantRepository
-            .GetAsync(categories, variantIds, ct)
-            ?? [];
+        bool exist = true;
 
-        if (variantIds.Except(categoryVariants.Select(e => e.VariantAttributeId)).Any())
-            return ProductVariantErrors.InvalidVariants;
-
-        var variantsLookup = categoryVariants
-            .Join(
-                inner: variantAttributes,
-                outerKeySelector: cva => cva.VariantAttributeId,
-                innerKeySelector: va => va.Key,
-                (cva, va) => new 
-                {
-                    cva.VariantAttributeId,
-                    cva.DisplayOrder,
-                    cva.VariantAttribute.Code,
-                    AllowedValues = cva.VariantAttribute.AllowedValues!.Values,
-                    cva.VariantAttribute.Datatype.DataType,
-                    va.Value
-                })
-            .OrderBy(x => x.DisplayOrder)
-            .ToDictionary(keySelector: k => k.VariantAttributeId);
-
-        List<string> sku = [];
-        foreach(var variant in variantsLookup)
+        if (requiredVariants.Count != 0)
         {
-            var validationResult = ValidateVariantValue(
-                variant.Value.AllowedValues, 
-                variant.Value.DataType, 
-                variant.Value.Code, 
-                variant.Value.Value);
+            var productVariantIds = await productVariantValueRepository
+                .GetProductVariantIdsAsync(x => requiredVariants.Contains(x.VariantAttributeId), ct);
 
-            if (validationResult.IsFailure)
-                return validationResult.Error;
+            var exists = await productVariantRepository
+                .ExistsAsync(x => x.ProductId == productId && productVariantIds.Contains(x.Id), ct);
 
-            sku.Add(variant.Value.Value);
+            exist &= exists;
         }
-        return Result.Success(sku);
-    }
-    private static Result ValidateVariantValue(
-        HashSet<string>? AllowedValues, 
-        VariantDataType Datatype,
-        string code,
-        string value)
-    {
-        switch (Datatype)
-        {
-            case VariantDataType.Select:
-                var allowedValues = AllowedValues!;
 
-                if (!allowedValues.Contains(value, comparer: StringComparer.OrdinalIgnoreCase))
-                {
-                    return ProductVariantErrors.InvalidVariantValue(code, value, allowedValues);
-                }
-                break;
-            case VariantDataType.Boolean:
-                if (!bool.TryParse(value, out bool _))
-                {
-                    return ProductVariantErrors.InvalidBooleanValue(code, value);
-                }
-                break;
+        if (!exist)
+            return ProductCategoriesErrors.InvalidActivation;
 
-            default:
-                break;
-        }
+        var rowAffected = await productCategoryRepository.ExecuteUpdateAsync(
+            predicate: pc => pc.ProductId == productId && pc.CategoryId == categoryId,
+            action: body => body
+                .SetProperty(prop => prop.IsActive, true),
+            ct: ct);
+
+        if (rowAffected == 0)
+            return ProductCategoriesErrors.NotFound;
+
         return Result.Success();
     }
+    #endregion
+   
     #region product attribute 
     public async Task<Result> AddAttributeAsync(Guid userId, Guid productId, Guid attributeId, string value, CancellationToken ct = default)
     {
@@ -534,6 +499,91 @@ public sealed class ProductDomainService(
         return Result.Success();
     }
     #endregion
+
+    #region helpers 
+    private async Task<Result<(List<string> sku, ProductVariantsOption variants)>> ProductVariantValidationAsync(
+       Guid productId,
+       Dictionary<Guid, string> variantAttributes,
+       CancellationToken ct = default)
+    {
+        var categories = await productCategoryRepository
+                .GetCategoryIdsAsync(productId, ct);
+
+        if (categories.Count == 0)
+            return ProductVariantErrors.InvalidVariants;
+
+        var variantIds = new HashSet<Guid>(variantAttributes.Keys);
+        var categoryVariants = await categoryVariantRepository
+            .GetAsync(categories, variantIds, ct)
+            ?? [];
+
+        if (variantIds.Except(categoryVariants.Select(e => e.VariantAttributeId)).Any())
+            return ProductVariantErrors.InvalidVariants;
+
+        var variantsLookup = categoryVariants
+            .Join(
+                inner: variantAttributes,
+                outerKeySelector: cva => cva.VariantAttributeId,
+                innerKeySelector: va => va.Key,
+                (cva, va) => new
+                {
+                    cva.VariantAttributeId,
+                    cva.DisplayOrder,
+                    cva.VariantAttribute.Code,
+                    AllowedValues = cva.VariantAttribute.AllowedValues!.Values,
+                    cva.VariantAttribute.Datatype.DataType,
+                    va.Value
+                })
+            .OrderBy(x => x.DisplayOrder)
+            .ToDictionary(keySelector: k => k.VariantAttributeId);
+
+        List<string> sku = [];
+        List<VariantAttributeItem> items = [];
+        foreach (var variant in variantsLookup)
+        {
+            var validationResult = ValidateVariantValue(
+                variant.Value.AllowedValues,
+                variant.Value.DataType,
+                variant.Value.Code,
+                variant.Value.Value);
+
+            if (validationResult.IsFailure)
+                return validationResult.Error;
+
+            sku.Add(variant.Value.Value);
+            items.Add(new(variant.Value.Code, variant.Value.Value));
+        }
+
+        return Result.Success((sku, new ProductVariantsOption(items)));
+    }
+    private static Result ValidateVariantValue(
+        HashSet<string>? AllowedValues,
+        VariantDataType Datatype,
+        string code,
+        string value)
+    {
+        switch (Datatype)
+        {
+            case VariantDataType.Select:
+                var allowedValues = AllowedValues!;
+
+                if (!allowedValues.Contains(value, comparer: StringComparer.OrdinalIgnoreCase))
+                {
+                    return ProductVariantErrors.InvalidVariantValue(code, value, allowedValues);
+                }
+                break;
+            case VariantDataType.Boolean:
+                if (!bool.TryParse(value, out bool _))
+                {
+                    return ProductVariantErrors.InvalidBooleanValue(code, value);
+                }
+                break;
+
+            default:
+                break;
+        }
+        return Result.Success();
+    }
     private async Task<Result> ValidateProductOwnership(
         Guid userId,
         Guid productId,
@@ -551,4 +601,5 @@ public sealed class ProductDomainService(
         productRepository.Attach(proxyProduct);
         proxyProduct.AddDomainEvent(domainEvent);
     }
+    #endregion
 }

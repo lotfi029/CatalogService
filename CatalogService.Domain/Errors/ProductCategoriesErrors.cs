@@ -22,12 +22,17 @@ public class ProductCategoriesErrors
             $"{_code}.{nameof(InvalidIncludedVariants)}",
             $"You must at least include this variants {string.Join(", ", variants)} with your request");
 
-
+    public static Error InvalidActivation =>
+        Error.BadRequest(
+            $"{_code}.{nameof(InvalidActivation)}",
+            "There is one or more required variant the related with this category must be definit first");
 
     public static Error AddProductCategory =>
         Error.Unexpected("Failed to add product category");
     public static Error UpdateProductCategory =>
         Error.Unexpected("Failed to update product category");
+    public static Error ActiveProductCategory =>
+        Error.Unexpected("Failed to activate product category");
     public static Error DeleteProductCategory =>
         Error.Unexpected("Failed to delete product category");
     public static Error GetProductCategory =>

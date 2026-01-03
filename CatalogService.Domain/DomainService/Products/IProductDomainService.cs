@@ -42,4 +42,5 @@ public interface IProductDomainService
         Guid productId, 
         Guid variantId, 
         CancellationToken ct = default);
+    Task<Result> ActiveCategoryAsync(Guid userId, Guid productId, Guid categoryId, CancellationToken ct = default);
 }

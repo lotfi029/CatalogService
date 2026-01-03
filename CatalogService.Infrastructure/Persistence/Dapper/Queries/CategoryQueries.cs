@@ -18,7 +18,8 @@ public sealed class CategoryQueries(
                     c.parent_id as ParentId, 
                     c.level as Level, 
                     c.description as Description, 
-                    c.path as Path
+                    c.path as Path,
+                    c.is_active as IsActive
                 FROM public.categories c
                 WHERE c.id = @id 
                     AND c.is_deleted = false
@@ -44,7 +45,8 @@ public sealed class CategoryQueries(
                     c.parent_id as ParentId, 
                     c.level as Level, 
                     c.description as Description, 
-                    c.path as Path
+                    c.path as Path,
+                    c.is_active as IsActive
                 FROM public.categories c
                 WHERE c.slug = @slug 
                     AND c.is_deleted = false
@@ -123,6 +125,7 @@ public sealed class CategoryQueries(
             	c.level as Level,
                 c.description as Description,
             	c.path as Path,
+                c.is_active as IsActive,
             	cva.variant_attribute_id as VariantAttributeId,
                 va.name as VariantAttributeName,
             	va.code as Code,

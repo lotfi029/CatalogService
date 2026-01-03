@@ -1,4 +1,5 @@
 ﻿using CatalogService.Application.DTOs.ProductCategories;
+using CatalogService.Application.Features.ProductCategories.Command.Active;
 using CatalogService.Application.Features.ProductCategories.Command.Add;
 using CatalogService.Application.Features.ProductCategories.Command.Delete;
 using CatalogService.Application.Features.ProductCategories.Command.Patch;
@@ -27,6 +28,12 @@ internal sealed class ProductCategoriesEndpoints : IEndpoint
             .RequireAuthorization(PolicyNames.Vendor);
         
         group.MapDelete("/{categoryId:guid}", Delete)
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Vendor);
+        
+        group.MapPatch("/{categoryId:guid}/active", Active)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
@@ -94,6 +101,25 @@ internal sealed class ProductCategoriesEndpoints : IEndpoint
     {
         var userId = httpContext.GetUserId();
         var command = new DeleteProductCategoryCommand(
+            UserId: Guid.Parse(userId),
+            ProductId: productId,
+            CategoryId: categoryId);
+
+        var result = await handler.HandleAsync(command, ct);
+
+        return result.IsSuccess
+            ? TypedResults.NoContent()
+            : result.ToProblem();
+    }
+    private async Task<IResult> Active(
+        [FromRoute] Guid productId,
+        [FromRoute] Guid categoryId,
+        [FromServices] ICommandHandler<ActiveProductCategoryCommand> handler,
+        HttpContext httpContext,
+        CancellationToken ct)
+    {
+        var userId = httpContext.GetUserId();
+        var command = new ActiveProductCategoryCommand(
             UserId: Guid.Parse(userId),
             ProductId: productId,
             CategoryId: categoryId);

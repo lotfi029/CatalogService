@@ -8,6 +8,7 @@ public class ProductCategories
     public DateTime CreatedAt { get; }
     public Product Product { get; } = default!;
     public Category Category { get; } = default!;
+    public bool IsActive { get; private set; } = false;
     public bool IsDeleted { get; private set; }
     private ProductCategories() { }
     private ProductCategories(
@@ -32,37 +33,4 @@ public class ProductCategories
             categoryId,
             isPrimary);
     }
-
-    public Result MarkAsPrimary()
-    {
-        if (IsPrimary)
-            return DomainErrors.ProductCategories.AlreadyPrimary;
-        IsPrimary = true;
-        return Result.Success();
-    }
-    public Result MarkAsUnPrimary()
-    {
-        if (!IsPrimary)
-            return DomainErrors.ProductCategories.AlreadyNotPrimary;
-
-        IsPrimary = false;
-        return Result.Success();
-    }
-    public Result Deleted()
-    {
-        if (!IsPrimary)
-            return DomainErrors.ProductCategories.AlreadyDeleted;
-
-        IsDeleted = true;
-        return Result.Success();
-    }
-    public Result Restore()
-    {
-        if (!IsDeleted)
-            return DomainErrors.ProductCategories.AlreadyNotDeleted;
-
-        IsDeleted = false;
-        return Result.Success();
-    }
-
 }

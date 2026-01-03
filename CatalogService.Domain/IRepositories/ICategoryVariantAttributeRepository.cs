@@ -17,7 +17,7 @@ public interface ICategoryVariantAttributeRepository
         HashSet<Guid> categoryId,
         CancellationToken ct = default);
     Task<HashSet<Guid>> GetVariantAttributeIds(
-        Guid categoryId,
+        Expression<Func<CategoryVariantAttribute, bool>> predicate,
         CancellationToken ct = default);
     Task<IEnumerable<CategoryVariantAttribute>> GetAsync(
         HashSet<Guid> categoryIds,
@@ -30,6 +30,11 @@ public interface ICategoryVariantAttributeRepository
         Guid categoryId,
         Guid variantAttributeId,
         CancellationToken ct = default);
-    Task<int> ExecuteDeleteAsync(Expression<Func<CategoryVariantAttribute, bool>> predicate, CancellationToken ct = default);
-    Task<int> ExecuteUpdateAsync(Expression<Func<CategoryVariantAttribute, bool>> predicate, Action<UpdateSettersBuilder<CategoryVariantAttribute>> action, CancellationToken ct = default);
+    Task<int> ExecuteDeleteAsync(
+        Expression<Func<CategoryVariantAttribute, bool>> predicate, 
+        CancellationToken ct = default);
+    Task<int> ExecuteUpdateAsync(
+        Expression<Func<CategoryVariantAttribute, bool>> predicate, 
+        Action<UpdateSettersBuilder<CategoryVariantAttribute>> action, 
+        CancellationToken ct = default);
 }
