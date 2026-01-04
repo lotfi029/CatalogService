@@ -36,7 +36,7 @@ internal sealed class ProductCategoryQueries(
     }
     public async Task<IEnumerable<ProductCategoryResponse>> GetByProductIdAsync(Guid productId, CancellationToken ct = default)
     {
-        using var connection = contextFactory.CreateConnection();
+        using var connection = contextFactory.CreateConnection(); // for streek
 
         var sql = """
             SELECT 
