@@ -373,7 +373,12 @@ public sealed class ProductDomainService(
     #endregion
    
     #region product attribute 
-    public async Task<Result> AddAttributeAsync(Guid userId, Guid productId, Guid attributeId, string value, CancellationToken ct = default)
+    public async Task<Result> AddAttributeAsync(
+        Guid userId, 
+        Guid productId, 
+        Guid attributeId, 
+        string value, 
+        CancellationToken ct = default)
     {
         if (await productAttributeRepository.ExistsAsync(productId: productId, attributeId: attributeId, ct))
             return ProductAttributeErrors.DuplicatedAttribute;
@@ -396,15 +401,23 @@ public sealed class ProductDomainService(
             productId: productId,
             attributeId: attributeId,
             value: value);
+
         productAttributeRepository.Add(productAttribute);
 
-        AddDomainEvents(productId, new ProductAttributeAddedDomainEvent(productId, attributeId));
+        AddDomainEvents(
+            productId,
+            new ProductAttributeAddedDomainEvent(productId, attributeId)
+        );
         return Result.Success();
     }
-    public async Task<Result> AddAttributeBulkAsync(Guid userId, Guid productId, IEnumerable<(Guid attributeId, string value)> values, CancellationToken ct = default)
+    public async Task<Result> AddAttributeBulkAsync(
+        Guid userId, 
+        Guid productId, 
+        IEnumerable<(Guid attributeId, string value)> values, 
+        CancellationToken ct = default)
     {
-        if (!await productRepository.ExistsAsync(e => e.Id == productId && e.VendorId == userId, ct: ct))
-            return ProductErrors.NotFound(productId);
+        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: false } validationError)
+            return validationError;
 
         var attributeIds = values
             .Select(e => e.attributeId)

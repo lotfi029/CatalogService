@@ -1,6 +1,6 @@
 ﻿namespace CatalogService.Domain.Entities;
 
-public class ProductCategories
+public sealed class ProductCategories
 {
     public Guid ProductId { get; }
     public Guid CategoryId { get; }

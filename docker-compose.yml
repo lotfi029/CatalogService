@@ -58,7 +58,7 @@ services:
         soft: -1
         hard: -1
     ports:
-      - "9300:9200"
+      - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
@@ -76,7 +76,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
-      - "6601:5601"
+      - "5601:5601"
     depends_on:
       elasticsearch:
         condition: service_healthy

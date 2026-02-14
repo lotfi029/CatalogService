@@ -24,7 +24,7 @@ internal sealed class ProductCategoryQueries(
                 AND c.is_active = true
                 AND c.is_deleted = false;
             """;
-
+            
         var parameters = new { productId, categoryId };
         var response = await connection.QuerySingleOrDefaultAsync<ProductCategoryResponse>(
             new CommandDefinition(sql, parameters: parameters, cancellationToken: ct));

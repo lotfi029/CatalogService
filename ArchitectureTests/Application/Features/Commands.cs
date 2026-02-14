@@ -45,9 +45,12 @@ public class Commands
 
         foreach (var handler in commandHandlers)
         {
-            var validHandler = handler.IsSealed &&
-                handler.IsNotPublic &&
+            var validHandler = 
+                handler.IsSealed &
+                handler.IsNotPublic &
                 handler.Name.EndsWith("CommandHandler");
+
+            if (handler.IsNestedAssembly) continue;
 
             if (!validHandler) failedTypes.Add(handler);
         }

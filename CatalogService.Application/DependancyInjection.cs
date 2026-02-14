@@ -1,6 +1,5 @@
 ﻿using CatalogService.Application.Abstractions.Behaviors;
 using CatalogService.Application.DTOs.Categories;
-using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;

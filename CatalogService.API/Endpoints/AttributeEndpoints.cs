@@ -25,31 +25,35 @@ internal sealed class AttributeEndpoints : IEndpoint
             .Produces<Guid>(statusCode: StatusCodes.Status201Created)
             .ProducesProblem(statusCode: StatusCodes.Status409Conflict)
             .ProducesProblem(statusCode: StatusCodes.Status400BadRequest)
-            .WithDisplayName("Create New Attribute");
-        
-        group.MapPost("/bulk", CreateBulk);
+            .WithDisplayName("Create New Attribute")
+            .RequireAuthorization(PolicyNames.Admin);
         
         group.MapPut("/{id:guid}/details", UpdateDetails)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapPut("/{id:guid}/options", UpdateOptions)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapDelete("/{id:guid}", Delete)
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapPatch("/{id:guid}/activate", Activate)
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
 
         group.MapPatch("/{id:guid}/deactivate", Deactivate)
             .Produces(StatusCodes.Status204NoContent)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .RequireAuthorization(PolicyNames.Admin);
         
         group.MapGet("", GetAll)
             .Produces<AttributeResponse>(StatusCodes.Status200OK);
@@ -59,7 +63,7 @@ internal sealed class AttributeEndpoints : IEndpoint
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithName(AttributeEndpointsNames.GetAttributeById);
 
-        group.MapGet("/code/{code:alpha}", GetByCode)
+        group.MapGet("/code/{code}", GetByCode)
             .Produces<AttributeDetailedResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
@@ -90,7 +94,6 @@ internal sealed class AttributeEndpoints : IEndpoint
             ? TypedResults.CreatedAtRoute(result.Value, AttributeEndpointsNames.GetAttributeById, new { id = result.Value })
             : result.ToProblem();
     }
-    private Task<IResult> CreateBulk() { throw new NotImplementedException(); }
     private async Task<IResult> UpdateDetails(
         [FromRoute]Guid id,
         [FromBody] UpdateAttributeDetailsRequest request,
