@@ -9,7 +9,7 @@ on:
       - master
 env:
   DOTNET_VERSION: "10.x"
-  DOTNET_PATH: .\Ecommerce.CatalogService.sln
+  DOTNET_PATH: Ecommerce.CatalogService.sln
 jobs:
   build:
     runs-on: ubuntu-latest
