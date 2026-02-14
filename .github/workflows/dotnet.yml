@@ -26,8 +26,8 @@ jobs:
       run: dotnet restore ${{env.DOTNET_PATH}}
 
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build ${{env.DOTNET_PATH}} --configuration Release --no-restore
 
     - name: Test
-      run: dotnet test --configuration Release --no-build --no-restore
+      run: dotnet test ${{env.DOTNET_PATH}} --configuration Release --no-build --no-restore
 
