@@ -9,6 +9,7 @@ on:
       - master
 env:
   DOTNET_VERSION: "10.x"
+  DOTNET_PATH: .\Ecommerce.CatalogService.sln
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,7 +23,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
   
     - name: Restore 
-      run: dotnet restore
+      run: dotnet restore ${{env.DOTNET_PATH}}
 
     - name: Build
       run: dotnet build --configuration Release --no-restore
