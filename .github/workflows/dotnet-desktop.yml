@@ -1,0 +1,110 @@
+Name: CI/CD — CatalogService
+
+on:
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches:
+      - master
+env:
+  DOTNET_VERSION: "10.x"
+  SOLUTION_FILE: "Ecommerce.CatalogService.sln"
+  IMAGE_NAME: docker.io/${{ github.repository_owner }}/catalog-service
+  DOCKERFILE_PATH: CatalogService.API/Dockerfile
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .Net ${{env.DOTNET_VERSION}}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{env.DOTNET_VERSION}}
+
+      # caching packages
+      - name: Cach Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{runner.os}}-${{ hashFiles('**/*.csproj', '**/*.props')}}
+          restore-keys: |
+            nuget-${{runner.os}}-
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build (Release)
+        run: >
+          dotnet build ${{ env.SOLUTION_FILE }}
+          --configuration Release
+          --no-restore
+
+      - name: Run tests
+        run: >
+          dotnet test ${{ env.SOLUTION_FILE }}
+          --configuration Release
+          --no-build
+          --no-restore
+          --verbosity normal
+          --logger "trx;LogFileName=test-results.trx"
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Test Results
+          path: "**/*.trx"
+          reporter: dotnet-trx
+  docker-push:
+    name: Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    permissions:
+      contents: read
+      packages: write   # Required to push to GHCR
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Generates useful tags automatically:
+      #   latest, branch name, short SHA, semver tags on releases
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-,format=short
+
+      # Log in to GitHub Container Registry using the built-in
+      # GITHUB_TOKEN — no secret needed
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # BuildKit cache speeds up repeated image builds significantly
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Layer cache stored in the GitHub Actions cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
