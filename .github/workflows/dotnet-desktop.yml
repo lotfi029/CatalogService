@@ -1,4 +1,4 @@
-Name: CI/CD — CatalogService
+name: CI/CD — CatalogService
 
 on:
   push:
@@ -10,8 +10,9 @@ on:
 env:
   DOTNET_VERSION: "10.x"
   SOLUTION_FILE: "Ecommerce.CatalogService.sln"
-  IMAGE_NAME: docker.io/${{ github.repository_owner }}/catalog-service
+  IMAGE_NAME: docker.io/lotfi029/catalog-service
   DOCKERFILE_PATH: CatalogService.API/Dockerfile
+  DOCKERHUB_USERNAME: lotfi029
 
 jobs:
   build:
@@ -22,7 +23,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup .Net ${{env.DOTNET_VERSION}}
+      - name: Setup .NET ${{env.DOTNET_VERSION}}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{env.DOTNET_VERSION}}
@@ -90,7 +91,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: docker.io
-          username: ${{ github.actor }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # BuildKit cache speeds up repeated image builds significantly
