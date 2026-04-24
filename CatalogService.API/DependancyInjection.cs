@@ -10,6 +10,7 @@ public static class DependancyInjection
     public static IServiceCollection AddAPI(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSwaggerGen();
+        services.AddOpenApi();
         services.ConfigureOptions<ConfigureSwaggerGenOptions>();
 
         services.AddApiVersioning(options =>

@@ -13,7 +13,7 @@ services:
     environment:
       - ElasticSettings__Uri=http://elasticsearch:9200
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=catalogservice_test;username=postgres;password=String
+      - ConnectionStrings__DefaultConnection=host=host.docker.internal;port=5432;database=catalogservice;username=postgres;password=String
     depends_on:
       elasticsearch:
         condition: service_healthy

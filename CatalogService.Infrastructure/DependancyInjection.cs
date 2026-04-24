@@ -44,6 +44,7 @@ public static class DependancyInjection
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionStringOrThrow();
+        Console.WriteLine($"Connection String Is: {connectionString}");
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
         dataSourceBuilder.EnableDynamicJson();
         var dataSource = dataSourceBuilder.Build();

@@ -31,8 +31,11 @@ if (app.Environment.IsDevelopment())
             options.SwaggerEndpoint(url, name);
         }
     });
-    await app.Services.InitialElasticsearch();
 }
+await app.Services.InitialElasticsearch();
+await app.ApplyMigration();
+
+app.MapOpenApi();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -44,4 +47,4 @@ app.MapHealthChecks("health", new HealthCheckOptions
 
 app.UseSerilogRequestLogging();
 app.MapEndpoints();
-app.Run();   
+app.Run();
