@@ -2,11 +2,12 @@ name: CI/CD — CatalogService
 
 on:
   push:
-    branches: 
+    branches:
       - master
   pull_request:
     branches:
       - master
+
 env:
   DOTNET_VERSION: "10.x"
   SOLUTION_FILE: "Ecommerce.CatalogService.sln"
@@ -14,7 +15,19 @@ env:
   DOCKERFILE_PATH: CatalogService.API/Dockerfile
   DOCKERHUB_USERNAME: lotfi029
 
+# ──────────────────────────────────────────────────────────────
+# Default token permissions — locked down to least privilege.
+# Individual jobs override only what they actually need.
+# ──────────────────────────────────────────────────────────────
+permissions:
+  contents: read
+
 jobs:
+  # ────────────────────────────────────────────────────────────
+  # Job 1 — Restore, build, and test
+  # Runs on every push and every pull request.
+  # Uploads the .trx artifact so Job 3 can publish results.
+  # ────────────────────────────────────────────────────────────
   build:
     name: Build & Test
     runs-on: ubuntu-latest
@@ -23,19 +36,21 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup .NET ${{env.DOTNET_VERSION}}
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{env.DOTNET_VERSION}}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      # caching packages
-      - name: Cach Packages
+      # Keyed on all .csproj and .props files so the cache is
+      # invalidated only when dependencies actually change.
+      - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: nuget-${{runner.os}}-${{ hashFiles('**/*.csproj', '**/*.props')}}
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.props') }}
           restore-keys: |
-            nuget-${{runner.os}}-
+            nuget-${{ runner.os }}-
+
       - name: Restore dependencies
         run: dotnet restore ${{ env.SOLUTION_FILE }}
 
@@ -53,29 +68,79 @@ jobs:
           --no-restore
           --verbosity normal
           --logger "trx;LogFileName=test-results.trx"
-      - name: Publish test results
-        uses: dorny/test-reporter@v1
+
+      # Upload .trx files as an artifact so the report job can
+      # consume them. The build job itself does NOT need checks:write.
+      - name: Upload test results artifact
+        uses: actions/upload-artifact@v4
         if: always()
+        with:
+          name: test-results
+          path: "**/*.trx"
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────
+  # Job 2 — Publish test report
+  #
+  # Separated from the build job so it can be granted
+  # checks: write without giving that permission to the entire
+  # build environment.
+  #
+  # dorny/test-reporter creates a GitHub Check Run, which
+  # requires checks: write. On pull_requests from forks the
+  # token is restricted — the reporter job uses
+  # pull-requests: write as well so annotations appear on the PR.
+  # ────────────────────────────────────────────────────────────
+  report:
+    name: Publish Test Report
+    runs-on: ubuntu-latest
+    needs: build
+    # Always run so results are visible even when tests fail.
+    if: always()
+
+    permissions:
+      contents: read
+      checks: write        # Needed to create a Check Run
+      pull-requests: write # Needed to annotate PRs
+
+    steps:
+      - name: Download test results artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+
+      - name: Publish test report
+        uses: dorny/test-reporter@v1
         with:
           name: .NET Test Results
           path: "**/*.trx"
           reporter: dotnet-trx
+          fail-on-error: true
+          fail-on-empty: false
+
+  # ────────────────────────────────────────────────────────────
+  # Job 3 — Build and push Docker image
+  #
+  # Runs ONLY on a push to master (never on PRs).
+  # Depends on both build AND report passing.
+  # ────────────────────────────────────────────────────────────
   docker-push:
     name: Docker Build & Push
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, report]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     permissions:
       contents: read
-      packages: write   # Required to push to GHCR
+      packages: write
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Generates useful tags automatically:
-      #   latest, branch name, short SHA, semver tags on releases
+      # Generates two tags automatically:
+      #   latest   — always points to the newest master build
+      #   sha-XXXX — short SHA for traceability back to the commit
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -85,15 +150,14 @@ jobs:
             type=raw,value=latest
             type=sha,prefix=sha-,format=short
 
-      # Log in to Docker Container Registry using the built-in
-      - name: Log in to Docker Container Registry
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           registry: docker.io
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # BuildKit cache speeds up repeated image builds significantly
+      # Enables BuildKit and layer-cache support.
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -105,6 +169,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Layer cache stored in the GitHub Actions cache
+          # Stores and restores BuildKit layer cache in
+          # GitHub's cache store — cuts rebuild time significantly.
           cache-from: type=gha
           cache-to: type=gha,mode=max
