@@ -15,18 +15,12 @@ env:
   DOCKERFILE_PATH: CatalogService.API/Dockerfile
   DOCKERHUB_USERNAME: lotfi029
 
-# ──────────────────────────────────────────────────────────────
-# Default token permissions — locked down to least privilege.
-# Individual jobs override only what they actually need.
-# ──────────────────────────────────────────────────────────────
 permissions:
   contents: read
 
 jobs:
   # ────────────────────────────────────────────────────────────
   # Job 1 — Restore, build, and test
-  # Runs on every push and every pull request.
-  # Uploads the .trx artifact so Job 3 can publish results.
   # ────────────────────────────────────────────────────────────
   build:
     name: Build & Test
@@ -41,8 +35,6 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      # Keyed on all .csproj and .props files so the cache is
-      # invalidated only when dependencies actually change.
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
@@ -61,6 +53,9 @@ jobs:
           --no-restore
 
       - name: Run tests
+        # continue-on-error keeps the upload step alive even
+        # when tests fail — the report job surfaces the failures.
+        continue-on-error: true
         run: >
           dotnet test ${{ env.SOLUTION_FILE }}
           --configuration Release
@@ -69,8 +64,6 @@ jobs:
           --verbosity normal
           --logger "trx;LogFileName=test-results.trx"
 
-      # Upload .trx files as an artifact so the report job can
-      # consume them. The build job itself does NOT need checks:write.
       - name: Upload test results artifact
         uses: actions/upload-artifact@v4
         if: always()
@@ -82,47 +75,49 @@ jobs:
   # ────────────────────────────────────────────────────────────
   # Job 2 — Publish test report
   #
-  # Separated from the build job so it can be granted
-  # checks: write without giving that permission to the entire
-  # build environment.
-  #
-  # dorny/test-reporter creates a GitHub Check Run, which
-  # requires checks: write. On pull_requests from forks the
-  # token is restricted — the reporter job uses
-  # pull-requests: write as well so annotations appear on the PR.
+  # Separated so it can hold checks: write without elevating
+  # the build job. Checks out the repo so dorny/test-reporter
+  # can run `git ls-files` to resolve source file paths —
+  # this is what caused the "not a git repository" exit 128.
   # ────────────────────────────────────────────────────────────
   report:
     name: Publish Test Report
     runs-on: ubuntu-latest
     needs: build
-    # Always run so results are visible even when tests fail.
     if: always()
 
     permissions:
       contents: read
-      checks: write        # Needed to create a Check Run
-      pull-requests: write # Needed to annotate PRs
+      checks: write
+      pull-requests: write
 
     steps:
+      # dorny/test-reporter internally runs `git ls-files` to map
+      # .trx file paths back to repository source files.
+      # A checkout must come before the reporter — even though
+      # we are only publishing results, not building anything.
+      - name: Checkout source
+        uses: actions/checkout@v4
+
       - name: Download test results artifact
         uses: actions/download-artifact@v4
         with:
           name: test-results
+          # Place into a dedicated folder so the glob is unambiguous.
+          path: test-results
 
       - name: Publish test report
         uses: dorny/test-reporter@v1
         with:
           name: .NET Test Results
-          path: "**/*.trx"
+          path: "test-results/**/*.trx"
           reporter: dotnet-trx
           fail-on-error: true
           fail-on-empty: false
 
   # ────────────────────────────────────────────────────────────
   # Job 3 — Build and push Docker image
-  #
-  # Runs ONLY on a push to master (never on PRs).
-  # Depends on both build AND report passing.
+  # Runs ONLY on a push to master, after both jobs above pass.
   # ────────────────────────────────────────────────────────────
   docker-push:
     name: Docker Build & Push
@@ -138,9 +133,6 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Generates two tags automatically:
-      #   latest   — always points to the newest master build
-      #   sha-XXXX — short SHA for traceability back to the commit
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -157,7 +149,6 @@ jobs:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Enables BuildKit and layer-cache support.
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -169,7 +160,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Stores and restores BuildKit layer cache in
-          # GitHub's cache store — cuts rebuild time significantly.
           cache-from: type=gha
           cache-to: type=gha,mode=max
