@@ -8,7 +8,7 @@ public sealed class ProductCategories
     public DateTime CreatedAt { get; }
     public Product Product { get; } = default!;
     public Category Category { get; } = default!;
-    public bool IsActive { get; private set; } = false;
+    public bool IsActive { get; private set; } = true;
     public bool IsDeleted { get; private set; }
     private ProductCategories() { }
     private ProductCategories(

@@ -11,7 +11,7 @@ internal sealed class DeleteCategoryCommandHandler(
 {
     public async Task<Result> HandleAsync(DeleteCategoryCommand command, CancellationToken ct = default)
     {
-        if (command.Id == Guid.Empty && (command.ParentId is not null && command.ParentId == Guid.Empty))
+        if (command.Id == Guid.Empty)
             return CategoryErrors.InvalidId;
 
 

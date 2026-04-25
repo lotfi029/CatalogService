@@ -40,8 +40,6 @@ internal sealed class MoveCategoryToNewParentCommandHandler(
             }
 
             var updatedCategories = result.Value!;
-
-            repository.UpdateRange(updatedCategories);
             
             await unitOfWork.SaveChangesAsync(ct);
             await unitOfWork.CommitTransactionAsync(transaction, ct);

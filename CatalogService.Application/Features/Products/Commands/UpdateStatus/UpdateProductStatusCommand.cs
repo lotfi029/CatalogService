@@ -1,38 +1,40 @@
-﻿namespace CatalogService.Application.Features.Products.Commands.UpdateStatus;
+﻿using CatalogService.Domain.DomainService.Products;
 
-//public sealed record UpdateProductStatusCommand(
-//    Guid Id,
-//    string Status) : ICommand;
+namespace CatalogService.Application.Features.Products.Commands.UpdateStatus;
 
-//internal sealed class UpdateProductStatusCommandHandler(
-//    IProductDomainService productService,
-//    IUnitOfWork unitOfWork,
-//    ILogger<UpdateProductStatusCommandHandler> logger) : ICommandHandler<UpdateProductStatusCommand>
-//{
-//    public async Task<Result> HandleAsync(UpdateProductStatusCommand command, CancellationToken ct = default)
-//    {
-//        if (Guid.Empty == command.Id)
-//            return ProductErrors.InvalidId;
+public sealed record UpdateProductStatusCommand(
+    Guid Id,
+    string Status) : ICommand;
 
-//        try
-//        {
-//            var productResult = await productService.UpdateProductStatus(
-//                id: command.Id,
-//                status: command.Status,
-//                ct: ct);
+internal sealed class UpdateProductStatusCommandHandler(
+    IProductDomainService productService,
+    IUnitOfWork unitOfWork,
+    ILogger<UpdateProductStatusCommandHandler> logger) : ICommandHandler<UpdateProductStatusCommand>
+{
+    public async Task<Result> HandleAsync(UpdateProductStatusCommand command, CancellationToken ct = default)
+    {
+        if (Guid.Empty == command.Id)
+            return ProductErrors.InvalidId;
 
-//            if (productResult.IsFailure)
-//                return productResult;
+        try
+        {
+            var productResult = await productService.UpdateProductStatus(
+                id: command.Id,
+                status: command.Status,
+                ct: ct);
 
-//            await unitOfWork.SaveChangesAsync(ct);
-//            return Result.Success();
-//        }
-//        catch (Exception ex)
-//        {
-//            logger.LogError(ex,
-//                "Error ocurred while adding new product");
+            if (productResult.IsFailure)
+                return productResult;
 
-//            return ProductErrors.UpdateProductStatus;
-//        }
-//    }
-//}
+            await unitOfWork.SaveChangesAsync(ct);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,
+                "Error ocurred while updating product status");
+
+            return ProductErrors.UpdateProductStatus;
+        }
+    }
+}
