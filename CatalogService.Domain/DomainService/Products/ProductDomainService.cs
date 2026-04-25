@@ -416,7 +416,7 @@ public sealed class ProductDomainService(
         IEnumerable<(Guid attributeId, string value)> values, 
         CancellationToken ct = default)
     {
-        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: false } validationError)
+        if (await ValidateProductOwnership(userId, productId, ct) is { IsFailure: true } validationError)
             return validationError;
 
         var attributeIds = values
@@ -502,7 +502,7 @@ public sealed class ProductDomainService(
     }
     public async Task<Result> DeleteAllAttributeAsync(Guid userId, Guid productId, CancellationToken ct = default)
     {
-        if (await productRepository.ExistsAsync(e => e.Id == productId && e.VendorId == userId, ct: ct))
+        if (!await productRepository.ExistsAsync(e => e.Id == productId && e.VendorId == userId, ct: ct))
             return ProductErrors.InvalidAccess;
 
         var deletedRaws = await productAttributeRepository

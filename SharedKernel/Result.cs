@@ -32,7 +32,7 @@ public class Result<TValue>(TValue? value, bool isSuccess, Error error) : Result
 {
     public TValue? Value => IsSuccess
         ? value
-        : throw new ArgumentException("invalid success result");
+        : throw new InvalidOperationException("Cannot access Value on a failed Result.");
 
 
     public static implicit operator Result<TValue>(TValue value)

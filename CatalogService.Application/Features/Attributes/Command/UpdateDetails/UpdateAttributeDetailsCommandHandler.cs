@@ -18,7 +18,7 @@ internal sealed class UpdateAttributeDetailsCommandHandler(
                 id: command.Id,
                 name: command.Name,
                 isFilterable: command.IsFilterable,
-                isSearchable: command.IsFilterable,
+                isSearchable: command.IsSearchable,
                 ct: ct);
 
             if (result.IsFailure)

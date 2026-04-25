@@ -10,7 +10,7 @@ internal abstract class ProductVariantDomainEventHandlerBase(
 {
     protected async Task HandleAsync(Guid productId, CancellationToken ct = default)
     {
-        if (await productQueries.GetAsync(productId, ct) is not { IsFailure: true} product)
+        if (await productQueries.GetAsync(productId, ct) is not { IsSuccess: true} product)
         {
             logger.LogError(
                 "Error ocurred while retrieve product with Id: {productId}",
