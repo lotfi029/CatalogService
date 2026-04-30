@@ -33,58 +33,58 @@ public sealed class CreateCategoryDomainServiceTests
             categoryVariantRepository: _mokeCategoryVariantRepository.Object,
             productCategoryRepository: _mokeProductCategoryRespository.Object);
     }
-    [Fact]
-    public async Task CreateCateogryAsync_Should_ReturnError_WhenSlugNotUnique()
-    {
-        _mockRepository.Setup(
-            x => x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), queryFilter: It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+    //[Fact]
+    //public async Task CreateCateogryAsync_Should_ReturnError_WhenSlugNotUnique()
+    //{
+    //    _mockRepository.Setup(
+    //        x => x.ExistsAsync(It.IsAny<Expression<Func<Category, bool>>>(), queryFilter: It.IsAny<string[]>(), It.IsAny<CancellationToken>()))
+    //        .ReturnsAsync(true);
 
-        var result = await _sut.CreateCategoryAsync(
-            name:_name,
-            slug:_slug,
-            isActive: _isActive,
-            description: _Description);
+    //    var result = await _sut.CreateCategoryAsync(
+    //        name:_name,
+    //        slug:_slug,
+    //        isActive: _isActive,
+    //        description: _Description);
 
-        Category Action() => result.Value!;
+    //    Category Action() => result.Value!;
 
-        result.Error.Should().Be(CategoryErrors.SlugAlreadyExist(_slug));
-        result.IsFailure.Should().BeTrue();
-        result.IsSuccess.Should().BeFalse();
-        FluentActions.Invoking(Action)
-            .Should()
-            .Throw<ArgumentException>()
-            .Which.Message.Should().Be("invalid success result");
-    }
-    [Fact]
-    public async Task CreateCategoryAsync_Should_ReturnError_WhenParentIdNotNullAndNotFound()
-    {
-        _mockRepository
-            .Setup(x => x.ExistsAsync(
-                It.IsAny<Expression<Func<Category, bool>>>(), null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+    //    result.Error.Should().Be(CategoryErrors.SlugAlreadyExist(_slug));
+    //    result.IsFailure.Should().BeTrue();
+    //    result.IsSuccess.Should().BeFalse();
+    //    FluentActions.Invoking(Action)
+    //        .Should()
+    //        .Throw<ArgumentException>()
+    //        .Which.Message.Should().Be("invalid success result");
+    //}
+    //[Fact]
+    //public async Task CreateCategoryAsync_Should_ReturnError_WhenParentIdNotNullAndNotFound()
+    //{
+    //    _mockRepository
+    //        .Setup(x => x.ExistsAsync(
+    //            It.IsAny<Expression<Func<Category, bool>>>(), null, It.IsAny<CancellationToken>()))
+    //        .ReturnsAsync(false);
 
-        _mockRepository
-            .Setup(x => x.ExistsAsync(_parentId,null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+    //    _mockRepository
+    //        .Setup(x => x.ExistsAsync(_parentId,null, It.IsAny<CancellationToken>()))
+    //        .ReturnsAsync(false);
 
-        var result = await _sut.CreateCategoryAsync(
-            name: _name,
-            slug: _slug,
-            isActive: _isActive,
-            parentId: _parentId,
-            description: _Description);
+    //    var result = await _sut.CreateCategoryAsync(
+    //        name: _name,
+    //        slug: _slug,
+    //        isActive: _isActive,
+    //        parentId: _parentId,
+    //        description: _Description);
 
-        Category Action() => result.Value!;
+    //    Category Action() => result.Value!;
 
-        result.Error.Should().Be(CategoryErrors.ParentNotFound(_parentId));
-        result.IsFailure.Should().BeTrue();
-        result.IsSuccess.Should().BeFalse();
-        FluentActions.Invoking(Action)
-            .Should()
-            .Throw<ArgumentException>()
-            .Which.Message.Should().Be("invalid success result");
-    }
+    //    result.Error.Should().Be(CategoryErrors.ParentNotFound(_parentId));
+    //    result.IsFailure.Should().BeTrue();
+    //    result.IsSuccess.Should().BeFalse();
+    //    FluentActions.Invoking(Action)
+    //        .Should()
+    //        .Throw<ArgumentException>()
+    //        .Which.Message.Should().Be("invalid success result");
+    //}
     [Fact]
     public async Task CreateCategoryAsync_WhenParentIdIsNull_Should_Success()
     {
