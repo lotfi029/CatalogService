@@ -167,7 +167,7 @@ PATCH  /api/v1/products/{id}/active  # Activate product
 PATCH  /api/v1/products/{id}/archive # Archive product
 ```
 
-### Attributes
+### Attributes 
 
 ```http
 POST   /api/v1/attributes                    # Create attribute
