@@ -7,7 +7,7 @@ internal sealed class ProductAttributeQueries(
 {
     public async Task<Result<ProductAttributeResponse>> GetAsync(Guid productId, Guid attributeId, CancellationToken ct = default)
     {
-        var connection = connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var sql = """
             SELECT 
@@ -37,7 +37,7 @@ internal sealed class ProductAttributeQueries(
     }
     public async Task<IEnumerable<ProductAttributeResponse>> GetAllByProductIdAsync(Guid productId, CancellationToken ct = default)
     {
-        var connection = connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var sql = """
             SELECT 

@@ -10,10 +10,10 @@ public record CategoryResponse(
 {
     public CategoryResponse()
         : this(
-              Guid.Empty,
-              string.Empty,
-              string.Empty,
-              null,
-              0,
-              string.Empty) { }
+        Guid.Empty,
+        string.Empty,
+        string.Empty,
+        null,
+        0,
+        string.Empty) { }
 }

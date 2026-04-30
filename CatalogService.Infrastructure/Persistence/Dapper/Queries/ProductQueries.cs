@@ -12,7 +12,7 @@ internal sealed class ProductQueries(
 {
     public async Task<Result<ProductDetailedResponse>> GetAsync(Guid id, CancellationToken ct = default)
     {
-        var connection = connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var sql = """
             -- Product

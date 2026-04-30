@@ -14,7 +14,6 @@ public class Product : AuditableEntity
     private readonly List<ProductAttributes> _attributes = [];
     private readonly List<ProductCategories> _categories = [];
 
-
     public IReadOnlyCollection<ProductVariant> ProductVariants => _variants.AsReadOnly();
     public IReadOnlyCollection<ProductAttributes> Attributes => _attributes.AsReadOnly();
     public IReadOnlyCollection<ProductCategories> Categories => _categories.AsReadOnly();
@@ -71,6 +70,7 @@ public class Product : AuditableEntity
         AddDomainEvent(new ProductDetailsUpdatedDomainEvent(Id));
         return Result.Success();
     }
+    
     #region product status
     public Result Activate()
     {

@@ -95,6 +95,6 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     async Task IAsyncLifetime.DisposeAsync()
     {
         _resetLock.Dispose();
-        await _dbContainer.StartAsync();
+        await _dbContainer.StopAsync();
     }
 }

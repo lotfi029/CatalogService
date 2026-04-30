@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Npgsql;
 using System.Data;
 
 namespace CatalogService.Infrastructure.Persistence.Dapper;
@@ -7,7 +8,8 @@ internal sealed class DbConnectionFactory(IOptions<DapperOptions> options) : IDb
 {
     public IDbConnection CreateConnection()
     {
-        var context = new DapperDbContext(options);
-        return context.NpgConnection;
+        var connection = new NpgsqlConnection(options.Value.ConnectionString);
+        connection.Open();
+        return connection;
     }
 }

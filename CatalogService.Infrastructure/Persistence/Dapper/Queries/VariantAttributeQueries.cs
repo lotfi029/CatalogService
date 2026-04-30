@@ -8,7 +8,7 @@ public sealed class VariantAttributeQueries(
 {
     public async Task<Result<VariantAttributeResponse>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var connection = connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         const string sql = """
             SELECT

@@ -472,7 +472,7 @@ public sealed class ProductDomainService(
     }
     public async Task<Result> UpdateAttributeValueAsync(Guid userId, Guid productId, Guid attributeId, string newValue, CancellationToken ct = default)
     {
-        if (await productRepository.ExistsAsync(e => e.Id == productId && e.VendorId == userId, ct: ct))
+        if (!await productRepository.ExistsAsync(e => e.Id == productId && e.VendorId == userId, ct: ct))
             return ProductErrors.InvalidAccess;
         var productAttribute = await productAttributeRepository.GetById(productId: productId, attributeId: attributeId, ct);
         if (productAttribute is null)
@@ -488,7 +488,7 @@ public sealed class ProductDomainService(
     }
     public async Task<Result> DeleteAttributeAsync(Guid userId, Guid productId, Guid attributeId, CancellationToken ct = default)
     {
-        if (await productRepository.ExistsAsync(e => e.Id == productId && e.VendorId == userId, ct: ct))
+        if (!await productRepository.ExistsAsync(e => e.Id == productId && e.VendorId == userId, ct: ct))
             return ProductErrors.InvalidAccess;
 
         var deletedRaws = await productAttributeRepository

@@ -32,7 +32,7 @@ internal sealed class ProductVariantValueConfiguration : IEntityTypeConfiguratio
 
         builder.HasOne(e => e.VariantAttributeDefinition)
             .WithMany()
-            .HasForeignKey(pvv => pvv.ProductVariantId)
+            .HasForeignKey(pvv => pvv.VariantAttributeId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(pvv => pvv.VariantAttributeId)
