@@ -50,8 +50,6 @@ public class Product : AuditableEntity
             vendorId,
             ProductStatus.Draft
             );
-        { }
-        ;
     }
     public static Product CreateProxy(Guid Id)
     {

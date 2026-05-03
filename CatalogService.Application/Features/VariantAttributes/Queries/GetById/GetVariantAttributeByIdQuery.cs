@@ -4,7 +4,7 @@ namespace CatalogService.Application.Features.VariantAttributes.Queries.GetById;
 
 public sealed record GetVariantAttributeByIdQuery(Guid Id) : IQuery<VariantAttributeResponse>;
 
-public sealed class GetVariantAttributeByIdQueryHandler(
+internal sealed class GetVariantAttributeByIdQueryHandler(
     ILogger<GetVariantAttributeByIdQueryHandler> logger,
     IVariantAttributeQueries variantQueries) : IQueryHandler<GetVariantAttributeByIdQuery, VariantAttributeResponse>
 {
