@@ -8,11 +8,11 @@ This project follows Clean Architecture with clear separation of concerns:
 
 ```
 CatalogService/
-├── CatalogService.API/           # Presentation Layer (Minimal APIs, Endpoints)
-├── CatalogService.Application/   # Application Layer (CQRS, DTOs, Validators)
-├── CatalogService.Domain/        # Domain Layer (Entities, Value Objects, Domain Services)
-├── CatalogService.Infrastructure/# Infrastructure Layer (EF Core, Repositories)
-└── SharedKernel/                 # Shared abstractions (Result, Error, Entity)
+├── CatalogService.API/                  # Presentation Layer (Minimal APIs, Endpoints)
+├── CatalogService.Application/          # Application Layer (CQRS, DTOs, Validators)
+├── CatalogService.Domain/               # Domain Layer (Entities, Value Objects, Domain Services)
+├── CatalogService.Infrastructure/       # Infrastructure Layer (EF Core, Repositories)
+└── SharedKernel/                        # Shared abstractions (Result, Error, Entity)
 ```
 
 ### Design Patterns & Principles
